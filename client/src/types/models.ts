@@ -1,0 +1,23 @@
+// Re-export shared types for convenience
+export type {
+  IUser,
+  IUserPublic,
+  IKycDocument,
+  IOwnerProfile,
+  IParkingSpot,
+  IParkingSpotDetail,
+  IParkingSpotCard,
+  IParkingImage,
+  IAvailabilitySlot,
+  IBooking,
+  IBookingWithSpot,
+  IPayment,
+  IReview,
+  IReviewWithUser,
+  IApiSuccessResponse,
+  IApiErrorResponse,
+  IApiResponse,
+  IPaginationMeta,
+  IPaginationQuery,
+  ISearchQuery,
+} from '@parkease/shared';

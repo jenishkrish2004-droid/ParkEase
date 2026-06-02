@@ -1,0 +1,415 @@
+// ============================================================
+// ParkEase — Prisma Schema
+// ============================================================
+// This is the single source of truth for the database schema.
+// Run `npx prisma db push` to sync with the database.
+// Run `npx prisma migrate dev` to create migrations.
+// Run `npx prisma generate` to regenerate the client.
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum UserRole {
+  USER
+  OWNER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DEACTIVATED
+}
+
+enum VerificationStatus {
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  CAPTURED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum ComplaintStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum VehicleTypeEnum {
+  CAR
+  BIKE
+  EV
+}
+
+enum AmenityEnum {
+  CCTV
+  WATCHMAN
+  GATED
+  COVERED_PARKING
+  SHED_COVER
+  EV_CHARGING
+  LIGHTING
+  FULL_DAY_ACCESS
+}
+
+enum SpotStatus {
+  DRAFT
+  PENDING_REVIEW
+  ACTIVE
+  INACTIVE
+  REJECTED
+}
+
+enum PricingUnit {
+  HOURLY
+  DAILY
+  MONTHLY
+}
+
+// ============================================================
+// MODELS
+// ============================================================
+
+model User {
+  id              String     @id @default(cuid())
+  email           String     @unique
+  phone           String?    @unique
+  passwordHash    String
+  firstName       String
+  lastName        String
+  avatar          String?
+  role            UserRole   @default(USER)
+  status          UserStatus @default(ACTIVE)
+  isEmailVerified Boolean    @default(false)
+  isPhoneVerified Boolean    @default(false)
+  lastLoginAt     DateTime?
+  refreshToken    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  kycDocument   KycDocument?
+  ownerProfile  OwnerProfile?
+  bookings      Booking[]
+  reviews       Review[]
+  complaints    Complaint[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model KycDocument {
+  id               String             @id @default(cuid())
+  userId           String             @unique
+  documentType     String // e.g., "AADHAAR", "PAN", "DRIVING_LICENSE"
+  documentNumber   String
+  documentFrontUrl String // Cloudinary URL
+  documentBackUrl  String? // Cloudinary URL
+  selfieUrl        String? // Cloudinary URL
+  status           VerificationStatus @default(PENDING)
+  rejectionReason  String?
+  verifiedAt       DateTime?
+  verifiedBy       String? // Admin user ID
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("kyc_documents")
+}
+
+model OwnerProfile {
+  id                String             @id @default(cuid())
+  userId            String             @unique
+  businessName      String?
+  businessAddress   String?
+  gstNumber         String?
+  panNumber         String?
+  bankAccountNumber String?
+  bankIfscCode      String?
+  bankName          String?
+  status            VerificationStatus @default(PENDING)
+  rejectionReason   String?
+  verifiedAt        DateTime?
+  verifiedBy        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parkingSpots ParkingSpot[]
+
+  @@map("owner_profiles")
+}
+
+model ParkingSpot {
+  id          String @id @default(cuid())
+  ownerId     String
+  title       String
+  description String
+  address     String
+  city        String
+  state       String
+  pincode     String
+  latitude    Float
+  longitude   Float
+
+  // Pricing
+  pricePerHour  Float?
+  pricePerDay   Float?
+  pricePerMonth Float?
+
+  // Capacity
+  totalSlots     Int
+  availableSlots Int
+
+  // Status
+  status          SpotStatus @default(DRAFT)
+  rejectionReason String?
+  verifiedAt      DateTime?
+  verifiedBy      String?
+
+  // Calculated fields
+  averageRating Float @default(0)
+  totalReviews  Int   @default(0)
+  totalBookings Int   @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  owner             OwnerProfile           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  images            ParkingImage[]
+  bookings          Booking[]
+  reviews           Review[]
+  amenities         ParkingSpotAmenity[]
+  vehicleTypes      ParkingSpotVehicleType[]
+  availabilitySlots AvailabilitySlot[]
+
+  // Indexes for search performance
+  @@index([city])
+  @@index([status])
+  @@index([latitude, longitude])
+  @@index([pricePerHour])
+  @@map("parking_spots")
+}
+
+model ParkingImage {
+  id            String  @id @default(cuid())
+  parkingSpotId String
+  url           String // Cloudinary URL
+  publicId      String // Cloudinary public ID (for deletion)
+  isPrimary     Boolean @default(false)
+  sortOrder     Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  parkingSpot ParkingSpot @relation(fields: [parkingSpotId], references: [id], onDelete: Cascade)
+
+  @@map("parking_images")
+}
+
+model ParkingSpotAmenity {
+  id            String      @id @default(cuid())
+  parkingSpotId String
+  amenity       AmenityEnum
+
+  parkingSpot ParkingSpot @relation(fields: [parkingSpotId], references: [id], onDelete: Cascade)
+
+  @@unique([parkingSpotId, amenity])
+  @@map("parking_spot_amenities")
+}
+
+model ParkingSpotVehicleType {
+  id            String          @id @default(cuid())
+  parkingSpotId String
+  vehicleType   VehicleTypeEnum
+
+  parkingSpot ParkingSpot @relation(fields: [parkingSpotId], references: [id], onDelete: Cascade)
+
+  @@unique([parkingSpotId, vehicleType])
+  @@map("parking_spot_vehicle_types")
+}
+
+model AvailabilitySlot {
+  id            String  @id @default(cuid())
+  parkingSpotId String
+  dayOfWeek     Int // 0 = Sunday, 6 = Saturday
+  openTime      String // "08:00" (24h format)
+  closeTime     String // "22:00"
+  isActive      Boolean @default(true)
+
+  parkingSpot ParkingSpot @relation(fields: [parkingSpotId], references: [id], onDelete: Cascade)
+
+  @@unique([parkingSpotId, dayOfWeek])
+  @@map("availability_slots")
+}
+
+model Booking {
+  id                 String        @id @default(cuid())
+  userId             String
+  parkingSpotId      String
+  vehicleType        VehicleTypeEnum
+  vehicleNumber      String
+  startTime          DateTime
+  endTime            DateTime
+  duration           Int // in minutes
+  amount             Float
+  platformFee        Float         @default(0)
+  totalAmount        Float
+  status             BookingStatus @default(PENDING)
+  cancellationReason String?
+  cancelledAt        DateTime?
+  cancelledBy        String? // userId of who cancelled
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user        User        @relation(fields: [userId], references: [id])
+  parkingSpot ParkingSpot @relation(fields: [parkingSpotId], references: [id])
+  payment     Payment?
+  review      Review?
+
+  @@index([userId])
+  @@index([parkingSpotId])
+  @@index([status])
+  @@index([startTime, endTime])
+  @@map("bookings")
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  bookingId         String        @unique
+  razorpayOrderId   String?       @unique
+  razorpayPaymentId String?       @unique
+  razorpaySignature String?
+  amount            Float
+  currency          String        @default("INR")
+  status            PaymentStatus @default(PENDING)
+  method            String? // "card", "upi", "netbanking"
+  refundAmount      Float?
+  refundReason      String?
+  refundedAt        DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@map("payments")
+}
+
+model Review {
+  id            String   @id @default(cuid())
+  userId        String
+  parkingSpotId String
+  bookingId     String   @unique
+  rating        Int // 1-5
+  comment       String?
+  ownerReply    String?
+  ownerReplyAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user        User        @relation(fields: [userId], references: [id])
+  parkingSpot ParkingSpot @relation(fields: [parkingSpotId], references: [id])
+  booking     Booking     @relation(fields: [bookingId], references: [id])
+
+  @@index([parkingSpotId])
+  @@map("reviews")
+}
+
+model Complaint {
+  id         String          @id @default(cuid())
+  userId     String
+  bookingId  String?
+  subject    String
+  category   String // "BOOKING", "PAYMENT", "PARKING", "OTHER"
+  status     ComplaintStatus @default(OPEN)
+  priority   String          @default("MEDIUM") // "LOW", "MEDIUM", "HIGH"
+  resolvedAt DateTime?
+  resolvedBy String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user     User               @relation(fields: [userId], references: [id])
+  messages ComplaintMessage[]
+
+  @@index([status])
+  @@map("complaints")
+}
+
+model ComplaintMessage {
+  id            String  @id @default(cuid())
+  complaintId   String
+  senderId      String? // null = system/bot message
+  message       String
+  isBot         Boolean @default(false)
+  attachmentUrl String?
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  complaint Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+
+  @@map("complaint_messages")
+}
+
+model Notification {
+  id        String  @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String // "BOOKING", "PAYMENT", "SYSTEM", "REVIEW"
+  isRead    Boolean @default(false)
+  actionUrl String?
+  metadata  Json?
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@map("notifications")
+}
