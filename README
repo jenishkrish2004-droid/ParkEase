@@ -1,0 +1,27 @@
+# ParkEase
+
+Production-grade parking marketplace platform.
+
+## Tech Stack
+
+- React
+- TypeScript
+- Express
+- PostgreSQL
+- Prisma
+- Docker
+
+## Features
+
+- Parking Discovery
+- Advanced Filters
+- Booking System
+- KYC Verification
+- Owner Dashboard
+- Revenue Analytics
+- Payments
+- Complaint Management
+
+## Status
+
+🚧 Under Active Development
