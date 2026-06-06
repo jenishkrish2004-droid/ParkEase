@@ -12,6 +12,8 @@ export interface IUser {
   lastName: string;
   avatar: string | null;
   role: UserRole;
+  isOwner: boolean;
+  ownerVerified: boolean;
   status: UserStatus;
   isEmailVerified: boolean;
   isPhoneVerified: boolean;

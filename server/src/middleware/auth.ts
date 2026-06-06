@@ -35,6 +35,8 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
       id:    payload.sub,
       email: payload.email,
       role:  payload.role,
+      isOwner: payload.isOwner,
+      ownerVerified: payload.ownerVerified,
     };
 
     next();
@@ -61,6 +63,8 @@ export function optionalAuthenticate(req: Request, _res: Response, next: NextFun
       id:    payload.sub,
       email: payload.email,
       role:  payload.role,
+      isOwner: payload.isOwner,
+      ownerVerified: payload.ownerVerified,
     };
   } catch {
     // Silently ignore invalid tokens for optional auth

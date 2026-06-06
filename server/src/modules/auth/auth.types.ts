@@ -9,6 +9,8 @@ export interface JwtAccessPayload {
   sub: string;      // userId
   email: string;
   role: UserRole;
+  isOwner: boolean;
+  ownerVerified: boolean;
   iat?: number;
   exp?: number;
 }
@@ -34,4 +36,6 @@ export interface AuthenticatedUser {
   id: string;
   email: string;
   role: UserRole;
+  isOwner: boolean;
+  ownerVerified: boolean;
 }

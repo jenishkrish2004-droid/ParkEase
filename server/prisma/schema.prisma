@@ -22,7 +22,6 @@ datasource db {
 
 enum UserRole {
   USER
-  OWNER
   ADMIN
 }
 
@@ -108,6 +107,8 @@ model User {
   lastName        String
   avatar          String?
   role            UserRole   @default(USER)
+  isOwner         Boolean    @default(false)
+  ownerVerified   Boolean    @default(false)
   status          UserStatus @default(ACTIVE)
   isEmailVerified Boolean    @default(false)
   isPhoneVerified Boolean    @default(false)

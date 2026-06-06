@@ -9,7 +9,7 @@ const footerLinks = {
     { label: 'Find Parking',       href: '/search'  },
     { label: 'List Your Space',    href: '/owner'   },
     { label: 'Pricing',            href: '/pricing' },
-    { label: 'Mobile App',         href: '#'        },
+    { label: 'Mobile App',         href: '/mobile-app' },
   ],
   Company: [
     { label: 'About Us',   href: '/about'   },
@@ -21,7 +21,7 @@ const footerLinks = {
     { label: 'Help Center',    href: '/help'    },
     { label: 'Contact Us',     href: '/contact' },
     { label: 'Safety',         href: '/safety'  },
-    { label: 'Accessibility',  href: '#'        },
+    { label: 'Accessibility',  href: '/accessibility' },
   ],
   Legal: [
     { label: 'Privacy Policy',   href: '/privacy'    },
@@ -115,12 +115,12 @@ export function Footer({ className }: FooterProps) {
 
             {/* App Badges */}
             <div className="flex items-center gap-3 mt-5">
-              <div className="px-3 py-2 bg-secondary-800 rounded-lg border border-secondary-700 text-xs text-secondary-400 hover:bg-secondary-700 cursor-pointer transition-colors">
+              <Link to="/mobile-app" className="px-3 py-2 bg-secondary-800 rounded-lg border border-secondary-700 text-xs text-secondary-400 hover:bg-secondary-700 cursor-pointer transition-colors no-underline">
                 📱 App Store
-              </div>
-              <div className="px-3 py-2 bg-secondary-800 rounded-lg border border-secondary-700 text-xs text-secondary-400 hover:bg-secondary-700 cursor-pointer transition-colors">
+              </Link>
+              <Link to="/mobile-app" className="px-3 py-2 bg-secondary-800 rounded-lg border border-secondary-700 text-xs text-secondary-400 hover:bg-secondary-700 cursor-pointer transition-colors no-underline">
                 🤖 Google Play
-              </div>
+              </Link>
             </div>
           </div>
 

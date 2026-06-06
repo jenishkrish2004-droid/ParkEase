@@ -46,8 +46,8 @@ function generateOpaqueToken(): string {
 
 // ── Token Generation ─────────────────────────────────────────
 
-function signAccessToken(userId: string, email: string, role: UserRole): string {
-  const payload: JwtAccessPayload = { sub: userId, email, role };
+function signAccessToken(userId: string, email: string, role: UserRole, isOwner: boolean, ownerVerified: boolean): string {
+  const payload: JwtAccessPayload = { sub: userId, email, role, isOwner, ownerVerified };
   return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
     expiresIn: env.JWT_ACCESS_EXPIRY,
     issuer: 'parkease',
@@ -83,11 +83,13 @@ async function buildTokenPair(
   userId: string,
   email: string,
   role: UserRole,
+  isOwner: boolean,
+  ownerVerified: boolean,
   family: string,
   userAgent?: string,
   ipAddress?: string,
 ): Promise<TokenPair> {
-  const accessToken  = signAccessToken(userId, email, role);
+  const accessToken  = signAccessToken(userId, email, role, isOwner, ownerVerified);
   const refreshToken = await createRefreshToken(userId, family, userAgent, ipAddress);
   const expiresIn    = parseExpiryToSeconds(env.JWT_ACCESS_EXPIRY);
 
@@ -125,7 +127,6 @@ export async function register(
       passwordHash,
       firstName: input.firstName,
       lastName: input.lastName,
-      role: input.role as UserRole,
     },
     select: {
       id: true,
@@ -133,6 +134,8 @@ export async function register(
       firstName: true,
       lastName: true,
       role: true,
+      isOwner: true,
+      ownerVerified: true,
       status: true,
       isEmailVerified: true,
       isPhoneVerified: true,
@@ -145,7 +148,7 @@ export async function register(
 
   // 4. Create token pair (new family for new login session)
   const family = crypto.randomUUID();
-  const tokens = await buildTokenPair(user.id, user.email, user.role as UserRole, family, userAgent, ipAddress);
+  const tokens = await buildTokenPair(user.id, user.email, user.role as UserRole, user.isOwner, user.ownerVerified, family, userAgent, ipAddress);
 
   return { user, tokens };
 }
@@ -169,6 +172,8 @@ export async function login(
       lastName: true,
       passwordHash: true,
       role: true,
+      isOwner: true,
+      ownerVerified: true,
       status: true,
       isEmailVerified: true,
       isPhoneVerified: true,
@@ -205,7 +210,7 @@ export async function login(
 
   // 5. Issue token pair
   const family = crypto.randomUUID();
-  const tokens = await buildTokenPair(user.id, user.email, user.role as UserRole, family, userAgent, ipAddress);
+  const tokens = await buildTokenPair(user.id, user.email, user.role as UserRole, user.isOwner, user.ownerVerified, family, userAgent, ipAddress);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { passwordHash: _, ...safeUser } = user;
@@ -232,6 +237,8 @@ export async function refreshTokens(
           id: true,
           email: true,
           role: true,
+          isOwner: true,
+          ownerVerified: true,
           status: true,
         },
       },
@@ -277,6 +284,8 @@ export async function refreshTokens(
     stored.user.id,
     stored.user.email,
     stored.user.role as UserRole,
+    stored.user.isOwner,
+    stored.user.ownerVerified,
     stored.family,  // Keep same family
     userAgent,
     ipAddress,
@@ -317,6 +326,8 @@ export async function getMe(userId: string) {
       phone: true,
       avatar: true,
       role: true,
+      isOwner: true,
+      ownerVerified: true,
       status: true,
       isEmailVerified: true,
       isPhoneVerified: true,

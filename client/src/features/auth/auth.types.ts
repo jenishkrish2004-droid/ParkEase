@@ -23,7 +23,6 @@ export interface RegisterPayload {
   email:           string;
   password:        string;
   confirmPassword: string;
-  role?:           'USER' | 'OWNER';
 }
 
 export interface LoginPayload {

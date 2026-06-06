@@ -2,6 +2,7 @@
 // PageLayout — Standard page with Header + Footer
 // ============================================================
 import { type ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Header } from './Header';
 import { Footer } from './Footer';
@@ -111,9 +112,9 @@ export function DashboardLayout({
                       </svg>
                     )}
                     {crumb.href ? (
-                      <a href={crumb.href} className="text-sm text-secondary-500 hover:text-secondary-700 no-underline truncate">
+                      <Link to={crumb.href} className="text-sm text-secondary-500 hover:text-secondary-700 no-underline truncate">
                         {crumb.label}
-                      </a>
+                      </Link>
                     ) : (
                       <span className="text-sm font-medium text-secondary-900 truncate">
                         {crumb.label}

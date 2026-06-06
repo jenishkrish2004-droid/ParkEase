@@ -14,6 +14,8 @@ declare global {
         id: string;
         email: string;
         role: UserRole;
+        isOwner: boolean;
+        ownerVerified: boolean;
       };
     }
   }

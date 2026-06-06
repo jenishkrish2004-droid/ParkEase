@@ -4,7 +4,6 @@
 
 export const UserRole = {
   USER: 'USER',
-  OWNER: 'OWNER',
   ADMIN: 'ADMIN',
 } as const;
 

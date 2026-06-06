@@ -9,3 +9,5 @@ export { MobileNav, ParkEaseMobileNav } from './MobileNav';
 export type { MobileNavItem, MobileNavProps } from './MobileNav';
 export { PageLayout, DashboardLayout } from './PageLayout';
 export type { PageLayoutProps, DashboardLayoutProps } from './PageLayout';
+export { ProtectedRoute, PublicOnlyRoute } from './ProtectedRoute';
+

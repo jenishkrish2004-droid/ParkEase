@@ -1,19 +1,21 @@
 // ============================================================
 // Header Layout Component
 // ============================================================
-import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+// Auth-aware: shows user avatar/mode-switcher when logged in,
+// Sign In / Create Account buttons when logged out.
+// ============================================================
+import { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/app/providers/AuthProvider';
+import { Avatar } from '@/components/ui/Avatar';
+import { useLogout } from '@/features/auth/hooks/useAuthMutations';
+import { useParkEaseMode } from '@/app/providers/useParkEaseMode';
 
-interface NavItem {
-  label: string;
-  href: string;
-}
-
-const NAV_ITEMS: NavItem[] = [
-  { label: 'Find Parking',    href: '/search' },
-  { label: 'List Your Space', href: '/owner'  },
-  { label: 'How It Works',    href: '/#how-it-works' },
+// ── Nav items (unauthenticated view only) ────────────────────
+const NAV_ITEMS = [
+  { label: 'Find Parking', href: '/search'        },
+  { label: 'How It Works', href: '/#how-it-works' },
 ];
 
 export interface HeaderProps {
@@ -22,9 +24,10 @@ export interface HeaderProps {
 }
 
 export function Header({ transparent = false, className }: HeaderProps) {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const location = useLocation();
+  const [scrolled,  setScrolled]  = useState(false);
+  const [menuOpen,  setMenuOpen]  = useState(false);
+  const location  = useLocation();
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 10);
@@ -32,7 +35,7 @@ export function Header({ transparent = false, className }: HeaderProps) {
     return () => window.removeEventListener('scroll', handler);
   }, []);
 
-  // Close menu on route change
+  // Close mobile menu on route change
   useEffect(() => { setMenuOpen(false); }, [location]);
 
   const isHome = location.pathname === '/';
@@ -52,6 +55,7 @@ export function Header({ transparent = false, className }: HeaderProps) {
     >
       <div className="container-app">
         <div className="flex items-center justify-between h-16">
+
           {/* ── Logo ── */}
           <Link
             to="/"
@@ -84,28 +88,19 @@ export function Header({ transparent = false, className }: HeaderProps) {
             ))}
           </nav>
 
-          {/* ── Auth Buttons ── */}
-          <div className="hidden md:flex items-center gap-2">
-            <Link
-              to="/login"
-              className={cn(
-                'px-3 py-2 text-sm font-medium rounded-lg',
-                'text-secondary-700 hover:text-secondary-900 hover:bg-secondary-100',
-                'transition-colors no-underline',
-              )}
-            >
-              Log in
-            </Link>
-            <Link
-              to="/register"
-              className={cn(
-                'px-4 py-2 text-sm font-semibold rounded-xl',
-                'bg-primary-600 text-white hover:bg-primary-700',
-                'transition-colors shadow-sm hover:shadow-md no-underline',
-              )}
-            >
-              Sign up free
-            </Link>
+          {/* ── Right Side: Auth-Aware ── */}
+          <div className="hidden md:flex items-center gap-3">
+            {isLoading ? (
+              /* Skeleton to prevent layout shift */
+              <div className="flex items-center gap-3">
+                <div className="w-20 h-8 bg-secondary-100 rounded-lg animate-pulse" />
+                <div className="w-8 h-8 bg-secondary-100 rounded-full animate-pulse" />
+              </div>
+            ) : isAuthenticated && user ? (
+              <AuthenticatedNav user={user} />
+            ) : (
+              <UnauthenticatedNav />
+            )}
           </div>
 
           {/* ── Mobile Toggle ── */}
@@ -151,20 +146,7 @@ export function Header({ transparent = false, className }: HeaderProps) {
                 {item.label}
               </Link>
             ))}
-            <div className="border-t border-secondary-100 mt-3 pt-3 flex flex-col gap-2">
-              <Link
-                to="/login"
-                className="px-4 py-3 rounded-xl text-sm font-medium text-center text-secondary-700 border border-secondary-300 hover:bg-secondary-50 transition-colors no-underline"
-              >
-                Log in
-              </Link>
-              <Link
-                to="/register"
-                className="px-4 py-3 rounded-xl text-sm font-semibold text-center text-white bg-primary-600 hover:bg-primary-700 transition-colors no-underline"
-              >
-                Sign up free
-              </Link>
-            </div>
+            <MobileAuthSection />
           </div>
         </div>
       )}
@@ -172,7 +154,333 @@ export function Header({ transparent = false, className }: HeaderProps) {
   );
 }
 
-// ── ParkEase Logo ────────────────────────────────────────────
+// ── Unauthenticated nav buttons ───────────────────────────────
+function UnauthenticatedNav() {
+  return (
+    <>
+      <Link
+        to="/login"
+        className={cn(
+          'px-3 py-2 text-sm font-medium rounded-lg',
+          'text-secondary-700 hover:text-secondary-900 hover:bg-secondary-100',
+          'transition-colors no-underline',
+        )}
+      >
+        Sign In
+      </Link>
+      <Link
+        to="/register"
+        className={cn(
+          'px-4 py-2 text-sm font-semibold rounded-xl',
+          'bg-primary-600 text-white hover:bg-primary-700',
+          'transition-colors shadow-sm hover:shadow-md no-underline',
+        )}
+      >
+        Create Account
+      </Link>
+    </>
+  );
+}
+
+// ── Authenticated nav: mode switcher + user menu ─────────────
+function AuthenticatedNav({ user }: { user: { firstName: string; lastName: string; email: string; avatar: string | null; isOwner: boolean; ownerVerified: boolean } }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const logoutMutation = useLogout();
+  const navigate = useNavigate();
+
+  // Close on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    if (menuOpen) document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [menuOpen]);
+
+  return (
+    <div className="flex items-center gap-3">
+      {/* Mode Switcher */}
+      <ModeSwitcher user={user} />
+
+      {/* User Menu */}
+      <div className="relative" ref={menuRef}>
+        <button
+          type="button"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-expanded={menuOpen}
+          aria-label="Open user menu"
+          className={cn(
+            'flex items-center gap-2 px-2 py-1.5 rounded-xl',
+            'hover:bg-secondary-100 transition-colors',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
+          )}
+        >
+          <Avatar
+            firstName={user.firstName}
+            lastName={user.lastName}
+            src={user.avatar ?? undefined}
+            size="sm"
+          />
+          <div className="hidden lg:block text-left">
+            <p className="text-sm font-medium text-secondary-900 leading-none">{user.firstName} {user.lastName}</p>
+            <p className="text-xs text-secondary-500 mt-0.5 truncate max-w-[120px]">{user.email}</p>
+          </div>
+          <svg className="w-3.5 h-3.5 text-secondary-400 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+        </button>
+
+        {/* Dropdown */}
+        {menuOpen && (
+          <div className={cn(
+            'absolute right-0 top-full mt-2 w-56',
+            'bg-white rounded-2xl border border-secondary-200 shadow-elevated',
+            'py-1 z-50 animate-fade-in',
+          )}>
+            {/* User info */}
+            <div className="px-4 py-3 border-b border-secondary-100">
+              <p className="text-sm font-semibold text-secondary-900">{user.firstName} {user.lastName}</p>
+              <p className="text-xs text-secondary-500 truncate mt-0.5">{user.email}</p>
+            </div>
+            {/* Menu items */}
+            <div className="py-1">
+              <HeaderDropdownLinks setMenuOpen={setMenuOpen} />
+            </div>
+            <div className="border-t border-secondary-100 py-1">
+              <button
+                type="button"
+                onClick={() => { logoutMutation.mutate(); setMenuOpen(false); }}
+                disabled={logoutMutation.isPending}
+                className="w-full text-left px-4 py-2.5 text-sm text-danger-600 hover:bg-danger-50 transition-colors flex items-center gap-2.5 disabled:opacity-50"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                {logoutMutation.isPending ? 'Signing out…' : 'Sign Out'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Mode-Specific Dropdown Links ─────────────────────────────
+function HeaderDropdownLinks({ setMenuOpen }: { setMenuOpen: (v: boolean) => void }) {
+  const [mode] = useParkEaseMode();
+  const navigate = useNavigate();
+
+  const handleNav = (path: string) => {
+    navigate(path);
+    setMenuOpen(false);
+  };
+
+  const navItemClass = "w-full text-left px-4 py-2.5 text-sm text-secondary-700 hover:bg-secondary-50 transition-colors flex items-center gap-2.5";
+
+  if (mode === 'owner') {
+    return (
+      <>
+        <button type="button" onClick={() => handleNav('/owner/dashboard')} className={navItemClass}>
+          Owner Dashboard
+        </button>
+        <button type="button" onClick={() => handleNav('/owner/onboarding')} className={navItemClass}>
+          Owner Onboarding
+        </button>
+        <button type="button" onClick={() => handleNav('/owner/listings')} className={navItemClass}>
+          My Listings
+        </button>
+        <button type="button" onClick={() => handleNav('/owner/bookings')} className={navItemClass}>
+          Owner Bookings
+        </button>
+        <button type="button" onClick={() => handleNav('/owner/earnings')} className={navItemClass}>
+          Earnings
+        </button>
+        <div className="my-1 border-t border-secondary-100" />
+        <button type="button" onClick={() => handleNav('/profile')} className={navItemClass}>
+          Profile
+        </button>
+        <button type="button" onClick={() => handleNav('/verification')} className={navItemClass}>
+          Verification
+        </button>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <button type="button" onClick={() => handleNav('/dashboard')} className={navItemClass}>
+        Dashboard
+      </button>
+      <button type="button" onClick={() => handleNav('/bookings')} className={navItemClass}>
+        My Bookings
+      </button>
+      <button type="button" onClick={() => handleNav('/payments')} className={navItemClass}>
+        Payments
+      </button>
+      <button type="button" onClick={() => handleNav('/vehicles')} className={navItemClass}>
+        My Vehicles
+      </button>
+      <button type="button" onClick={() => handleNav('/reviews')} className={navItemClass}>
+        My Reviews
+      </button>
+      <div className="my-1 border-t border-secondary-100" />
+      <button type="button" onClick={() => handleNav('/profile')} className={navItemClass}>
+        Profile
+      </button>
+      <button type="button" onClick={() => handleNav('/verification')} className={navItemClass}>
+        Verification
+      </button>
+    </>
+  );
+}
+
+// ── Mode Switcher ────────────────────────────────────────────
+
+function ModeSwitcher({ user }: { user: { isOwner: boolean; ownerVerified: boolean } }) {
+  const navigate = useNavigate();
+  const [mode, setMode] = useParkEaseMode();
+
+  function handleModeSwitch(next: ParkEaseMode) {
+    setMode(next);
+    if (next === 'owner') {
+      navigate('/owner/dashboard');
+    } else {
+      navigate('/dashboard');
+    }
+  }
+
+  const activeMode = mode;
+
+  return (
+    <div
+      className="flex items-center bg-secondary-100 rounded-xl p-0.5 gap-0.5"
+      role="group"
+      aria-label="Switch between Booking and Owner mode"
+    >
+      <button
+        type="button"
+        onClick={() => handleModeSwitch('booking')}
+        aria-pressed={activeMode === 'booking'}
+        className={cn(
+          'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150',
+          activeMode === 'booking'
+            ? 'bg-white text-primary-600 shadow-sm'
+            : 'text-secondary-500 hover:text-secondary-700',
+        )}
+      >
+        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+        </svg>
+        Booking
+      </button>
+      <button
+        type="button"
+        onClick={() => handleModeSwitch('owner')}
+        aria-pressed={activeMode === 'owner'}
+        title={!user.isOwner || !user.ownerVerified ? 'Set up your owner profile to access this mode' : undefined}
+        className={cn(
+          'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150',
+          activeMode === 'owner'
+            ? 'bg-white text-amber-600 shadow-sm'
+            : 'text-secondary-500 hover:text-secondary-700',
+        )}
+      >
+        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
+        </svg>
+        Owner
+      </button>
+    </div>
+  );
+}
+
+// ── Mobile auth section (inside hamburger menu) ───────────────
+function MobileAuthSection() {
+  const { user, isAuthenticated } = useAuth();
+  const logoutMutation = useLogout();
+
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="border-t border-secondary-100 mt-3 pt-3 flex flex-col gap-2">
+        <Link
+          to="/login"
+          className="px-4 py-3 rounded-xl text-sm font-medium text-center text-secondary-700 border border-secondary-300 hover:bg-secondary-50 transition-colors no-underline"
+        >
+          Sign In
+        </Link>
+        <Link
+          to="/register"
+          className="px-4 py-3 rounded-xl text-sm font-semibold text-center text-white bg-primary-600 hover:bg-primary-700 transition-colors no-underline"
+        >
+          Create Account
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="border-t border-secondary-100 mt-3 pt-3">
+      {/* User info */}
+      <div className="flex items-center gap-3 px-4 py-2 mb-2">
+        <Avatar firstName={user.firstName} lastName={user.lastName} src={user.avatar ?? undefined} size="sm" />
+        <div>
+          <p className="text-sm font-semibold text-secondary-900">{user.firstName} {user.lastName}</p>
+          <p className="text-xs text-secondary-500 truncate">{user.email}</p>
+        </div>
+      </div>
+      
+      {/* Mobile Links */}
+      <MobileHeaderLinks />
+
+      <button
+        type="button"
+        onClick={() => logoutMutation.mutate()}
+        disabled={logoutMutation.isPending}
+        className="w-full text-left px-4 py-2.5 rounded-xl text-sm text-danger-600 hover:bg-danger-50 transition-colors disabled:opacity-50"
+      >
+        {logoutMutation.isPending ? 'Signing out…' : 'Sign Out'}
+      </button>
+    </div>
+  );
+}
+
+function MobileHeaderLinks() {
+  const [mode] = useParkEaseMode();
+  const linkClass = "block px-4 py-2.5 rounded-xl text-sm text-secondary-700 hover:bg-secondary-50 transition-colors no-underline";
+
+  if (mode === 'owner') {
+    return (
+      <>
+        <Link to="/owner/dashboard" className={linkClass}>Owner Dashboard</Link>
+        <Link to="/owner/onboarding" className={linkClass}>Owner Onboarding</Link>
+        <Link to="/owner/listings" className={linkClass}>My Listings</Link>
+        <Link to="/owner/bookings" className={linkClass}>Owner Bookings</Link>
+        <Link to="/owner/earnings" className={linkClass}>Earnings</Link>
+        <Link to="/profile" className={linkClass}>Profile</Link>
+        <Link to="/verification" className={linkClass}>Verification</Link>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Link to="/dashboard" className={linkClass}>Dashboard</Link>
+      <Link to="/bookings" className={linkClass}>My Bookings</Link>
+      <Link to="/payments" className={linkClass}>Payments</Link>
+      <Link to="/vehicles" className={linkClass}>My Vehicles</Link>
+      <Link to="/reviews" className={linkClass}>My Reviews</Link>
+      <Link to="/profile" className={linkClass}>Profile</Link>
+      <Link to="/verification" className={linkClass}>Verification</Link>
+    </>
+  );
+}
+
+// ── ParkEase Logo ─────────────────────────────────────────────
 function ParkEaseLogo() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">

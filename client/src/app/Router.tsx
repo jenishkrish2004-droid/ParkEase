@@ -1,91 +1,253 @@
 // ============================================================
 // React Router Configuration
 // ============================================================
-// All application routes are defined here.
-// Routes are added progressively as phases are completed.
+// Routes are organized into public, public-only, and protected
+// sections. New routes are added as phases are completed.
 // ============================================================
 
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider, Outlet, Link } from 'react-router-dom';
-import LandingPage from '@/features/landing/LandingPage';
+import { FullPageSpinner } from '@/components/ui/Spinner';
+import { ProtectedRoute, PublicOnlyRoute } from '@/components/layout/ProtectedRoute';
+import { PageLayout } from '@/components/layout/PageLayout';
 import { cn } from '@/lib/utils';
+
+const LandingPage        = lazy(() => import('@/features/landing/LandingPage'));
+const LoginPage          = lazy(() => import('@/features/auth/LoginPage'));
+const RegisterPage       = lazy(() => import('@/features/auth/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('@/features/auth/ForgotPasswordPage'));
+const DashboardPage      = lazy(() => import('@/features/dashboard/DashboardPage'));
+
+// Phase 4 Lazy Imports
+const ProfilePage        = lazy(() => import('@/features/user/ProfilePage'));
+const MyBookingsPage     = lazy(() => import('@/features/booking/MyBookingsPage'));
+const PaymentsPage       = lazy(() => import('@/features/payment/PaymentsPage'));
+const MyVehiclesPage     = lazy(() => import('@/features/vehicle/MyVehiclesPage'));
+const MyReviewsPage      = lazy(() => import('@/features/review/MyReviewsPage'));
+
+const OwnerOnboarding    = lazy(() => import('@/features/owner/OwnerOnboarding'));
+const OwnerDashboard     = lazy(() => import('@/features/owner/OwnerDashboard'));
+const OwnerListings      = lazy(() => import('@/features/owner/OwnerListings'));
+const OwnerBookings      = lazy(() => import('@/features/owner/OwnerBookings'));
+const OwnerEarnings      = lazy(() => import('@/features/owner/OwnerEarnings'));
+import { OwnerLayout }     from '@/components/layout/OwnerLayout';
+
+// Phase 4: Under Development Page
+const UnderDevelopmentPage = lazy(() => import('@/features/misc/UnderDevelopmentPage'));
+
+// ── Fallback Spinner ─────────────────────────────────────────
+function PageLoader() {
+  return <FullPageSpinner />;
+}
 
 // ── 404 Not Found ────────────────────────────────────────────
 function NotFoundPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4 text-center">
-      <div className="animate-fade-in">
-        <p className="text-8xl font-bold text-secondary-100 font-display select-none" aria-hidden="true">404</p>
-        <div className="mt-2 w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto">
-          <svg className="w-8 h-8 text-primary-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-          </svg>
-        </div>
-        <h1 className="mt-5 text-2xl font-bold text-secondary-900">Parking spot not found</h1>
-        <p className="mt-2 text-secondary-500 max-w-sm">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Link
-            to="/"
-            className={cn(
-              'px-5 py-2.5 rounded-xl text-sm font-semibold',
-              'bg-primary-600 text-white hover:bg-primary-700',
-              'transition-colors shadow-sm no-underline',
-            )}
-          >
-            Back to Home
-          </Link>
-          <Link
-            to="/search"
-            className={cn(
-              'px-5 py-2.5 rounded-xl text-sm font-medium',
-              'border border-secondary-300 text-secondary-700 hover:bg-secondary-50',
-              'transition-colors no-underline',
-            )}
-          >
-            Find Parking
-          </Link>
-        </div>
+      <p className="text-8xl font-bold text-secondary-100 font-display select-none" aria-hidden="true">404</p>
+      <div className="mt-2 w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto">
+        <svg className="w-8 h-8 text-primary-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+        </svg>
+      </div>
+      <h1 className="mt-5 text-2xl font-bold text-secondary-900">Page not found</h1>
+      <p className="mt-2 text-secondary-500 max-w-sm">
+        The page you're looking for doesn't exist or has been moved.
+      </p>
+      <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <Link to="/" className={cn('px-5 py-2.5 rounded-xl text-sm font-semibold bg-primary-600 text-white hover:bg-primary-700 transition-colors no-underline')}>
+          Back to Home
+        </Link>
+        <Link to="/search" className={cn('px-5 py-2.5 rounded-xl text-sm font-medium border border-secondary-300 text-secondary-700 hover:bg-secondary-50 transition-colors no-underline')}>
+          Find Parking
+        </Link>
       </div>
     </div>
   );
 }
 
-// Layout wrapper for future nested routing
-function RootLayout() {
-  return <Outlet />;
+// ── Unauthorized Page ─────────────────────────────────────────
+function UnauthorizedPage() {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4 text-center">
+      <div className="w-16 h-16 bg-danger-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <svg className="w-8 h-8 text-danger-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>
+      </div>
+      <h1 className="text-2xl font-bold text-secondary-900">Access Denied</h1>
+      <p className="mt-2 text-secondary-500 max-w-sm">
+        You don't have permission to view this page.
+      </p>
+      <Link to="/dashboard" className={cn('mt-6 px-5 py-2.5 rounded-xl text-sm font-semibold bg-primary-600 text-white hover:bg-primary-700 transition-colors no-underline')}>
+        Go to Dashboard
+      </Link>
+    </div>
+  );
 }
 
+// ── Layout Wrapper ────────────────────────────────────────────
+function RootLayout() {
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <Outlet />
+    </Suspense>
+  );
+}
+
+// ── Router ────────────────────────────────────────────────────
 const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout />,
     children: [
+      // ── Public Routes ──────────────────────────────────────
       {
         index: true,
         element: <LandingPage />,
       },
-      // Phase 2: Auth pages
-      // { path: 'login',    element: <LoginPage />    },
-      // { path: 'register', element: <RegisterPage /> },
 
-      // Phase 4: Profile
-      // { path: 'profile',  element: <ProfilePage />  },
+      // ── Public-Only Routes (redirect if logged in) ─────────
+      {
+        path: 'login',
+        element: (
+          <PublicOnlyRoute>
+            <LoginPage />
+          </PublicOnlyRoute>
+        ),
+      },
+      {
+        path: 'register',
+        element: (
+          <PublicOnlyRoute>
+            <RegisterPage />
+          </PublicOnlyRoute>
+        ),
+      },
+      {
+        path: 'forgot-password',
+        element: (
+          <PublicOnlyRoute>
+            <ForgotPasswordPage />
+          </PublicOnlyRoute>
+        ),
+      },
 
-      // Phase 10: Parking Discovery
-      // { path: 'search',          element: <SearchPage />        },
-      // { path: 'parking/:id',     element: <ParkingDetailPage /> },
+      // ── Protected Routes ───────────────────────────────────
+      {
+        path: 'dashboard',
+        element: (
+          <ProtectedRoute>
+            <PageLayout showFooter={false}>
+              <DashboardPage />
+            </PageLayout>
+          </ProtectedRoute>
+        ),
+      },
 
-      // Phase 13: Bookings
-      // { path: 'bookings',     element: <BookingsPage />       },
-      // { path: 'bookings/:id', element: <BookingDetailPage />  },
+      // Utility pages
+      {
+        path: 'unauthorized',
+        element: <UnauthorizedPage />,
+      },
 
-      // Phase 18: Owner Dashboard
-      // { path: 'owner/*',  element: <OwnerLayout />  },
+      // Phase 4: Shared Routes
+      {
+        path: 'profile',
+        element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        ),
+      },
 
-      // Phase 20: Admin Dashboard
-      // { path: 'admin/*',  element: <AdminLayout />  },
+      // Phase 4: Booking Mode Routes
+      {
+        path: 'bookings',
+        element: (
+          <ProtectedRoute>
+            <MyBookingsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'payments',
+        element: (
+          <ProtectedRoute>
+            <PaymentsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'vehicles',
+        element: (
+          <ProtectedRoute>
+            <MyVehiclesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'reviews',
+        element: (
+          <ProtectedRoute>
+            <MyReviewsPage />
+          </ProtectedRoute>
+        ),
+      },
+
+      // Phase 4: Owner Mode Routes
+      {
+        path: 'owner/onboarding',
+        element: (
+          <ProtectedRoute>
+            <OwnerOnboarding />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'owner',
+        element: (
+          <ProtectedRoute>
+            <OwnerLayout />
+          </ProtectedRoute>
+        ),
+        children: [
+          { index: true, element: <OwnerDashboard /> },
+          { path: 'dashboard', element: <OwnerDashboard /> },
+          { path: 'listings', element: <OwnerListings /> },
+          { path: 'bookings', element: <OwnerBookings /> },
+          { path: 'earnings', element: <OwnerEarnings /> },
+          { path: 'listings/new', element: <UnderDevelopmentPage /> },
+          { path: 'reports', element: <UnderDevelopmentPage /> },
+        ],
+      },
+
+      // ── Under Development Routes ──
+      ...[
+        'search',
+        'verification',
+        'about',
+        'blog',
+        'careers',
+        'press',
+        'help',
+        'contact',
+        'safety',
+        'pricing',
+        'privacy',
+        'terms',
+        'cookies',
+        'sitemap',
+        'mobile-app',
+        'accessibility',
+        'vehicles/new',
+      ].map((path) => ({
+        path,
+        element: <UnderDevelopmentPage />,
+      })),
+
+      // Future Phases...
     ],
   },
   {

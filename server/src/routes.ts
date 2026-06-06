@@ -32,8 +32,10 @@ router.get('/health', (_req: Request, res: Response) => {
 // Phase 2: Auth routes ✅
 router.use('/auth', authRouter);
 
+import { profileRoutes } from './modules/user';
+
 // Phase 4: User routes
-// router.use('/users', userRoutes);
+router.use('/profile', profileRoutes);
 
 // Phase 7: Owner routes
 // router.use('/owner', ownerRoutes);
