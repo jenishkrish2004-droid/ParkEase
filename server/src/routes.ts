@@ -6,6 +6,7 @@
 // ============================================================
 
 import { Router, Request, Response } from 'express';
+import { authRouter } from './modules/auth';
 
 const router = Router();
 
@@ -25,11 +26,11 @@ router.get('/health', (_req: Request, res: Response) => {
 });
 
 // ============================================================
-// Module Routes (registered as phases are completed)
+// Module Routes
 // ============================================================
 
-// Phase 2: Auth routes
-// router.use('/auth', authRoutes);
+// Phase 2: Auth routes ✅
+router.use('/auth', authRouter);
 
 // Phase 4: User routes
 // router.use('/users', userRoutes);
@@ -46,7 +47,7 @@ router.get('/health', (_req: Request, res: Response) => {
 // Phase 15: Payment routes
 // router.use('/payments', paymentRoutes);
 
-// Phase 16: Review routes (mounted under parking-spots)
+// Phase 16: Review routes
 // router.use('/parking-spots', reviewRoutes);
 
 // Phase 17: Complaint routes
