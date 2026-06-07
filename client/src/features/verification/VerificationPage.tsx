@@ -43,6 +43,9 @@ export function VerificationPage() {
   // KYC State
   const [kycForm, setKycForm] = useState<Partial<KycProfile>>({});
   const [kycProcessing, setKycProcessing] = useState(false);
+  const [isEditingKyc, setIsEditingKyc] = useState(false);
+  
+  const isKycDisabled = (!isEditingKyc && (kycProfile?.status === 'UNDER_REVIEW' || kycProfile?.status === 'APPROVED')) || kycProcessing;
   
   const hasAadhaar = Boolean(kycForm.aadhaarNumber && kycForm.aadhaarUrl);
   const hasPan = Boolean(kycForm.panNumber && kycForm.panUrl);
@@ -161,6 +164,7 @@ export function VerificationPage() {
       const data = await submitKyc(kycForm);
       setKycProfile(data);
       setKycForm(data);
+      setIsEditingKyc(false);
       showToast.success('KYC submitted successfully');
     } catch (err: any) {
       showToast.error(getApiErrorMessage(err));
@@ -202,9 +206,19 @@ export function VerificationPage() {
     );
   }
 
+  const kycProgress = ['SUBMITTED', 'UNDER_REVIEW', 'APPROVED'].includes(kycProfile?.status || '') ? 25 : 0;
   const progress = mode === 'booking' 
     ? ((status.isEmailVerified || status.isPhoneVerified) ? 100 : 0)
-    : ((status.isEmailVerified ? 25 : 0) + (status.isPhoneVerified ? 25 : 0) + (kycProfile?.status === 'APPROVED' ? 25 : 0));
+    : ((status.isEmailVerified ? 25 : 0) + (status.isPhoneVerified ? 25 : 0) + kycProgress);
+
+  let displayStatus = status.verificationStatus;
+  if (mode === 'owner') {
+    if (progress === 100) displayStatus = 'APPROVED';
+    else if (progress > 0) displayStatus = 'IN PROGRESS';
+    else displayStatus = 'NOT STARTED';
+  } else {
+    displayStatus = progress === 100 ? 'APPROVED' : 'PENDING';
+  }
 
   return (
     <PageLayout>
@@ -230,11 +244,12 @@ export function VerificationPage() {
               <span className="text-sm font-medium text-secondary-500">Status:</span>
               <span className={cn(
                 "px-2.5 py-1 rounded-full text-xs font-bold",
-                status.verificationStatus === 'APPROVED' ? "bg-success-100 text-success-700" :
-                status.verificationStatus === 'PENDING' ? "bg-warning-100 text-warning-700" :
+                displayStatus === 'APPROVED' ? "bg-success-100 text-success-700" :
+                displayStatus === 'PENDING' ? "bg-warning-100 text-warning-700" :
+                displayStatus === 'IN PROGRESS' ? "bg-primary-100 text-primary-700" :
                 "bg-secondary-100 text-secondary-700"
               )}>
-                {status.verificationStatus}
+                {displayStatus}
               </span>
             </div>
           </div>
@@ -519,16 +534,23 @@ export function VerificationPage() {
                 <h3 className="text-lg font-bold text-secondary-900">3. Identity Verification</h3>
                 <p className="text-sm text-secondary-500 mt-1">Verify your identity to unlock booking and listing features.</p>
               </div>
-              {kycProfile?.status && kycProfile.status !== 'NOT_STARTED' && (
-                <span className={cn(
-                  "px-2.5 py-1 rounded-full text-xs font-bold",
-                  kycProfile.status === 'APPROVED' ? "bg-success-100 text-success-700" :
-                  kycProfile.status === 'REJECTED' ? "bg-danger-100 text-danger-700" :
-                  "bg-warning-100 text-warning-700"
-                )}>
-                  {kycProfile.status}
-                </span>
-              )}
+              <div className="flex flex-col items-end gap-2">
+                {kycProfile?.status && kycProfile.status !== 'NOT_STARTED' && (
+                  <span className={cn(
+                    "px-2.5 py-1 rounded-full text-xs font-bold",
+                    kycProfile.status === 'APPROVED' ? "bg-success-100 text-success-700" :
+                    kycProfile.status === 'REJECTED' ? "bg-danger-100 text-danger-700" :
+                    "bg-warning-100 text-warning-700"
+                  )}>
+                    {kycProfile.status}
+                  </span>
+                )}
+                {!isEditingKyc && (kycProfile?.status === 'UNDER_REVIEW' || kycProfile?.status === 'APPROVED') && (
+                  <button onClick={() => setIsEditingKyc(true)} className="text-sm font-bold text-primary-600 hover:text-primary-800 transition-colors bg-primary-50 px-3 py-1 rounded-md">
+                    Update Details
+                  </button>
+                )}
+              </div>
             </div>
             
             <div className="p-6">
@@ -550,7 +572,7 @@ export function VerificationPage() {
                         type="text" 
                         value={kycForm.fullName || ''} 
                         onChange={e => setKycForm(prev => ({ ...prev, fullName: e.target.value }))}
-                        disabled={kycProfile?.status === 'UNDER_REVIEW' || kycProfile?.status === 'APPROVED' || kycProcessing}
+                        disabled={isKycDisabled}
                         className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
                         placeholder="As per Aadhaar"
                       />
@@ -558,10 +580,11 @@ export function VerificationPage() {
                     <div>
                       <label className="block text-sm font-medium text-secondary-700 mb-1">Date of Birth</label>
                       <input 
-                        type="date" 
+                        type="date"
+                        max={new Date().toISOString().split('T')[0]}
                         value={kycForm.dateOfBirth ? new Date(kycForm.dateOfBirth).toISOString().split('T')[0] : ''} 
                         onChange={e => setKycForm(prev => ({ ...prev, dateOfBirth: e.target.value }))}
-                        disabled={kycProfile?.status === 'UNDER_REVIEW' || kycProfile?.status === 'APPROVED' || kycProcessing}
+                        disabled={isKycDisabled}
                         className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
                       />
                     </div>
@@ -572,7 +595,7 @@ export function VerificationPage() {
                         maxLength={12}
                         value={kycForm.aadhaarNumber || ''} 
                         onChange={e => setKycForm(prev => ({ ...prev, aadhaarNumber: e.target.value.replace(/\D/g, '') }))}
-                        disabled={kycProfile?.status === 'UNDER_REVIEW' || kycProfile?.status === 'APPROVED' || kycProcessing}
+                        disabled={isKycDisabled}
                         className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
                         placeholder="12 digit Aadhaar"
                       />
@@ -584,17 +607,17 @@ export function VerificationPage() {
                         maxLength={10}
                         value={kycForm.panNumber || ''} 
                         onChange={e => setKycForm(prev => ({ ...prev, panNumber: e.target.value.toUpperCase() }))}
-                        disabled={kycProfile?.status === 'UNDER_REVIEW' || kycProfile?.status === 'APPROVED' || kycProcessing}
+                        disabled={isKycDisabled}
                         className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50 uppercase"
                         placeholder="ABCDE1234F"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-secondary-700 mb-1">Aadhaar Document</label>
+                      <label className="block text-sm font-medium text-secondary-700 mb-1">Aadhaar Document <span className="text-secondary-400 font-normal">(Optional if PAN is provided)</span></label>
                       {kycForm.aadhaarUrl ? (
                         <div className="flex items-center justify-between p-2 border border-secondary-200 rounded-lg bg-secondary-50">
                           <a href={kycForm.aadhaarUrl} target="_blank" rel="noreferrer" className="text-sm truncate mr-2 text-primary-600 hover:underline">View Document</a>
-                          {(kycProfile?.status === 'DRAFT' || kycProfile?.status === 'REJECTED' || !kycProfile?.status || kycProfile.status === 'NOT_STARTED') && (
+                          {(kycProfile?.status === 'DRAFT' || kycProfile?.status === 'REJECTED' || !kycProfile?.status || kycProfile.status === 'NOT_STARTED' || isEditingKyc) && (
                             <button onClick={() => setKycForm(prev => ({ ...prev, aadhaarUrl: null }))} className="text-danger-600 hover:text-danger-700 text-sm font-medium">Remove</button>
                           )}
                         </div>
@@ -609,11 +632,11 @@ export function VerificationPage() {
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-secondary-700 mb-1">PAN Document</label>
+                      <label className="block text-sm font-medium text-secondary-700 mb-1">PAN Document <span className="text-secondary-400 font-normal">(Optional if Aadhaar is provided)</span></label>
                       {kycForm.panUrl ? (
                         <div className="flex items-center justify-between p-2 border border-secondary-200 rounded-lg bg-secondary-50">
                           <a href={kycForm.panUrl} target="_blank" rel="noreferrer" className="text-sm truncate mr-2 text-primary-600 hover:underline">View Document</a>
-                          {(kycProfile?.status === 'DRAFT' || kycProfile?.status === 'REJECTED' || !kycProfile?.status || kycProfile.status === 'NOT_STARTED') && (
+                          {(kycProfile?.status === 'DRAFT' || kycProfile?.status === 'REJECTED' || !kycProfile?.status || kycProfile.status === 'NOT_STARTED' || isEditingKyc) && (
                             <button onClick={() => setKycForm(prev => ({ ...prev, panUrl: null }))} className="text-danger-600 hover:text-danger-700 text-sm font-medium">Remove</button>
                           )}
                         </div>
@@ -629,21 +652,34 @@ export function VerificationPage() {
                     </div>
                   </div>
 
-                  {(kycProfile?.status === 'DRAFT' || kycProfile?.status === 'REJECTED' || !kycProfile?.status || kycProfile.status === 'NOT_STARTED') && (
+                  {(kycProfile?.status === 'DRAFT' || kycProfile?.status === 'REJECTED' || !kycProfile?.status || kycProfile.status === 'NOT_STARTED' || isEditingKyc) && (
                     <div className="flex gap-4 pt-4 border-t border-secondary-200">
-                      <button 
-                        onClick={handleSaveDraft}
-                        disabled={kycProcessing}
-                        className="flex-1 bg-white hover:bg-secondary-50 text-secondary-700 border border-secondary-300 font-medium py-2 rounded-lg transition-colors disabled:opacity-50"
-                      >
-                        Save Draft
-                      </button>
+                      {isEditingKyc ? (
+                        <button 
+                          onClick={() => {
+                            setIsEditingKyc(false);
+                            setKycForm(kycProfile || {});
+                          }}
+                          disabled={kycProcessing}
+                          className="flex-1 bg-white hover:bg-secondary-50 text-secondary-700 border border-secondary-300 font-medium py-2 rounded-lg transition-colors disabled:opacity-50"
+                        >
+                          Cancel
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={handleSaveDraft}
+                          disabled={kycProcessing}
+                          className="flex-1 bg-white hover:bg-secondary-50 text-secondary-700 border border-secondary-300 font-medium py-2 rounded-lg transition-colors disabled:opacity-50"
+                        >
+                          Save Draft
+                        </button>
+                      )}
                       <button 
                         onClick={handleSubmitKyc}
                         disabled={kycProcessing || !isKycComplete}
                         className="flex-1 bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 rounded-lg transition-colors disabled:opacity-50"
                       >
-                        Submit KYC
+                        {isEditingKyc ? 'Update KYC' : 'Submit KYC'}
                       </button>
                     </div>
                   )}
