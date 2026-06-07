@@ -38,6 +38,15 @@ enum VerificationStatus {
   REJECTED
 }
 
+enum KycStatus {
+  NOT_STARTED
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
 enum BookingStatus {
   PENDING
   CONFIRMED
@@ -119,7 +128,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  kycDocument    KycDocument?
+  kycProfile     KycProfile?
   ownerProfile   OwnerProfile?
   bookings       Booking[]
   reviews        Review[]
@@ -170,26 +179,27 @@ model VerificationOtp {
   @@map("verification_otps")
 }
 
-model KycDocument {
-  id               String             @id @default(cuid())
-  userId           String             @unique
-  documentType     String // e.g., "AADHAAR", "PAN", "DRIVING_LICENSE"
-  documentNumber   String
-  documentFrontUrl String // Cloudinary URL
-  documentBackUrl  String? // Cloudinary URL
-  selfieUrl        String? // Cloudinary URL
-  status           VerificationStatus @default(PENDING)
-  rejectionReason  String?
-  verifiedAt       DateTime?
-  verifiedBy       String? // Admin user ID
+model KycProfile {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  fullName      String?
+  dateOfBirth   DateTime?
+  aadhaarNumber String?
+  panNumber     String?
+  aadhaarUrl    String?
+  panUrl        String?
+  status        KycStatus @default(NOT_STARTED)
+  rejectionReason String?
+  verifiedAt    DateTime?
+  verifiedBy    String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("kyc_documents")
+  @@map("kyc_profiles")
 }
 
 model OwnerProfile {

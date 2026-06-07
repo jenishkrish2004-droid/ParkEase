@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { getVerificationStatus, sendOtp, verifyOtp, type VerificationStatusResponse } from './verification.service';
+import { getKycStatus, saveKycDraft, submitKyc, uploadKycDocument, type KycProfile } from './kyc.service';
+import { useParkEaseMode } from '@/app/providers/useParkEaseMode';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { PageLayout } from '@/components/layout/PageLayout';
@@ -33,8 +35,18 @@ function formatTime(seconds: number) {
 
 export function VerificationPage() {
   const { user, refreshUser } = useAuth();
+  const [mode] = useParkEaseMode();
   const [status, setStatus] = useState<VerificationStatusResponse | null>(null);
+  const [kycProfile, setKycProfile] = useState<KycProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  // KYC State
+  const [kycForm, setKycForm] = useState<Partial<KycProfile>>({});
+  const [kycProcessing, setKycProcessing] = useState(false);
+  
+  const hasAadhaar = Boolean(kycForm.aadhaarNumber && kycForm.aadhaarUrl);
+  const hasPan = Boolean(kycForm.panNumber && kycForm.panUrl);
+  const isKycComplete = Boolean(kycForm.fullName && kycForm.dateOfBirth && (hasAadhaar || hasPan));
   
   // OTP States
   const [emailOtpSent, setEmailOtpSent] = useState(false);
@@ -62,8 +74,13 @@ export function VerificationPage() {
 
   const fetchStatus = async () => {
     try {
-      const data = await getVerificationStatus();
+      const [data, kycData] = await Promise.all([
+        getVerificationStatus(),
+        getKycStatus()
+      ]);
       setStatus(data);
+      setKycProfile(kycData);
+      setKycForm(kycData);
     } catch (err: any) {
       showToast.error('Failed to load verification status');
     } finally {
@@ -124,6 +141,57 @@ export function VerificationPage() {
   };
 
 
+  const handleSaveDraft = async () => {
+    setKycProcessing(true);
+    try {
+      const data = await saveKycDraft(kycForm);
+      setKycProfile(data);
+      setKycForm(data);
+      showToast.success('Draft saved successfully');
+    } catch (err: any) {
+      showToast.error(getApiErrorMessage(err));
+    } finally {
+      setKycProcessing(false);
+    }
+  };
+
+  const handleSubmitKyc = async () => {
+    setKycProcessing(true);
+    try {
+      const data = await submitKyc(kycForm);
+      setKycProfile(data);
+      setKycForm(data);
+      showToast.success('KYC submitted successfully');
+    } catch (err: any) {
+      showToast.error(getApiErrorMessage(err));
+    } finally {
+      setKycProcessing(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'aadhaarUrl' | 'panUrl') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Basic validation
+    if (file.size > 5 * 1024 * 1024) {
+      showToast.error('File size must be less than 5MB');
+      return;
+    }
+    
+    setKycProcessing(true);
+    try {
+      const url = await uploadKycDocument(file);
+      setKycForm(prev => ({ ...prev, [field]: url }));
+      showToast.success('Document uploaded successfully');
+    } catch (err: any) {
+      showToast.error(getApiErrorMessage(err));
+    } finally {
+      setKycProcessing(false);
+    }
+  };
+
+
   if (loading || !status) {
     return (
       <PageLayout>
@@ -134,15 +202,23 @@ export function VerificationPage() {
     );
   }
 
-  const progress = (status.isEmailVerified ? 25 : 0) + (status.isPhoneVerified ? 25 : 0);
+  const progress = mode === 'booking' 
+    ? ((status.isEmailVerified || status.isPhoneVerified) ? 100 : 0)
+    : ((status.isEmailVerified ? 25 : 0) + (status.isPhoneVerified ? 25 : 0) + (kycProfile?.status === 'APPROVED' ? 25 : 0));
 
   return (
     <PageLayout>
       <div className="max-w-4xl mx-auto space-y-6 py-8 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold font-display text-secondary-900">Identity Verification</h1>
-            <p className="text-secondary-500 mt-1">Complete your profile verification to unlock all features.</p>
+            <h1 className="text-2xl font-bold font-display text-secondary-900">
+              {mode === 'owner' ? 'Owner Verification' : 'Verification'}
+            </h1>
+            <p className="text-secondary-500 mt-1">
+              {mode === 'owner' 
+                ? 'Complete your profile verification to unlock all features.' 
+                : 'Verify your email or phone number to start booking.'}
+            </p>
           </div>
         </div>
 
@@ -166,7 +242,7 @@ export function VerificationPage() {
           <div className="space-y-4">
             <div className="flex justify-between text-sm font-medium">
               <span className="text-secondary-700">{progress}% Completed</span>
-              <span className="text-secondary-500">Level 1</span>
+              {mode === 'owner' && <span className="text-secondary-500">Level 1</span>}
             </div>
             <div className="h-2 w-full bg-secondary-100 rounded-full overflow-hidden">
               <div 
@@ -175,7 +251,7 @@ export function VerificationPage() {
               />
             </div>
             {/* Visual checklist */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
+            <div className={cn("grid gap-3 pt-4", mode === 'owner' ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-2")}>
               <div className="flex items-center gap-2">
                 <span className={status.isEmailVerified ? "text-success-500" : "text-secondary-400"}>
                   {status.isEmailVerified ? "✓" : "○"}
@@ -188,14 +264,18 @@ export function VerificationPage() {
                 </span>
                 <span className={cn("text-xs font-medium", status.isPhoneVerified ? "text-secondary-900" : "text-secondary-500")}>Phone</span>
               </div>
-              <div className="flex items-center gap-2 opacity-50">
-                <span className="text-warning-500">⏳</span>
-                <span className="text-xs font-medium text-secondary-600">Identity (Phase 6)</span>
-              </div>
-              <div className="flex items-center gap-2 opacity-50">
-                <span className="text-warning-500">⏳</span>
-                <span className="text-xs font-medium text-secondary-600">Owner (Future)</span>
-              </div>
+              {mode === 'owner' && (
+                <>
+                  <div className="flex items-center gap-2 opacity-50">
+                    <span className="text-warning-500">⏳</span>
+                    <span className="text-xs font-medium text-secondary-600">Identity (Phase 6)</span>
+                  </div>
+                  <div className="flex items-center gap-2 opacity-50">
+                    <span className="text-warning-500">⏳</span>
+                    <span className="text-xs font-medium text-secondary-600">Owner (Future)</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -431,22 +511,166 @@ export function VerificationPage() {
           </div>
         </div>
         
-        {/* Coming Soon Notice */}
-        <div className="mt-8 p-6 bg-secondary-50 rounded-2xl border border-secondary-200">
-          <div className="flex items-start gap-4">
-            <div className="mt-1">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary-200 text-secondary-600 text-lg">
-                🚧
-              </span>
+        {/* 3. Identity Verification */}
+        {mode === 'owner' && (
+          <div className="bg-white rounded-2xl border border-secondary-200 shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-secondary-200 bg-secondary-50 flex items-start justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-secondary-900">3. Identity Verification</h3>
+                <p className="text-sm text-secondary-500 mt-1">Verify your identity to unlock booking and listing features.</p>
+              </div>
+              {kycProfile?.status && kycProfile.status !== 'NOT_STARTED' && (
+                <span className={cn(
+                  "px-2.5 py-1 rounded-full text-xs font-bold",
+                  kycProfile.status === 'APPROVED' ? "bg-success-100 text-success-700" :
+                  kycProfile.status === 'REJECTED' ? "bg-danger-100 text-danger-700" :
+                  "bg-warning-100 text-warning-700"
+                )}>
+                  {kycProfile.status}
+                </span>
+              )}
             </div>
-            <div>
-              <h4 className="text-base font-bold text-secondary-900">Phase 6 & 7: Identity & Owner Verification</h4>
-              <p className="text-sm text-secondary-500 mt-1">
-                Aadhaar, PAN, and Property verification will be implemented in subsequent phases. Complete Email and Phone verification first to be ready.
-              </p>
+            
+            <div className="p-6">
+              {!(status.isEmailVerified && status.isPhoneVerified) ? (
+                <div className="text-sm text-warning-700 bg-warning-50 p-4 rounded-lg border border-warning-200 text-center">
+                  Please verify your Email and Phone Number before proceeding with Identity Verification.
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {kycProfile?.status === 'REJECTED' && (
+                    <div className="text-sm text-danger-700 bg-danger-50 p-3 rounded-lg border border-danger-200">
+                      <strong>Verification Rejected:</strong> {kycProfile.rejectionReason || 'Please resubmit valid documents.'}
+                    </div>
+                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-secondary-700 mb-1">Full Name</label>
+                      <input 
+                        type="text" 
+                        value={kycForm.fullName || ''} 
+                        onChange={e => setKycForm(prev => ({ ...prev, fullName: e.target.value }))}
+                        disabled={kycProfile?.status === 'UNDER_REVIEW' || kycProfile?.status === 'APPROVED' || kycProcessing}
+                        className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
+                        placeholder="As per Aadhaar"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-secondary-700 mb-1">Date of Birth</label>
+                      <input 
+                        type="date" 
+                        value={kycForm.dateOfBirth ? new Date(kycForm.dateOfBirth).toISOString().split('T')[0] : ''} 
+                        onChange={e => setKycForm(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                        disabled={kycProfile?.status === 'UNDER_REVIEW' || kycProfile?.status === 'APPROVED' || kycProcessing}
+                        className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-secondary-700 mb-1">Aadhaar Number <span className="text-secondary-400 font-normal">(Optional if PAN is provided)</span></label>
+                      <input 
+                        type="text" 
+                        maxLength={12}
+                        value={kycForm.aadhaarNumber || ''} 
+                        onChange={e => setKycForm(prev => ({ ...prev, aadhaarNumber: e.target.value.replace(/\D/g, '') }))}
+                        disabled={kycProfile?.status === 'UNDER_REVIEW' || kycProfile?.status === 'APPROVED' || kycProcessing}
+                        className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
+                        placeholder="12 digit Aadhaar"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-secondary-700 mb-1">PAN Number <span className="text-secondary-400 font-normal">(Optional if Aadhaar is provided)</span></label>
+                      <input 
+                        type="text" 
+                        maxLength={10}
+                        value={kycForm.panNumber || ''} 
+                        onChange={e => setKycForm(prev => ({ ...prev, panNumber: e.target.value.toUpperCase() }))}
+                        disabled={kycProfile?.status === 'UNDER_REVIEW' || kycProfile?.status === 'APPROVED' || kycProcessing}
+                        className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50 uppercase"
+                        placeholder="ABCDE1234F"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-secondary-700 mb-1">Aadhaar Document</label>
+                      {kycForm.aadhaarUrl ? (
+                        <div className="flex items-center justify-between p-2 border border-secondary-200 rounded-lg bg-secondary-50">
+                          <a href={kycForm.aadhaarUrl} target="_blank" rel="noreferrer" className="text-sm truncate mr-2 text-primary-600 hover:underline">View Document</a>
+                          {(kycProfile?.status === 'DRAFT' || kycProfile?.status === 'REJECTED' || !kycProfile?.status || kycProfile.status === 'NOT_STARTED') && (
+                            <button onClick={() => setKycForm(prev => ({ ...prev, aadhaarUrl: null }))} className="text-danger-600 hover:text-danger-700 text-sm font-medium">Remove</button>
+                          )}
+                        </div>
+                      ) : (
+                        <input 
+                          type="file" 
+                          accept=".jpg,.jpeg,.png,.pdf"
+                          onChange={e => handleFileUpload(e, 'aadhaarUrl')}
+                          disabled={kycProcessing}
+                          className="w-full text-sm text-secondary-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 disabled:opacity-50"
+                        />
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-secondary-700 mb-1">PAN Document</label>
+                      {kycForm.panUrl ? (
+                        <div className="flex items-center justify-between p-2 border border-secondary-200 rounded-lg bg-secondary-50">
+                          <a href={kycForm.panUrl} target="_blank" rel="noreferrer" className="text-sm truncate mr-2 text-primary-600 hover:underline">View Document</a>
+                          {(kycProfile?.status === 'DRAFT' || kycProfile?.status === 'REJECTED' || !kycProfile?.status || kycProfile.status === 'NOT_STARTED') && (
+                            <button onClick={() => setKycForm(prev => ({ ...prev, panUrl: null }))} className="text-danger-600 hover:text-danger-700 text-sm font-medium">Remove</button>
+                          )}
+                        </div>
+                      ) : (
+                        <input 
+                          type="file" 
+                          accept=".jpg,.jpeg,.png,.pdf"
+                          onChange={e => handleFileUpload(e, 'panUrl')}
+                          disabled={kycProcessing}
+                          className="w-full text-sm text-secondary-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 disabled:opacity-50"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  {(kycProfile?.status === 'DRAFT' || kycProfile?.status === 'REJECTED' || !kycProfile?.status || kycProfile.status === 'NOT_STARTED') && (
+                    <div className="flex gap-4 pt-4 border-t border-secondary-200">
+                      <button 
+                        onClick={handleSaveDraft}
+                        disabled={kycProcessing}
+                        className="flex-1 bg-white hover:bg-secondary-50 text-secondary-700 border border-secondary-300 font-medium py-2 rounded-lg transition-colors disabled:opacity-50"
+                      >
+                        Save Draft
+                      </button>
+                      <button 
+                        onClick={handleSubmitKyc}
+                        disabled={kycProcessing || !isKycComplete}
+                        className="flex-1 bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 rounded-lg transition-colors disabled:opacity-50"
+                      >
+                        Submit KYC
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
-        </div>
+        )}
+        
+        {/* Coming Soon Notice */}
+        {mode === 'owner' && (
+          <div className="mt-8 p-6 bg-secondary-50 rounded-2xl border border-secondary-200">
+            <div className="flex items-start gap-4">
+              <div className="mt-1">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary-200 text-secondary-600 text-lg">
+                  🚧
+                </span>
+              </div>
+              <div>
+                <h4 className="text-base font-bold text-secondary-900">Phase 7: Owner Verification</h4>
+                <p className="text-sm text-secondary-500 mt-1">
+                  Property ownership verification will be implemented in the next phase. Complete Identity verification first to be ready.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </PageLayout>
   );

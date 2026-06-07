@@ -21,10 +21,12 @@ app.use(helmet());
 app.use(cors(corsOptions));
 
 // ============================================================
-// Body Parsing
+// Body Parsing & Static Files
 // ============================================================
+import path from 'path';
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // ============================================================
 // Logging

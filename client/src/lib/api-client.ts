@@ -124,6 +124,10 @@ export function getApiErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
     const apiError = error.response?.data as IApiErrorResponse | undefined;
     if (apiError?.error?.message) {
+      if (apiError.error.details && Array.isArray(apiError.error.details)) {
+        const detailsStr = apiError.error.details.map((d: any) => `${d.field}: ${d.message}`).join(', ');
+        return `${apiError.error.message} - ${detailsStr}`;
+      }
       return apiError.error.message;
     }
     if (error.message) {

@@ -310,7 +310,7 @@ function HeaderDropdownLinks({ setMenuOpen }: { setMenuOpen: (v: boolean) => voi
           Profile
         </button>
         <button type="button" onClick={() => handleNav('/verification')} className={navItemClass}>
-          Verification
+          Owner Verification
         </button>
       </>
     );
@@ -477,7 +477,7 @@ function MobileHeaderLinks() {
         <Link to="/owner/bookings" className={linkClass}>Owner Bookings</Link>
         <Link to="/owner/earnings" className={linkClass}>Earnings</Link>
         <Link to="/profile" className={linkClass}>Profile</Link>
-        <Link to="/verification" className={linkClass}>Verification</Link>
+        <Link to="/verification" className={linkClass}>Owner Verification</Link>
       </>
     );
   }

@@ -34,12 +34,16 @@ router.use('/auth', authRouter);
 
 import { profileRoutes } from './modules/user';
 import { verificationRoutes } from './modules/verification';
+import kycRoutes from './modules/kyc/kyc.routes';
 
 // Phase 4: User routes
 router.use('/profile', profileRoutes);
 
 // Phase 5: Verification routes
 router.use('/verification', verificationRoutes);
+
+// Phase 6: KYC Identity Verification
+router.use('/kyc', kycRoutes);
 
 // Phase 7: Owner routes
 // router.use('/owner', ownerRoutes);
