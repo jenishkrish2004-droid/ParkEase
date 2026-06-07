@@ -29,12 +29,16 @@ export const registerSchema = z.object({
     .max(50, 'Last name must be at most 50 characters')
     .regex(/^[a-zA-Z\s'-]+$/, 'Last name contains invalid characters'),
 
-  email: z
+  identifier: z
     .string()
     .trim()
     .toLowerCase()
-    .email('Please enter a valid email address')
-    .max(255, 'Email must be at most 255 characters'),
+    .refine((val) => {
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+      const isPhone = /^\+?[1-9]\d{9,14}$/.test(val);
+      return isEmail || isPhone;
+    }, 'Please enter a valid email address or phone number')
+    .transform((val) => val.trim()),
 
   password: passwordSchema,
 
@@ -48,11 +52,16 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 
 // ── Login ────────────────────────────────────────────────────
 export const loginSchema = z.object({
-  email: z
+  identifier: z
     .string()
     .trim()
     .toLowerCase()
-    .email('Please enter a valid email address'),
+    .refine((val) => {
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+      const isPhone = /^\+?[1-9]\d{9,14}$/.test(val);
+      return isEmail || isPhone;
+    }, 'Please enter a valid email address or phone number')
+    .transform((val) => val.trim()),
 
   password: z
     .string()
@@ -94,3 +103,11 @@ export const forgotPasswordSchema = z.object({
 });
 
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+
+// ── Verify Registration OTP ──────────────────────────────────
+export const verifyRegistrationSchema = z.object({
+  userId: z.string().min(1, 'User ID is required'),
+  otp: z.string().length(6, 'OTP must be 6 digits'),
+});
+
+export type VerifyRegistrationInput = z.infer<typeof verifyRegistrationSchema>;

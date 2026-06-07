@@ -33,9 +33,13 @@ router.get('/health', (_req: Request, res: Response) => {
 router.use('/auth', authRouter);
 
 import { profileRoutes } from './modules/user';
+import { verificationRoutes } from './modules/verification';
 
 // Phase 4: User routes
 router.use('/profile', profileRoutes);
+
+// Phase 5: Verification routes
+router.use('/verification', verificationRoutes);
 
 // Phase 7: Owner routes
 // router.use('/owner', ownerRoutes);

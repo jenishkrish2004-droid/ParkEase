@@ -5,18 +5,16 @@
 // Sign In / Create Account buttons when logged out.
 // ============================================================
 import { useState, useEffect, useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { Avatar } from '@/components/ui/Avatar';
 import { useLogout } from '@/features/auth/hooks/useAuthMutations';
-import { useParkEaseMode } from '@/app/providers/useParkEaseMode';
+import { useParkEaseMode, commitModeSync, type ParkEaseMode } from '@/app/providers/useParkEaseMode';
 
 // ── Nav items (unauthenticated view only) ────────────────────
-const NAV_ITEMS = [
-  { label: 'Find Parking', href: '/search'        },
-  { label: 'How It Works', href: '/#how-it-works' },
-];
+const NAV_ITEMS: { label: string; href: string }[] = [];
 
 export interface HeaderProps {
   transparent?: boolean;
@@ -62,11 +60,9 @@ export function Header({ transparent = false, className }: HeaderProps) {
             className="flex items-center gap-2.5 shrink-0 group no-underline"
             aria-label="ParkEase — Go to homepage"
           >
-            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center shadow-sm group-hover:bg-primary-700 transition-colors">
-              <ParkEaseLogo />
-            </div>
-            <span className="font-display font-bold text-lg text-secondary-900 tracking-tight">
-              ParkEase
+            <ParkEaseLogo />
+            <span className="font-display font-bold text-lg tracking-tight">
+              <span className="text-secondary-900">Park</span><span className="text-primary-600">Ease</span>
             </span>
           </Link>
 
@@ -183,7 +179,7 @@ function UnauthenticatedNav() {
 }
 
 // ── Authenticated nav: mode switcher + user menu ─────────────
-function AuthenticatedNav({ user }: { user: { firstName: string; lastName: string; email: string; avatar: string | null; isOwner: boolean; ownerVerified: boolean } }) {
+function AuthenticatedNav({ user }: { user: { firstName: string; lastName: string; email: string; avatar: string | null; isOwner: boolean; ownerVerified: boolean; verificationStatus: string } }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const logoutMutation = useLogout();
@@ -244,6 +240,16 @@ function AuthenticatedNav({ user }: { user: { firstName: string; lastName: strin
             <div className="px-4 py-3 border-b border-secondary-100">
               <p className="text-sm font-semibold text-secondary-900">{user.firstName} {user.lastName}</p>
               <p className="text-xs text-secondary-500 truncate mt-0.5">{user.email}</p>
+              <div className="mt-2 flex items-center">
+                <span className={cn(
+                  "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider",
+                  user.verificationStatus === 'APPROVED' ? "bg-success-100 text-success-700" :
+                  user.verificationStatus === 'PENDING' ? "bg-warning-100 text-warning-700" :
+                  "bg-secondary-100 text-secondary-700"
+                )}>
+                  {user.verificationStatus === 'APPROVED' ? 'Verified' : 'Unverified'}
+                </span>
+              </div>
             </div>
             {/* Menu items */}
             <div className="py-1">
@@ -342,14 +348,23 @@ function HeaderDropdownLinks({ setMenuOpen }: { setMenuOpen: (v: boolean) => voi
 
 function ModeSwitcher({ user }: { user: { isOwner: boolean; ownerVerified: boolean } }) {
   const navigate = useNavigate();
-  const [mode, setMode] = useParkEaseMode();
+  const [mode] = useParkEaseMode();
 
   function handleModeSwitch(next: ParkEaseMode) {
-    setMode(next);
+    if (next === mode) return; // already in this mode, nothing to do
+
+    // Flush the mode commit synchronously BEFORE navigation so that
+    // every component at the destination sees the correct mode on its
+    // very first render — eliminating the stale-state routing bug.
+    flushSync(() => {
+      commitModeSync(next);
+    });
+
     if (next === 'owner') {
       navigate('/owner/dashboard');
     } else {
-      navigate('/dashboard');
+      // Booking mode: go to the landing page (search bar is in the hero section)
+      navigate('/');
     }
   }
 
@@ -480,12 +495,29 @@ function MobileHeaderLinks() {
   );
 }
 
-// ── ParkEase Logo ─────────────────────────────────────────────
-function ParkEaseLogo() {
+// ── ParkEase Logo Mark (location pin with P) ─────────────────
+function ParkEaseLogo({ size = 30 }: { size?: number }) {
+  const w = Math.round(size * 0.8);
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path d="M4 3h5c1.657 0 3 1.343 3 3s-1.343 3-3 3H6v4H4V3z" fill="white" />
-      <path d="M6 7h3a1 1 0 000-2H6v2z" fill="#BFDBFE" />
+    <svg
+      width={w}
+      height={size}
+      viewBox="0 0 24 30"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      {/* Pin body */}
+      <path
+        d="M12 0C5.925 0 1 4.925 1 11C1 18.5 12 30 12 30C12 30 23 18.5 23 11C23 4.925 18.075 0 12 0Z"
+        fill="#2563EB"
+      />
+      {/* P — vertical stem */}
+      <rect x="7" y="5.5" width="2.5" height="13" rx="0.5" fill="white" />
+      {/* P — outer bowl */}
+      <path d="M9.5 5.5H13C16.5 5.5 16.5 12.5 13 12.5H9.5V5.5Z" fill="white" />
+      {/* P — inner counter (blue cutout to make the loop visible) */}
+      <path d="M10 7H13C14.5 7 14.5 11 13 11H10V7Z" fill="#2563EB" />
     </svg>
   );
 }

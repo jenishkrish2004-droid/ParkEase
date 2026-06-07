@@ -8,7 +8,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as authService from './auth.service';
 import { sendSuccess, sendCreated } from '../../shared/utils/response';
-import type { RegisterInput, LoginInput, RefreshTokenInput } from './auth.schema';
+import type { RegisterInput, LoginInput, RefreshTokenInput, VerifyRegistrationInput } from './auth.schema';
 
 // Helper to extract client info from request
 function getClientInfo(req: Request) {
@@ -28,9 +28,27 @@ export async function registerHandler(
     const input = req.body as RegisterInput;
     const { userAgent, ipAddress } = getClientInfo(req);
 
-    const { user, tokens } = await authService.register(input, userAgent, ipAddress);
+    const result = await authService.register(input, userAgent, ipAddress);
 
-    sendCreated(res, {
+    sendCreated(res, result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// ── POST /auth/verify-registration ───────────────────────────
+export async function verifyRegistrationHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const input = req.body as VerifyRegistrationInput;
+    const { userAgent, ipAddress } = getClientInfo(req);
+
+    const { user, tokens } = await authService.verifyRegistration(input, userAgent, ipAddress);
+
+    sendSuccess(res, {
       user,
       ...tokens,
     });

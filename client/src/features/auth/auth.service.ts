@@ -6,14 +6,19 @@
 
 import apiClient from '@/lib/api-client';
 import { setTokens, clearTokens } from '@/lib/token';
-import type { AuthResponse, LoginPayload, RegisterPayload } from './auth.types';
+import type { AuthResponse, LoginPayload, RegisterPayload, RegisterResponse, VerifyRegistrationPayload } from './auth.types';
 import type { IUser } from '@parkease/shared';
 
 type ApiResult<T> = { success: true; data: T };
 
 // ── Register ─────────────────────────────────────────────────
-export async function register(payload: RegisterPayload): Promise<AuthResponse> {
-  const response = await apiClient.post<ApiResult<AuthResponse>>('/auth/register', payload);
+export async function register(payload: RegisterPayload): Promise<RegisterResponse> {
+  const response = await apiClient.post<ApiResult<RegisterResponse>>('/auth/register', payload);
+  return response.data.data;
+}
+
+export async function verifyRegistration(payload: VerifyRegistrationPayload): Promise<AuthResponse> {
+  const response = await apiClient.post<ApiResult<AuthResponse>>('/auth/verify-registration', payload);
   const data = response.data.data;
 
   setTokens(data.accessToken, data.refreshToken, data.expiresIn);

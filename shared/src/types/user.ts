@@ -15,6 +15,7 @@ export interface IUser {
   isOwner: boolean;
   ownerVerified: boolean;
   status: UserStatus;
+  verificationStatus: VerificationStatus;
   isEmailVerified: boolean;
   isPhoneVerified: boolean;
   lastLoginAt: string | null;

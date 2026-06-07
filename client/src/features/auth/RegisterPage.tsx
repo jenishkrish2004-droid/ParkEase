@@ -27,11 +27,15 @@ const registerSchema = z
       .min(1, 'Last name is required')
       .max(50, 'Last name is too long')
       .regex(/^[a-zA-Z\s'-]+$/, 'Last name contains invalid characters'),
-    email: z
+    identifier: z
       .string()
       .trim()
-      .email('Please enter a valid email address')
-      .max(255),
+      .toLowerCase()
+      .refine((val) => {
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+        const isPhone = /^\+?[1-9]\d{9,14}$/.test(val);
+        return isEmail || isPhone;
+      }, 'Please enter a valid email address or phone number'),
     password: z
       .string()
       .min(8, 'Password must be at least 8 characters')
@@ -141,10 +145,14 @@ function inputClass(hasError: boolean) {
 
 // ── Component ────────────────────────────────────────────────
 export default function RegisterPage() {
-  const { register: registerUser } = useAuth();
+  const { register: registerUser, verifyRegistration } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
+  const [registeredUserId, setRegisteredUserId] = useState<string | null>(null);
+  const [registeredIdentifier, setRegisteredIdentifier] = useState('');
+  const [otp, setOtp] = useState('');
 
   const {
     register,
@@ -163,14 +171,17 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormValues) => {
     setIsSubmitting(true);
     try {
-      await registerUser({
+      const response = await registerUser({
         firstName:       data.firstName,
         lastName:        data.lastName,
-        email:           data.email,
+        identifier:      data.identifier,
         password:        data.password,
         confirmPassword: data.confirmPassword,
       });
-      window.location.replace('/dashboard');
+      setRegisteredUserId(response.user.id);
+      setRegisteredIdentifier(data.identifier);
+      setStep(2);
+      showToast.success('Account created! Please verify your identifier.');
     } catch (error) {
       const fieldErrors = getApiValidationErrors(error);
       if (Object.keys(fieldErrors).length > 0) {
@@ -185,18 +196,39 @@ export default function RegisterPage() {
     }
   };
 
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!registeredUserId || otp.length !== 6) return;
+
+    setIsSubmitting(true);
+    try {
+      await verifyRegistration({
+        userId: registeredUserId,
+        otp,
+      });
+      showToast.success('Verification successful!');
+      window.location.replace('/');
+    } catch (error) {
+      showToast.error(getApiErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-secondary-50 flex flex-col">
       {/* Top bar */}
       <div className="bg-white border-b border-secondary-200 px-6 py-4 flex items-center justify-between shrink-0">
         <Link to="/" className="flex items-center gap-2.5 no-underline group">
-          <div className="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center group-hover:bg-primary-700 transition-colors">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M4 3h5c1.657 0 3 1.343 3 3s-1.343 3-3 3H6v4H4V3z" fill="white" />
-              <path d="M6 7h3a1 1 0 000-2H6v2z" fill="#BFDBFE" />
-            </svg>
-          </div>
-          <span className="font-bold text-base text-secondary-900 font-display tracking-tight">ParkEase</span>
+          <svg width="20" height="25" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M12 0C5.925 0 1 4.925 1 11C1 18.5 12 30 12 30C12 30 23 18.5 23 11C23 4.925 18.075 0 12 0Z" fill="#2563EB" />
+            <rect x="7" y="5.5" width="2.5" height="13" rx="0.5" fill="white" />
+            <path d="M9.5 5.5H13C16.5 5.5 16.5 12.5 13 12.5H9.5V5.5Z" fill="white" />
+            <path d="M10 7H13C14.5 7 14.5 11 13 11H10V7Z" fill="#2563EB" />
+          </svg>
+          <span className="font-bold text-base font-display tracking-tight">
+            <span className="text-secondary-900">Park</span><span className="text-primary-600">Ease</span>
+          </span>
         </Link>
         <p className="text-sm text-secondary-500">
           Already have an account?{' '}
@@ -212,13 +244,17 @@ export default function RegisterPage() {
           <div className="bg-white rounded-2xl border border-secondary-200 shadow-card p-8">
             {/* Header */}
             <div className="mb-8">
-              <h1 className="text-2xl font-bold text-secondary-900 font-display">Create your account</h1>
-              <p className="mt-1.5 text-sm text-secondary-500">Join thousands of drivers parking smarter</p>
+              <h1 className="text-2xl font-bold text-secondary-900 font-display">
+                {step === 1 ? 'Create your account' : 'Verify your account'}
+              </h1>
+              <p className="mt-1.5 text-sm text-secondary-500">
+                {step === 1 ? 'Join thousands of drivers parking smarter' : `We've sent an OTP to ${registeredIdentifier}`}
+              </p>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-              {/* Name row */}
+            {step === 1 ? (
+              <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="reg-first-name" className="block text-sm font-medium text-secondary-700 mb-1.5">
@@ -229,7 +265,7 @@ export default function RegisterPage() {
                     id="reg-first-name"
                     type="text"
                     autoComplete="given-name"
-                    placeholder="Priya"
+                    placeholder="Enter first name"
                     className={inputClass(!!errors.firstName)}
                     aria-invalid={!!errors.firstName}
                     aria-describedby={errors.firstName ? 'reg-fname-error' : undefined}
@@ -245,7 +281,7 @@ export default function RegisterPage() {
                     id="reg-last-name"
                     type="text"
                     autoComplete="family-name"
-                    placeholder="Sharma"
+                    placeholder="Enter last name"
                     className={inputClass(!!errors.lastName)}
                     aria-invalid={!!errors.lastName}
                     aria-describedby={errors.lastName ? 'reg-lname-error' : undefined}
@@ -254,22 +290,22 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Email */}
+              {/* Identifier */}
               <div>
-                <label htmlFor="reg-email" className="block text-sm font-medium text-secondary-700 mb-1.5">
-                  Email address
+                <label htmlFor="reg-identifier" className="block text-sm font-medium text-secondary-700 mb-1.5">
+                  Email or Phone number
                 </label>
                 <input
-                  {...register('email')}
-                  id="reg-email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="you@example.com"
-                  className={inputClass(!!errors.email)}
-                  aria-invalid={!!errors.email}
-                  aria-describedby={errors.email ? 'reg-email-error' : undefined}
+                  {...register('identifier')}
+                  id="reg-identifier"
+                  type="text"
+                  autoComplete="username"
+                  placeholder="Enter email or phone number"
+                  className={inputClass(!!errors.identifier)}
+                  aria-invalid={!!errors.identifier}
+                  aria-describedby={errors.identifier ? 'reg-identifier-error' : undefined}
                 />
-                <FieldError id="reg-email-error" message={errors.email?.message} />
+                <FieldError id="reg-identifier-error" message={errors.identifier?.message} />
               </div>
 
               {/* Password */}
@@ -381,7 +417,7 @@ export default function RegisterPage() {
                 disabled={isSubmitting}
                 id="register-submit-btn"
                 className={cn(
-                  'w-full h-11 flex items-center justify-center gap-2 mt-2',
+                  'w-full h-11 flex items-center justify-center gap-2 mt-6',
                   'bg-primary-600 hover:bg-primary-700 active:bg-primary-800',
                   'text-white font-semibold text-sm rounded-xl',
                   'transition-all duration-150 shadow-sm hover:shadow-md',
@@ -403,6 +439,38 @@ export default function RegisterPage() {
                 )}
               </button>
             </form>
+            ) : (
+              <form onSubmit={handleVerify} className="space-y-4">
+                <div>
+                  <label htmlFor="otp" className="block text-sm font-medium text-secondary-700 mb-1.5">
+                    Enter 6-digit OTP
+                  </label>
+                  <input
+                    id="otp"
+                    type="text"
+                    maxLength={6}
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                    placeholder="000000"
+                    className={inputClass(false)}
+                    autoComplete="one-time-code"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || otp.length !== 6}
+                  className={cn(
+                    'w-full h-11 flex items-center justify-center gap-2 mt-2',
+                    'bg-primary-600 hover:bg-primary-700 active:bg-primary-800',
+                    'text-white font-semibold text-sm rounded-xl',
+                    'transition-all duration-150 shadow-sm hover:shadow-md',
+                    'disabled:opacity-60 disabled:cursor-not-allowed',
+                  )}
+                >
+                  {isSubmitting ? 'Verifying...' : 'Verify & Continue'}
+                </button>
+              </form>
+            )}
           </div>
 
           <p className="text-center mt-6 text-sm text-secondary-500">

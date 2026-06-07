@@ -107,14 +107,18 @@ export async function register(
   userAgent?: string,
   ipAddress?: string,
 ) {
-  // 1. Check for existing user
-  const existing = await prisma.user.findUnique({
-    where: { email: input.email },
+  // 1. Determine identifier type
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.identifier);
+  const type = isEmail ? 'EMAIL' : 'PHONE';
+
+  // 2. Check for existing user
+  const existing = await prisma.user.findFirst({
+    where: isEmail ? { email: input.identifier } : { phone: input.identifier },
     select: { id: true },
   });
 
   if (existing) {
-    throw new AppError('An account with this email already exists', 409, 'EMAIL_ALREADY_EXISTS');
+    throw new AppError(`An account with this ${isEmail ? 'email' : 'phone number'} already exists`, 409, 'ACCOUNT_ALREADY_EXISTS');
   }
 
   // 2. Hash password
@@ -123,7 +127,8 @@ export async function register(
   // 3. Create user
   const user = await prisma.user.create({
     data: {
-      email: input.email,
+      email: isEmail ? input.identifier : undefined,
+      phone: !isEmail ? input.identifier : undefined,
       passwordHash,
       firstName: input.firstName,
       lastName: input.lastName,
@@ -146,9 +151,63 @@ export async function register(
     },
   });
 
-  // 4. Create token pair (new family for new login session)
+  // 4. Trigger OTP sending using the verification service
+  const { sendOtp } = await import('../verification/verification.service');
+  await sendOtp(user.id, type);
+
+  return {
+    user,
+    message: 'OTP sent. Please verify to complete registration.',
+  };
+}
+
+/**
+ * Verify Registration OTP and log the user in
+ */
+export async function verifyRegistration(
+  input: { userId: string; otp: string },
+  userAgent?: string,
+  ipAddress?: string,
+) {
+  const { verifyOtp } = await import('../verification/verification.service');
+
+  // Verify OTP first to know if it's EMAIL or PHONE that needs verification
+  const record = await prisma.verificationOtp.findFirst({
+    where: {
+      userId: input.userId,
+      otpHash: crypto.createHash('sha256').update(input.otp).digest('hex'),
+      isUsed: false,
+      expiresAt: { gt: new Date() },
+    },
+  });
+
+  if (!record) {
+    throw new AppError('Invalid or expired OTP', 400);
+  }
+
+  // We found a valid OTP, let's verify using the standard verification service
+  await verifyOtp(input.userId, record.type as 'EMAIL' | 'PHONE', input.otp);
+
+  const user = await prisma.user.findUnique({
+    where: { id: input.userId },
+  });
+
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+
+  // Now the user is verified, generate tokens
   const family = crypto.randomUUID();
-  const tokens = await buildTokenPair(user.id, user.email, user.role as UserRole, user.isOwner, user.ownerVerified, family, userAgent, ipAddress);
+  const tokens = await buildTokenPair(
+    user.id,
+    user.email || user.phone || '',
+    user.role as UserRole,
+    user.isOwner,
+    user.ownerVerified,
+    family,
+    userAgent,
+    ipAddress
+  );
 
   return { user, tokens };
 }
@@ -162,9 +221,11 @@ export async function login(
   userAgent?: string,
   ipAddress?: string,
 ) {
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.identifier);
+
   // 1. Find user (always hash even if not found — prevents user enumeration)
   const user = await prisma.user.findUnique({
-    where: { email: input.email },
+    where: isEmail ? { email: input.identifier } : { phone: input.identifier },
     select: {
       id: true,
       email: true,
@@ -210,7 +271,7 @@ export async function login(
 
   // 5. Issue token pair
   const family = crypto.randomUUID();
-  const tokens = await buildTokenPair(user.id, user.email, user.role as UserRole, user.isOwner, user.ownerVerified, family, userAgent, ipAddress);
+  const tokens = await buildTokenPair(user.id, user.email || user.phone || '', user.role as UserRole, user.isOwner, user.ownerVerified, family, userAgent, ipAddress);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { passwordHash: _, ...safeUser } = user;
@@ -236,6 +297,7 @@ export async function refreshTokens(
         select: {
           id: true,
           email: true,
+          phone: true,
           role: true,
           isOwner: true,
           ownerVerified: true,
@@ -282,7 +344,7 @@ export async function refreshTokens(
   // 6. Issue new token pair with same family (for rotation detection)
   return buildTokenPair(
     stored.user.id,
-    stored.user.email,
+    stored.user.email || stored.user.phone || '',
     stored.user.role as UserRole,
     stored.user.isOwner,
     stored.user.ownerVerified,

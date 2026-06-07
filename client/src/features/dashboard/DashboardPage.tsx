@@ -8,6 +8,7 @@
 
 import { useAuth } from '@/app/providers/AuthProvider';
 import { cn } from '@/lib/utils';
+import { VerificationBadge } from '@/features/user/VerificationBadge';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -26,9 +27,12 @@ export default function DashboardPage() {
       <main className="container-app py-12">
         {/* Welcome */}
         <div className="mb-10">
-          <h1 className="text-2xl font-bold text-secondary-900">
-            {greeting}, {user.firstName}! 👋
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-secondary-900">
+              {greeting}, {user.firstName}! 👋
+            </h1>
+            <VerificationBadge status={user.verificationStatus} />
+          </div>
           <p className="text-secondary-500 mt-1">
             Your ParkEase dashboard is being built. More features coming soon.
           </p>

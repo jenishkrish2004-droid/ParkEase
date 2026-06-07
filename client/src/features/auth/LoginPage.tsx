@@ -14,7 +14,16 @@ import { getApiErrorMessage, getApiValidationErrors } from '@/lib/api-client';
 
 // ── Validation Schema ────────────────────────────────────────
 const loginSchema = z.object({
-  email:    z.string().trim().email('Please enter a valid email address'),
+  identifier: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .refine((val) => {
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+      const isPhone = /^\+?[1-9]\d{9,14}$/.test(val);
+      return isEmail || isPhone;
+    }, 'Please enter a valid email address or phone number')
+    .transform((val) => val.trim()),
   password: z.string().min(1, 'Password is required'),
 });
 
@@ -27,8 +36,8 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Redirect to page user was trying to access, or /dashboard
-  const from = (location.state as { from?: string })?.from ?? '/dashboard';
+  // Redirect to page user was trying to access, or /
+  const from = (location.state as { from?: string })?.from ?? '/';
 
   const {
     register,
@@ -65,13 +74,15 @@ export default function LoginPage() {
       {/* Top bar */}
       <div className="bg-white border-b border-secondary-200 px-6 py-4 flex items-center justify-between shrink-0">
         <Link to="/" className="flex items-center gap-2.5 no-underline group">
-          <div className="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center group-hover:bg-primary-700 transition-colors">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M4 3h5c1.657 0 3 1.343 3 3s-1.343 3-3 3H6v4H4V3z" fill="white" />
-              <path d="M6 7h3a1 1 0 000-2H6v2z" fill="#BFDBFE" />
-            </svg>
-          </div>
-          <span className="font-bold text-base text-secondary-900 font-display tracking-tight">ParkEase</span>
+          <svg width="20" height="25" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M12 0C5.925 0 1 4.925 1 11C1 18.5 12 30 12 30C12 30 23 18.5 23 11C23 4.925 18.075 0 12 0Z" fill="#2563EB" />
+            <rect x="7" y="5.5" width="2.5" height="13" rx="0.5" fill="white" />
+            <path d="M9.5 5.5H13C16.5 5.5 16.5 12.5 13 12.5H9.5V5.5Z" fill="white" />
+            <path d="M10 7H13C14.5 7 14.5 11 13 11H10V7Z" fill="#2563EB" />
+          </svg>
+          <span className="font-bold text-base font-display tracking-tight">
+            <span className="text-secondary-900">Park</span><span className="text-primary-600">Ease</span>
+          </span>
         </Link>
         <p className="text-sm text-secondary-500">
           Don't have an account?{' '}
@@ -101,36 +112,36 @@ export default function LoginPage() {
               {/* Email */}
               <div>
                 <label
-                  htmlFor="login-email"
+                  htmlFor="login-identifier"
                   className="block text-sm font-medium text-secondary-700 mb-1.5"
                 >
-                  Email address
+                  Email or Phone Number
                 </label>
                 <input
-                  {...register('email')}
-                  id="login-email"
-                  type="email"
-                  autoComplete="email"
+                  {...register('identifier')}
+                  id="login-identifier"
+                  type="text"
+                  autoComplete="username"
                   autoFocus
-                  placeholder="you@example.com"
+                  placeholder="Enter email or phone number"
                   className={cn(
                     'w-full px-3.5 py-2.5 rounded-xl text-sm',
                     'border bg-white text-secondary-900 placeholder:text-secondary-400',
                     'transition-colors duration-150',
                     'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
-                    errors.email
+                    errors.identifier
                       ? 'border-danger-400 focus:ring-danger-500'
                       : 'border-secondary-300 hover:border-secondary-400',
                   )}
-                  aria-describedby={errors.email ? 'login-email-error' : undefined}
-                  aria-invalid={!!errors.email}
+                  aria-describedby={errors.identifier ? 'login-identifier-error' : undefined}
+                  aria-invalid={!!errors.identifier}
                 />
-                {errors.email && (
-                  <p id="login-email-error" className="mt-1.5 text-xs text-danger-600 flex items-center gap-1">
+                {errors.identifier && (
+                  <p id="login-identifier-error" className="mt-1.5 text-xs text-danger-600 flex items-center gap-1">
                     <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
-                    {errors.email.message}
+                    {errors.identifier.message}
                   </p>
                 )}
               </div>

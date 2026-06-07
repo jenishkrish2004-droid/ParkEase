@@ -104,7 +104,7 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section className="section-pad" aria-labelledby="features-heading">
+    <section id="features" className="section-pad" aria-labelledby="features-heading">
       <div className="container-app">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">

@@ -66,7 +66,7 @@ interface PublicOnlyRouteProps {
   redirectTo?: string;
 }
 
-export function PublicOnlyRoute({ children, redirectTo = '/dashboard' }: PublicOnlyRouteProps) {
+export function PublicOnlyRoute({ children, redirectTo = '/' }: PublicOnlyRouteProps) {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {

@@ -100,7 +100,7 @@ enum PricingUnit {
 
 model User {
   id              String     @id @default(cuid())
-  email           String     @unique
+  email           String?    @unique
   phone           String?    @unique
   passwordHash    String
   firstName       String
@@ -109,9 +109,10 @@ model User {
   role            UserRole   @default(USER)
   isOwner         Boolean    @default(false)
   ownerVerified   Boolean    @default(false)
-  status          UserStatus @default(ACTIVE)
-  isEmailVerified Boolean    @default(false)
-  isPhoneVerified Boolean    @default(false)
+  status          UserStatus         @default(ACTIVE)
+  verificationStatus VerificationStatus @default(PENDING)
+  isEmailVerified Boolean            @default(false)
+  isPhoneVerified Boolean            @default(false)
   lastLoginAt     DateTime?
 
   createdAt DateTime @default(now())
@@ -125,6 +126,7 @@ model User {
   complaints     Complaint[]
   notifications  Notification[]
   refreshTokens  RefreshToken[]
+  otps           VerificationOtp[]
 
   @@map("users")
 }
@@ -147,6 +149,25 @@ model RefreshToken {
   @@index([userId])
   @@index([family])
   @@map("refresh_tokens")
+}
+
+model VerificationOtp {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // "EMAIL" or "PHONE"
+  target    String?  // The unverified email or phone number being tested
+  otpHash   String   // Hashed OTP for security (or plain for dev)
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@map("verification_otps")
 }
 
 model KycDocument {

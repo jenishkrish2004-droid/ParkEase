@@ -20,9 +20,23 @@ export interface AuthResponse {
 export interface RegisterPayload {
   firstName:       string;
   lastName:        string;
-  email:           string;
+  identifier:      string;
   password:        string;
   confirmPassword: string;
+}
+
+export interface RegisterResponse {
+  user: {
+    id: string;
+    email?: string;
+    phone?: string;
+  };
+  message: string;
+}
+
+export interface VerifyRegistrationPayload {
+  userId: string;
+  otp: string;
 }
 
 export interface LoginPayload {
@@ -35,7 +49,8 @@ export interface AuthContextValue {
   isAuthenticated:   boolean;
   isLoading:         boolean;
   login:             (payload: LoginPayload) => Promise<void>;
-  register:          (payload: RegisterPayload) => Promise<void>;
+  register:          (payload: RegisterPayload) => Promise<RegisterResponse>;
+  verifyRegistration: (payload: VerifyRegistrationPayload) => Promise<void>;
   logout:            () => Promise<void>;
   logoutAll:         () => Promise<void>;
   refreshUser:       () => Promise<void>;

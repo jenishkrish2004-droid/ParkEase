@@ -24,6 +24,7 @@ const MyBookingsPage     = lazy(() => import('@/features/booking/MyBookingsPage'
 const PaymentsPage       = lazy(() => import('@/features/payment/PaymentsPage'));
 const MyVehiclesPage     = lazy(() => import('@/features/vehicle/MyVehiclesPage'));
 const MyReviewsPage      = lazy(() => import('@/features/review/MyReviewsPage'));
+const VerificationPage   = lazy(() => import('@/features/verification/VerificationPage').then(module => ({ default: module.VerificationPage })));
 
 const OwnerOnboarding    = lazy(() => import('@/features/owner/OwnerOnboarding'));
 const OwnerDashboard     = lazy(() => import('@/features/owner/OwnerDashboard'));
@@ -161,6 +162,14 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: 'verification',
+        element: (
+          <ProtectedRoute>
+            <VerificationPage />
+          </ProtectedRoute>
+        ),
+      },
 
       // Phase 4: Booking Mode Routes
       {
@@ -226,7 +235,6 @@ const router = createBrowserRouter([
       // ── Under Development Routes ──
       ...[
         'search',
-        'verification',
         'about',
         'blog',
         'careers',

@@ -10,6 +10,7 @@ import {
   registerSchema,
   loginSchema,
   refreshTokenSchema,
+  verifyRegistrationSchema,
 } from './auth.schema';
 import {
   registerHandler,
@@ -18,6 +19,7 @@ import {
   logoutHandler,
   logoutAllHandler,
   getMeHandler,
+  verifyRegistrationHandler,
 } from './auth.controller';
 
 const router = Router();
@@ -34,6 +36,18 @@ router.post(
   authLimiter,
   validate(registerSchema),
   registerHandler,
+);
+
+/**
+ * @route   POST /api/v1/auth/verify-registration
+ * @desc    Verify OTP sent during registration and get token pair
+ * @access  Public
+ */
+router.post(
+  '/verify-registration',
+  authLimiter,
+  validate(verifyRegistrationSchema),
+  verifyRegistrationHandler,
 );
 
 /**

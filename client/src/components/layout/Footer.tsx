@@ -78,13 +78,14 @@ export function Footer({ className }: FooterProps) {
               className="flex items-center gap-2.5 no-underline group w-fit"
               aria-label="ParkEase"
             >
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path d="M4 3h5c1.657 0 3 1.343 3 3s-1.343 3-3 3H6v4H4V3z" fill="white" />
-                </svg>
-              </div>
-              <span className="font-display font-bold text-lg text-white tracking-tight">
-                ParkEase
+              <svg width="20" height="25" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M12 0C5.925 0 1 4.925 1 11C1 18.5 12 30 12 30C12 30 23 18.5 23 11C23 4.925 18.075 0 12 0Z" fill="#2563EB" />
+                <rect x="7" y="5.5" width="2.5" height="13" rx="0.5" fill="white" />
+                <path d="M9.5 5.5H13C16.5 5.5 16.5 12.5 13 12.5H9.5V5.5Z" fill="white" />
+                <path d="M10 7H13C14.5 7 14.5 11 13 11H10V7Z" fill="#2563EB" />
+              </svg>
+              <span className="font-display font-bold text-lg tracking-tight">
+                <span className="text-white">Park</span><span className="text-primary-400">Ease</span>
               </span>
             </Link>
 

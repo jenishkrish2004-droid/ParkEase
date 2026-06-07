@@ -22,16 +22,16 @@ export default function OwnerDashboard() {
       </div>
 
       {/* Verification Warning */}
-      {!user?.ownerVerified && (
+      {user?.verificationStatus !== 'APPROVED' && (
         <Card className="p-4 border-warning-200 bg-warning-50 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <VerificationBadge status="PENDING" />
+            <VerificationBadge status={user?.verificationStatus || 'PENDING'} />
             <p className="text-sm font-medium text-warning-800">
-              Your owner account is not verified yet. Complete verification to start publishing listings.
+              Complete your identity verification (Email & Phone) to unlock owner features.
             </p>
           </div>
           <Button variant="outline" className="bg-white hover:bg-warning-50 text-warning-700 border-warning-300" onClick={() => navigate('/verification')}>
-            Verify Now
+            Verify Identity
           </Button>
         </Card>
       )}

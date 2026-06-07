@@ -42,13 +42,15 @@ export default function ForgotPasswordPage() {
       {/* Top bar */}
       <div className="bg-white border-b border-secondary-200 px-6 py-4 flex items-center shrink-0">
         <Link to="/" className="flex items-center gap-2.5 no-underline group">
-          <div className="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center group-hover:bg-primary-700 transition-colors">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M4 3h5c1.657 0 3 1.343 3 3s-1.343 3-3 3H6v4H4V3z" fill="white" />
-              <path d="M6 7h3a1 1 0 000-2H6v2z" fill="#BFDBFE" />
-            </svg>
-          </div>
-          <span className="font-bold text-base text-secondary-900 font-display tracking-tight">ParkEase</span>
+          <svg width="20" height="25" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M12 0C5.925 0 1 4.925 1 11C1 18.5 12 30 12 30C12 30 23 18.5 23 11C23 4.925 18.075 0 12 0Z" fill="#2563EB" />
+            <rect x="7" y="5.5" width="2.5" height="13" rx="0.5" fill="white" />
+            <path d="M9.5 5.5H13C16.5 5.5 16.5 12.5 13 12.5H9.5V5.5Z" fill="white" />
+            <path d="M10 7H13C14.5 7 14.5 11 13 11H10V7Z" fill="#2563EB" />
+          </svg>
+          <span className="font-bold text-base font-display tracking-tight">
+            <span className="text-secondary-900">Park</span><span className="text-primary-600">Ease</span>
+          </span>
         </Link>
       </div>
 
@@ -93,7 +95,7 @@ export default function ForgotPasswordPage() {
                       type="email"
                       autoComplete="email"
                       autoFocus
-                      placeholder="you@example.com"
+                      placeholder="Enter your email address"
                       className={cn(
                         'w-full px-3.5 py-2.5 rounded-xl text-sm',
                         'border bg-white text-secondary-900 placeholder:text-secondary-400',

@@ -13,14 +13,13 @@ import { PageLayout } from '@/components/layout/PageLayout';
 import { useLogout } from '@/features/auth/hooks/useAuthMutations';
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const queryClient = useQueryClient();
   const logoutMutation = useLogout();
 
   // Profile Form State
   const [firstName, setFirstName] = useState(user?.firstName || '');
   const [lastName, setLastName] = useState(user?.lastName || '');
-  const [phone, setPhone] = useState(user?.phone || '');
 
   // Password Form State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -35,9 +34,10 @@ export default function ProfilePage() {
       const res = await apiClient.patch('/profile', data);
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       showToast.success('Profile updated successfully');
       queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+      await refreshUser();
     },
     onError: (err) => {
       showToast.error(getApiErrorMessage(err));
@@ -75,7 +75,7 @@ export default function ProfilePage() {
 
   const handleProfileSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateProfileMutation.mutate({ firstName, lastName, phone });
+    updateProfileMutation.mutate({ firstName: firstName.trim(), lastName: lastName.trim() });
   };
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
@@ -104,7 +104,7 @@ export default function ProfilePage() {
                 <p className="text-secondary-500 mt-1">{user.email}</p>
                 <div className="mt-3 flex items-center justify-center sm:justify-start gap-2">
                   <span className="text-sm text-secondary-600 font-medium">Status:</span>
-                  <VerificationBadge status={user.ownerVerified ? 'APPROVED' : 'PENDING'} />
+                  <VerificationBadge status={user.verificationStatus} />
                 </div>
               </div>
             </div>
@@ -128,13 +128,25 @@ export default function ProfilePage() {
                   required
                 />
               </div>
-              <Input
-                label="Phone Number"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+91 9876543210"
-              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div>
+                  <label className="block text-sm font-medium text-secondary-700 mb-1.5">Email Address</label>
+                  <div className="px-4 py-2.5 bg-secondary-50 border border-secondary-200 rounded-xl text-secondary-500 sm:text-sm">
+                    {user.email || 'Not provided'}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-secondary-700 mb-1.5">Phone Number</label>
+                  <div className="px-4 py-2.5 bg-secondary-50 border border-secondary-200 rounded-xl text-secondary-500 sm:text-sm flex justify-between items-center">
+                    <span>{user.phone || 'Not provided'}</span>
+                    {!user.phone && (
+                      <a href="/verification" className="text-primary-600 hover:text-primary-700 font-medium text-xs no-underline">
+                        Add in Verification
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
               <div className="flex justify-end">
                 <Button type="submit" isLoading={updateProfileMutation.isPending}>
                   Save Changes

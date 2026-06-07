@@ -15,7 +15,7 @@ import {
 import type { IUser } from '@parkease/shared';
 import * as authService from '@/features/auth/auth.service';
 import { getRefreshToken, hasSession, clearTokens } from '@/lib/token';
-import type { AuthContextValue, LoginPayload, RegisterPayload } from '@/features/auth/auth.types';
+import type { AuthContextValue, LoginPayload, RegisterPayload, VerifyRegistrationPayload } from '@/features/auth/auth.types';
 
 // ── Context ──────────────────────────────────────────────────
 
@@ -73,7 +73,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const register = useCallback(async (payload: RegisterPayload) => {
-    const { user: authUser } = await authService.register(payload);
+    return await authService.register(payload);
+  }, []);
+
+  const verifyRegistration = useCallback(async (payload: VerifyRegistrationPayload) => {
+    const { user: authUser } = await authService.verifyRegistration(payload);
     setUser(authUser as IUser);
   }, []);
 
@@ -106,6 +110,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isLoading,
     login,
     register,
+    verifyRegistration,
     logout,
     logoutAll,
     refreshUser,
