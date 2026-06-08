@@ -67,7 +67,7 @@ export interface FooterProps {
 
 export function Footer({ className }: FooterProps) {
   return (
-    <footer className={cn('bg-secondary-900 text-secondary-300', className)}>
+    <footer className={cn('bg-secondary-50 dark:bg-[#110e07] border-t border-secondary-200 dark:border-[#4d4635]/30 text-secondary-600 dark:text-secondary-300 transition-colors duration-300', className)}>
       {/* Main Footer */}
       <div className="container-app pt-16 pb-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 lg:gap-12">
@@ -79,17 +79,17 @@ export function Footer({ className }: FooterProps) {
               aria-label="ParkEase"
             >
               <svg width="20" height="25" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M12 0C5.925 0 1 4.925 1 11C1 18.5 12 30 12 30C12 30 23 18.5 23 11C23 4.925 18.075 0 12 0Z" fill="#2563EB" />
-                <rect x="7" y="5.5" width="2.5" height="13" rx="0.5" fill="white" />
-                <path d="M9.5 5.5H13C16.5 5.5 16.5 12.5 13 12.5H9.5V5.5Z" fill="white" />
-                <path d="M10 7H13C14.5 7 14.5 11 13 11H10V7Z" fill="#2563EB" />
+                <path d="M12 0C5.925 0 1 4.925 1 11C1 18.5 12 30 12 30C12 30 23 18.5 23 11C23 4.925 18.075 0 12 0Z" fill="#f2ca50" />
+                <rect x="7" y="5.5" width="2.5" height="13" rx="0.5" fill="white" className="dark:fill-white fill-white" />
+                <path d="M9.5 5.5H13C16.5 5.5 16.5 12.5 13 12.5H9.5V5.5Z" fill="white" className="dark:fill-white fill-white" />
+                <path d="M10 7H13C14.5 7 14.5 11 13 11H10V7Z" fill="#f2ca50" />
               </svg>
               <span className="font-display font-bold text-lg tracking-tight">
-                <span className="text-white">Park</span><span className="text-primary-400">Ease</span>
+                <span className="text-secondary-900 dark:text-white">Park</span><span className="text-primary-600 dark:text-primary-400">Ease</span>
               </span>
             </Link>
 
-            <p className="mt-4 text-sm text-secondary-400 leading-relaxed max-w-xs">
+            <p className="mt-4 text-sm text-secondary-600 dark:text-secondary-400 leading-relaxed max-w-xs">
               India's most trusted parking platform. Find, book, and pay for parking in seconds across 100+ cities.
             </p>
 
@@ -104,8 +104,10 @@ export function Footer({ className }: FooterProps) {
                   aria-label={social.label}
                   className={cn(
                     'w-9 h-9 rounded-lg flex items-center justify-center',
-                    'bg-secondary-800 text-secondary-400',
-                    'hover:bg-secondary-700 hover:text-white',
+                    'bg-white text-secondary-600 border border-secondary-200',
+                    'hover:bg-secondary-50 hover:text-primary-600',
+                    'dark:bg-secondary-800 dark:text-secondary-400 dark:border-none',
+                    'dark:hover:bg-secondary-700 dark:hover:text-white',
                     'transition-colors no-underline',
                   )}
                 >
@@ -116,10 +118,10 @@ export function Footer({ className }: FooterProps) {
 
             {/* App Badges */}
             <div className="flex items-center gap-3 mt-5">
-              <Link to="/mobile-app" className="px-3 py-2 bg-secondary-800 rounded-lg border border-secondary-700 text-xs text-secondary-400 hover:bg-secondary-700 cursor-pointer transition-colors no-underline">
+              <Link to="/mobile-app" className="px-3 py-2 bg-white dark:bg-secondary-800 rounded-lg border border-secondary-200 dark:border-secondary-700 text-xs text-secondary-600 dark:text-secondary-400 hover:bg-secondary-50 dark:hover:bg-secondary-700 cursor-pointer transition-colors no-underline">
                 📱 App Store
               </Link>
-              <Link to="/mobile-app" className="px-3 py-2 bg-secondary-800 rounded-lg border border-secondary-700 text-xs text-secondary-400 hover:bg-secondary-700 cursor-pointer transition-colors no-underline">
+              <Link to="/mobile-app" className="px-3 py-2 bg-white dark:bg-secondary-800 rounded-lg border border-secondary-200 dark:border-secondary-700 text-xs text-secondary-600 dark:text-secondary-400 hover:bg-secondary-50 dark:hover:bg-secondary-700 cursor-pointer transition-colors no-underline">
                 🤖 Google Play
               </Link>
             </div>
@@ -128,7 +130,7 @@ export function Footer({ className }: FooterProps) {
           {/* Link Columns */}
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category} className="lg:col-span-1">
-              <h3 className="text-sm font-semibold text-white mb-4 tracking-wide">
+              <h3 className="text-sm font-semibold text-secondary-900 dark:text-white mb-4 tracking-wide">
                 {category}
               </h3>
               <ul className="flex flex-col gap-3" role="list">
@@ -137,7 +139,8 @@ export function Footer({ className }: FooterProps) {
                     <Link
                       to={link.href}
                       className={cn(
-                        'text-sm text-secondary-400 hover:text-white',
+                        'text-sm text-secondary-600 hover:text-primary-600',
+                        'dark:text-secondary-400 dark:hover:text-white',
                         'transition-colors no-underline',
                       )}
                     >
@@ -152,19 +155,19 @@ export function Footer({ className }: FooterProps) {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-secondary-800">
+      <div className="border-t border-secondary-200 dark:border-secondary-800">
         <div className="container-app py-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-secondary-500 text-center md:text-left">
             © {new Date().getFullYear()} ParkEase Technologies Pvt. Ltd. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
-            <Link to="/privacy" className="text-xs text-secondary-500 hover:text-secondary-300 no-underline transition-colors">
+            <Link to="/privacy" className="text-xs text-secondary-500 hover:text-secondary-700 dark:hover:text-secondary-300 no-underline transition-colors">
               Privacy
             </Link>
-            <Link to="/terms" className="text-xs text-secondary-500 hover:text-secondary-300 no-underline transition-colors">
+            <Link to="/terms" className="text-xs text-secondary-500 hover:text-secondary-700 dark:hover:text-secondary-300 no-underline transition-colors">
               Terms
             </Link>
-            <Link to="/cookies" className="text-xs text-secondary-500 hover:text-secondary-300 no-underline transition-colors">
+            <Link to="/cookies" className="text-xs text-secondary-500 hover:text-secondary-700 dark:hover:text-secondary-300 no-underline transition-colors">
               Cookies
             </Link>
           </div>

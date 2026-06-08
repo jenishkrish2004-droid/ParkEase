@@ -7,6 +7,11 @@
 
 import { Router, Request, Response } from 'express';
 import { authRouter } from './modules/auth';
+import { profileRoutes } from './modules/user/user.routes';
+import verificationRoutes from './modules/verification/verification.routes';
+import kycRoutes from './modules/kyc/kyc.routes';
+import selfieRoutes from './modules/selfie/selfie.routes';
+import payoutRoutes from './modules/payout/payout.routes';
 
 const router = Router();
 
@@ -32,21 +37,19 @@ router.get('/health', (_req: Request, res: Response) => {
 // Phase 2: Auth routes ✅
 router.use('/auth', authRouter);
 
-import { profileRoutes } from './modules/user';
-import { verificationRoutes } from './modules/verification';
-import kycRoutes from './modules/kyc/kyc.routes';
-
 // Phase 4: User routes
 router.use('/profile', profileRoutes);
 
 // Phase 5: Verification routes
 router.use('/verification', verificationRoutes);
 
-// Phase 6: KYC Identity Verification
+// Phase 6: Identity and Selfie Verification
 router.use('/kyc', kycRoutes);
+router.use('/owner/selfie', selfieRoutes);
 
 // Phase 7: Owner routes
 // router.use('/owner', ownerRoutes);
+router.use('/owner/payout', payoutRoutes);
 
 // Phase 9: Parking spot routes
 // router.use('/parking-spots', parkingSpotRoutes);

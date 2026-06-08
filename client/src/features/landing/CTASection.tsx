@@ -1,10 +1,9 @@
 // ============================================================
-// Landing Page — Testimonials & CTA Sections
+// Landing Page — Testimonials & CTA Sections (Premium Theme)
 // ============================================================
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Avatar } from '@/components/ui/Avatar';
-import { Badge } from '@/components/ui/Badge';
 
 // ── Testimonials ─────────────────────────────────────────────
 const testimonials = [
@@ -39,17 +38,15 @@ const testimonials = [
 
 function StarRating({ count }: { count: number }) {
   return (
-    <div className="flex gap-0.5" aria-label={`${count} out of 5 stars`}>
+    <div className="flex gap-1" aria-label={`${count} out of 5 stars`}>
       {Array.from({ length: 5 }).map((_, i) => (
-        <svg
+        <span
           key={i}
-          className={cn('w-4 h-4', i < count ? 'text-amber-400' : 'text-secondary-200')}
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          aria-hidden="true"
+          className={cn('material-symbols-outlined text-[18px]', i < count ? 'text-[#f2ca50]' : 'text-[#4d4635]')}
+          style={{ fontVariationSettings: "'FILL' 1" }}
         >
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-        </svg>
+          star
+        </span>
       ))}
     </div>
   );
@@ -57,13 +54,13 @@ function StarRating({ count }: { count: number }) {
 
 export function TestimonialsSection() {
   return (
-    <section className="section-pad bg-white" aria-labelledby="testimonials-heading">
-      <div className="container-app">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <p className="text-sm font-semibold text-primary-600 uppercase tracking-wider mb-3">
+    <section className="section-pad bg-secondary-50 dark:bg-[#0a0a0b] relative overflow-hidden transition-colors duration-300" aria-labelledby="testimonials-heading">
+      <div className="container-app relative z-10">
+        <div className="text-center max-w-2xl mx-auto mb-16">
+          <p className="text-xs font-bold text-primary-600 dark:text-[#f2ca50] uppercase tracking-[0.2em] mb-4">
             Loved by drivers & owners
           </p>
-          <h2 id="testimonials-heading" className="text-display-md text-secondary-900 text-balance">
+          <h2 id="testimonials-heading" className="text-display-md font-display font-bold text-secondary-900 dark:text-[#eae1d4] text-balance tracking-tight">
             What our users say
           </h2>
         </div>
@@ -73,25 +70,29 @@ export function TestimonialsSection() {
             <figure
               key={i}
               className={cn(
-                'group p-6 rounded-2xl border border-secondary-100 bg-white',
-                'hover:border-primary-200 hover:shadow-elevated',
-                'transition-all duration-200 hover:-translate-y-0.5',
-                'flex flex-col',
+                'group p-8 rounded-2xl border border-secondary-200 dark:border-[#4d4635]/50 bg-white dark:bg-[#110e07]',
+                'hover:border-primary-300 dark:hover:border-[#f2ca50]/30 hover:bg-secondary-50 dark:hover:bg-[#1a1710] hover:shadow-lg dark:hover:shadow-[0_8px_30px_rgba(242,202,80,0.05)]',
+                'transition-all duration-300 hover:-translate-y-1',
+                'flex flex-col relative overflow-hidden',
               )}
             >
+              <div className="absolute top-0 right-0 p-6 opacity-[0.03] pointer-events-none group-hover:opacity-[0.08] transition-opacity">
+                <span className="material-symbols-outlined text-[100px] text-primary-600 dark:text-[#f2ca50]">format_quote</span>
+              </div>
+              
               <StarRating count={t.rating} />
 
-              <blockquote className="mt-4 flex-1">
-                <p className="text-sm text-secondary-600 leading-relaxed">
+              <blockquote className="mt-6 flex-1 relative z-10">
+                <p className="text-body-md text-secondary-600 dark:text-[#d0c5af] leading-relaxed italic">
                   &ldquo;{t.quote}&rdquo;
                 </p>
               </blockquote>
 
-              <figcaption className="mt-6 flex items-center gap-3">
-                <Avatar firstName={t.firstName} lastName={t.lastName} size="sm" />
+              <figcaption className="mt-8 flex items-center gap-4 relative z-10 pt-6 border-t border-secondary-100 dark:border-[#4d4635]/30">
+                <Avatar firstName={t.firstName} lastName={t.lastName} size="md" />
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-secondary-900 truncate">{t.name}</p>
-                  <p className="text-xs text-secondary-500 truncate">{t.role}</p>
+                  <p className="text-sm font-bold tracking-tight text-secondary-900 dark:text-[#eae1d4] truncate">{t.name}</p>
+                  <p className="text-xs text-secondary-500 dark:text-[#d0c5af] truncate">{t.role}</p>
                 </div>
               </figcaption>
             </figure>
@@ -106,50 +107,50 @@ export function TestimonialsSection() {
 export function CTASection() {
   return (
     <section
-      className="section-pad bg-primary-600 relative overflow-hidden"
+      className="section-pad bg-primary-600 dark:bg-[#1a1710] border-t border-transparent dark:border-[#f2ca50]/10 relative overflow-hidden transition-colors duration-300"
       aria-labelledby="cta-heading"
     >
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary-500 rounded-full blur-3xl opacity-40 translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary-700 rounded-full blur-2xl opacity-40 -translate-x-1/3 translate-y-1/3" />
-        <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white dark:bg-[#f2ca50] opacity-10 dark:opacity-[0.04] blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[400px] h-[400px] bg-primary-300 dark:bg-[#d4af37] opacity-20 dark:opacity-[0.06] blur-[100px] rounded-full" />
+        <svg className="absolute inset-0 w-full h-full opacity-10 dark:opacity-[0.03]" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <defs>
             <pattern id="cta-grid" width="32" height="32" patternUnits="userSpaceOnUse">
-              <path d="M 32 0 L 0 0 0 32" fill="none" stroke="white" strokeWidth="1" />
+              <path d="M 32 0 L 0 0 0 32" fill="none" stroke="currentColor" className="text-white dark:text-[#f2ca50]" strokeWidth="1" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#cta-grid)" />
         </svg>
       </div>
 
-      <div className="container-app relative text-center">
+      <div className="container-app relative text-center z-10">
         <div className="max-w-3xl mx-auto">
-          <Badge variant="outline" className="border-primary-400 text-primary-100 mb-6">
-            🚀 Get started for free
-          </Badge>
+          <div className="inline-flex mb-8">
+             <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-white/10 dark:bg-[#f2ca50]/10 border border-white/20 dark:border-[#f2ca50]/20 text-white dark:text-[#f2ca50] text-xs tracking-widest uppercase font-semibold">
+                🚀 Get started for free
+             </span>
+          </div>
 
           <h2
             id="cta-heading"
-            className="text-display-md text-white text-balance font-display font-bold"
+            className="text-display-md text-white dark:text-[#eae1d4] text-balance font-display font-bold tracking-tight"
           >
             Stop wasting time looking for parking
           </h2>
 
-          <p className="mt-5 text-lg text-primary-100 max-w-xl mx-auto">
+          <p className="mt-6 text-lg text-primary-100 dark:text-[#d0c5af] max-w-xl mx-auto leading-relaxed">
             Join 50,000+ drivers who book parking effortlessly every day.
             No subscription needed — pay only when you park.
           </p>
 
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-5">
             <Link
               to="/register"
               className={cn(
-                'inline-flex items-center justify-center px-6 py-3 rounded-xl',
-                'font-semibold text-base text-primary-600',
-                'bg-white hover:bg-primary-50',
-                'shadow-lg hover:shadow-xl transition-all duration-200',
-                'no-underline',
+                'gold-glow-button w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-xl',
+                'font-bold text-base text-[#3c2f00]',
+                'transition-all duration-300 no-underline shadow-lg hover:shadow-xl dark:shadow-[0_0_20px_rgba(242,202,80,0.2)] dark:hover:shadow-[0_0_30px_rgba(242,202,80,0.4)]',
               )}
             >
               Find Parking Now
@@ -157,10 +158,10 @@ export function CTASection() {
             <Link
               to="/register"
               className={cn(
-                'inline-flex items-center justify-center px-6 py-3 rounded-xl',
-                'font-medium text-base text-white',
-                'border border-primary-400 hover:bg-primary-700 hover:border-primary-300',
-                'transition-all duration-200 no-underline',
+                'w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-xl',
+                'font-bold text-base text-white dark:text-[#f2ca50]',
+                'border border-white/30 dark:border-[#f2ca50]/30 hover:bg-white/10 dark:hover:bg-[#f2ca50]/10 hover:border-white/60 dark:hover:border-[#f2ca50]/60',
+                'transition-all duration-300 no-underline',
               )}
             >
               List Your Space →
@@ -168,7 +169,7 @@ export function CTASection() {
           </div>
 
           {/* Micro Social Proof */}
-          <p className="mt-8 text-sm text-primary-200">
+          <p className="mt-10 text-xs font-medium tracking-wide text-primary-100 dark:text-[#d0c5af]/60">
             Free to sign up · No credit card required · Cancel anytime
           </p>
         </div>

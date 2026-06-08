@@ -1,23 +1,24 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
-        // Primary brand color — Professional blue
+        // Primary brand color — Premium Gold
         primary: {
-          50: '#EFF6FF',
-          100: '#DBEAFE',
-          200: '#BFDBFE',
-          300: '#93C5FD',
-          400: '#60A5FA',
-          500: '#3B82F6',
-          600: '#2563EB',
-          700: '#1D4ED8',
-          800: '#1E40AF',
-          900: '#1E3A8A',
-          950: '#172554',
+          50: '#fffbf0',
+          100: '#fef1cf',
+          200: '#fceb96',
+          300: '#f7d863',
+          400: '#f4c53d',
+          500: '#f2ca50',
+          600: '#d4af37',
+          700: '#b28e29',
+          800: '#8c6e24',
+          900: '#735923',
+          950: '#42310e',
         },
         // Secondary — Warm neutral
         secondary: {

@@ -47,6 +47,25 @@ enum KycStatus {
   REJECTED
 }
 
+enum PayoutMethod {
+  BANK
+  UPI
+}
+
+enum PayoutStatus {
+  NOT_CONFIGURED
+  CONFIGURED
+  VERIFIED
+  REJECTED
+}
+
+enum SelfieStatus {
+  NOT_SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
 enum BookingStatus {
   PENDING
   CONFIRMED
@@ -130,6 +149,8 @@ model User {
   // Relations
   kycProfile     KycProfile?
   ownerProfile   OwnerProfile?
+  payoutAccount  OwnerPayoutAccount?
+  selfieVerification SelfieVerification?
   bookings       Booking[]
   reviews        Review[]
   complaints     Complaint[]
@@ -225,6 +246,50 @@ model OwnerProfile {
   parkingSpots ParkingSpot[]
 
   @@map("owner_profiles")
+}
+
+model OwnerPayoutAccount {
+  id                String       @id @default(cuid())
+  userId            String       @unique
+  accountHolderName String
+  payoutMethod      PayoutMethod
+  
+  // Bank fields
+  bankName          String?
+  accountNumber     String?
+  ifscCode          String?
+  
+  // UPI fields
+  upiId             String?
+  
+  status            PayoutStatus @default(NOT_CONFIGURED)
+  isVerified        Boolean      @default(false)
+  
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  // Relations
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("owner_payout_accounts")
+}
+
+model SelfieVerification {
+  id            String       @id @default(cuid())
+  userId        String       @unique
+  imageUrl      String?
+  status        SelfieStatus @default(NOT_SUBMITTED)
+  reviewerNotes String?
+  submittedAt   DateTime?
+  reviewedAt    DateTime?
+  
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Relations
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("selfie_verifications")
 }
 
 model ParkingSpot {

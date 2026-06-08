@@ -9,7 +9,7 @@ import { TestimonialsSection, CTASection } from './CTASection';
 
 export default function LandingPage() {
   return (
-    <PageLayout headerTransparent={false} showFooter>
+    <PageLayout headerTransparent={false} showFooter mainClassName="bg-[#110e07]">
       <HeroSection />
       <StatsSection />
       <FeaturesSection />

@@ -12,6 +12,7 @@ import { useAuth } from '@/app/providers/AuthProvider';
 import { Avatar } from '@/components/ui/Avatar';
 import { useLogout } from '@/features/auth/hooks/useAuthMutations';
 import { useParkEaseMode, commitModeSync, type ParkEaseMode } from '@/app/providers/useParkEaseMode';
+import { useTheme } from '@/app/providers/ThemeProvider';
 
 // ── Nav items (unauthenticated view only) ────────────────────
 const NAV_ITEMS: { label: string; href: string }[] = [];
@@ -48,6 +49,7 @@ export function Header({ transparent = false, className }: HeaderProps) {
       className={cn(
         'sticky top-0 z-[100] transition-all duration-300',
         headerBg,
+        'dark:bg-[#110e07]/95 dark:border-[#4d4635]',
         className,
       )}
     >
@@ -60,37 +62,43 @@ export function Header({ transparent = false, className }: HeaderProps) {
             className="flex items-center gap-2.5 shrink-0 group no-underline"
             aria-label="ParkEase — Go to homepage"
           >
-            <ParkEaseLogo />
-            <span className="font-display font-bold text-lg tracking-tight">
-              <span className="text-secondary-900">Park</span><span className="text-primary-600">Ease</span>
+            <span className="font-display font-bold text-2xl tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-700 dark:from-[#fceb96] dark:to-[#d4af37]">
+              ParkEase
             </span>
           </Link>
 
-          {/* ── Desktop Nav ── */}
-          <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.href}
-                to={item.href}
-                className={cn(
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-colors no-underline',
-                  location.pathname === item.href
-                    ? 'text-primary-600 bg-primary-50'
-                    : 'text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100',
-                )}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          {/* ── Center: Mode Switcher (Auth) or Nav (Unauth) ── */}
+          <div className="hidden md:flex flex-1 items-center justify-center">
+            {isAuthenticated && user ? (
+              <ModeSwitcher user={user} />
+            ) : (
+              <nav className="flex items-center gap-1" aria-label="Main navigation">
+                {NAV_ITEMS.map((item) => (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    className={cn(
+                      'px-4 py-2 rounded-lg text-sm font-medium transition-colors no-underline',
+                      location.pathname === item.href
+                        ? 'text-primary-600 bg-primary-50 dark:bg-primary-950/30 dark:text-primary-400'
+                        : 'text-secondary-600 hover:text-secondary-900 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:text-secondary-100 dark:hover:bg-secondary-800',
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+            )}
+          </div>
 
           {/* ── Right Side: Auth-Aware ── */}
           <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle />
             {isLoading ? (
               /* Skeleton to prevent layout shift */
               <div className="flex items-center gap-3">
-                <div className="w-20 h-8 bg-secondary-100 rounded-lg animate-pulse" />
-                <div className="w-8 h-8 bg-secondary-100 rounded-full animate-pulse" />
+                <div className="w-20 h-8 bg-secondary-100 dark:bg-secondary-800 rounded-lg animate-pulse" />
+                <div className="w-8 h-8 bg-secondary-100 dark:bg-secondary-800 rounded-full animate-pulse" />
               </div>
             ) : isAuthenticated && user ? (
               <AuthenticatedNav user={user} />
@@ -100,6 +108,7 @@ export function Header({ transparent = false, className }: HeaderProps) {
           </div>
 
           {/* ── Mobile Toggle ── */}
+            <ThemeToggle className="md:hidden mr-2" />
           <button
             type="button"
             onClick={() => setMenuOpen((v) => !v)}
@@ -107,7 +116,7 @@ export function Header({ transparent = false, className }: HeaderProps) {
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             className={cn(
               'md:hidden flex items-center justify-center w-9 h-9 rounded-lg',
-              'text-secondary-600 hover:bg-secondary-100 transition-colors',
+              'text-secondary-600 hover:bg-secondary-100 dark:text-secondary-400 dark:hover:bg-secondary-800 transition-colors',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
             )}
           >
@@ -198,9 +207,6 @@ function AuthenticatedNav({ user }: { user: { firstName: string; lastName: strin
 
   return (
     <div className="flex items-center gap-3">
-      {/* Mode Switcher */}
-      <ModeSwitcher user={user} />
-
       {/* User Menu */}
       <div className="relative" ref={menuRef}>
         <button
@@ -209,8 +215,10 @@ function AuthenticatedNav({ user }: { user: { firstName: string; lastName: strin
           aria-expanded={menuOpen}
           aria-label="Open user menu"
           className={cn(
-            'flex items-center gap-2 px-2 py-1.5 rounded-xl',
-            'hover:bg-secondary-100 transition-colors',
+            'flex items-center gap-2 px-2 py-1.5 rounded-xl border border-transparent transition-all duration-150',
+            menuOpen
+              ? 'bg-secondary-100 dark:bg-[#f2ca50]/15 dark:backdrop-blur-md dark:border-[#f2ca50]/30 dark:shadow-[0_0_15px_rgba(242,202,80,0.15)]'
+              : 'hover:bg-secondary-100 dark:hover:bg-black/40 dark:hover:border-[#4d4635]/50 dark:hover:backdrop-blur-md',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
           )}
         >
@@ -221,8 +229,8 @@ function AuthenticatedNav({ user }: { user: { firstName: string; lastName: strin
             size="sm"
           />
           <div className="hidden lg:block text-left">
-            <p className="text-sm font-medium text-secondary-900 leading-none">{user.firstName} {user.lastName}</p>
-            <p className="text-xs text-secondary-500 mt-0.5 truncate max-w-[120px]">{user.email}</p>
+            <p className="text-sm font-medium text-secondary-900 dark:text-[#eae1d4] leading-none">{user.firstName} {user.lastName}</p>
+            <p className="text-xs text-secondary-500 dark:text-[#d0c5af] mt-0.5 truncate max-w-[120px]">{user.email}</p>
           </div>
           <svg className="w-3.5 h-3.5 text-secondary-400 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -233,19 +241,19 @@ function AuthenticatedNav({ user }: { user: { firstName: string; lastName: strin
         {menuOpen && (
           <div className={cn(
             'absolute right-0 top-full mt-2 w-56',
-            'bg-white rounded-2xl border border-secondary-200 shadow-elevated',
+            'bg-white dark:bg-[#110e07] dark:surface-glass rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-elevated',
             'py-1 z-50 animate-fade-in',
           )}>
             {/* User info */}
-            <div className="px-4 py-3 border-b border-secondary-100">
-              <p className="text-sm font-semibold text-secondary-900">{user.firstName} {user.lastName}</p>
-              <p className="text-xs text-secondary-500 truncate mt-0.5">{user.email}</p>
+            <div className="px-4 py-3 border-b border-secondary-100 dark:border-[#4d4635]/50">
+              <p className="text-sm font-semibold text-secondary-900 dark:text-[#eae1d4]">{user.firstName} {user.lastName}</p>
+              <p className="text-xs text-secondary-500 dark:text-[#d0c5af] truncate mt-0.5">{user.email}</p>
               <div className="mt-2 flex items-center">
                 <span className={cn(
                   "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider",
-                  user.verificationStatus === 'APPROVED' ? "bg-success-100 text-success-700" :
+                  user.verificationStatus === 'APPROVED' ? "bg-success-100 text-success-700 dark:bg-[#f2ca50]/20 dark:text-[#f2ca50]" :
                   user.verificationStatus === 'PENDING' ? "bg-warning-100 text-warning-700" :
-                  "bg-secondary-100 text-secondary-700"
+                  "bg-secondary-100 text-secondary-700 dark:bg-white/10 dark:text-white/60"
                 )}>
                   {user.verificationStatus === 'APPROVED' ? 'Verified' : 'Unverified'}
                 </span>
@@ -255,12 +263,12 @@ function AuthenticatedNav({ user }: { user: { firstName: string; lastName: strin
             <div className="py-1">
               <HeaderDropdownLinks setMenuOpen={setMenuOpen} />
             </div>
-            <div className="border-t border-secondary-100 py-1">
+            <div className="border-t border-secondary-100 dark:border-[#4d4635]/50 py-1">
               <button
                 type="button"
                 onClick={() => { logoutMutation.mutate(); setMenuOpen(false); }}
                 disabled={logoutMutation.isPending}
-                className="w-full text-left px-4 py-2.5 text-sm text-danger-600 hover:bg-danger-50 transition-colors flex items-center gap-2.5 disabled:opacity-50"
+                className="w-full text-left px-4 py-2.5 text-sm text-danger-600 dark:text-[#ffb4ab] hover:bg-danger-50 dark:hover:bg-[#ffb4ab]/10 transition-colors flex items-center gap-2.5 disabled:opacity-50"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -285,7 +293,7 @@ function HeaderDropdownLinks({ setMenuOpen }: { setMenuOpen: (v: boolean) => voi
     setMenuOpen(false);
   };
 
-  const navItemClass = "w-full text-left px-4 py-2.5 text-sm text-secondary-700 hover:bg-secondary-50 transition-colors flex items-center gap-2.5";
+  const navItemClass = "w-full text-left px-4 py-2.5 text-sm text-secondary-700 dark:text-[#eae1d4] hover:bg-secondary-50 dark:hover:bg-[#f2ca50]/10 transition-colors flex items-center gap-2.5";
 
   if (mode === 'owner') {
     return (
@@ -305,7 +313,7 @@ function HeaderDropdownLinks({ setMenuOpen }: { setMenuOpen: (v: boolean) => voi
         <button type="button" onClick={() => handleNav('/owner/earnings')} className={navItemClass}>
           Earnings
         </button>
-        <div className="my-1 border-t border-secondary-100" />
+        <div className="my-1 border-t border-secondary-100 dark:border-[#4d4635]/50" />
         <button type="button" onClick={() => handleNav('/profile')} className={navItemClass}>
           Profile
         </button>
@@ -333,7 +341,7 @@ function HeaderDropdownLinks({ setMenuOpen }: { setMenuOpen: (v: boolean) => voi
       <button type="button" onClick={() => handleNav('/reviews')} className={navItemClass}>
         My Reviews
       </button>
-      <div className="my-1 border-t border-secondary-100" />
+      <div className="my-1 border-t border-secondary-100 dark:border-[#4d4635]/50" />
       <button type="button" onClick={() => handleNav('/profile')} className={navItemClass}>
         Profile
       </button>
@@ -372,7 +380,7 @@ function ModeSwitcher({ user }: { user: { isOwner: boolean; ownerVerified: boole
 
   return (
     <div
-      className="flex items-center bg-secondary-100 rounded-xl p-0.5 gap-0.5"
+      className="flex items-center bg-secondary-100 dark:bg-black/40 dark:backdrop-blur-md border border-transparent dark:border-[#4d4635]/50 rounded-xl p-0.5 gap-0.5"
       role="group"
       aria-label="Switch between Booking and Owner mode"
     >
@@ -383,15 +391,15 @@ function ModeSwitcher({ user }: { user: { isOwner: boolean; ownerVerified: boole
         className={cn(
           'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150',
           activeMode === 'booking'
-            ? 'bg-white text-primary-600 shadow-sm'
-            : 'text-secondary-500 hover:text-secondary-700',
+            ? 'bg-white dark:bg-transparent text-primary-600 shadow-sm dark:bg-[#f2ca50]/15 dark:backdrop-blur-md dark:text-[#fceb96] dark:shadow-[0_0_15px_rgba(242,202,80,0.2)] dark:border dark:border-[#f2ca50]/30'
+            : 'text-secondary-500 hover:text-secondary-700 dark:text-[#eae1d4]/70 dark:hover:text-[#eae1d4]',
         )}
       >
         <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
         </svg>
-        Booking
+        Find Parking
       </button>
       <button
         type="button"
@@ -401,14 +409,14 @@ function ModeSwitcher({ user }: { user: { isOwner: boolean; ownerVerified: boole
         className={cn(
           'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150',
           activeMode === 'owner'
-            ? 'bg-white text-amber-600 shadow-sm'
-            : 'text-secondary-500 hover:text-secondary-700',
+            ? 'bg-white dark:bg-transparent text-amber-600 shadow-sm dark:bg-[#f2ca50]/15 dark:backdrop-blur-md dark:text-[#fceb96] dark:shadow-[0_0_15px_rgba(242,202,80,0.2)] dark:border dark:border-[#f2ca50]/30'
+            : 'text-secondary-500 hover:text-secondary-700 dark:text-[#eae1d4]/70 dark:hover:text-[#eae1d4]',
         )}
       >
         <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
         </svg>
-        Owner
+        List your Space
       </button>
     </div>
   );
@@ -510,14 +518,40 @@ function ParkEaseLogo({ size = 30 }: { size?: number }) {
       {/* Pin body */}
       <path
         d="M12 0C5.925 0 1 4.925 1 11C1 18.5 12 30 12 30C12 30 23 18.5 23 11C23 4.925 18.075 0 12 0Z"
-        fill="#2563EB"
+        fill="#f2ca50"
       />
       {/* P — vertical stem */}
       <rect x="7" y="5.5" width="2.5" height="13" rx="0.5" fill="white" />
       {/* P — outer bowl */}
       <path d="M9.5 5.5H13C16.5 5.5 16.5 12.5 13 12.5H9.5V5.5Z" fill="white" />
       {/* P — inner counter (blue cutout to make the loop visible) */}
-      <path d="M10 7H13C14.5 7 14.5 11 13 11H10V7Z" fill="#2563EB" />
+      <path d="M10 7H13C14.5 7 14.5 11 13 11H10V7Z" fill="#f2ca50" />
     </svg>
   );
 }
+
+// ── Theme Toggle Component ─────────────────────────────────────
+function ThemeToggle({ className }: { className?: string }) {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <button
+      type="button"
+      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      className={cn(
+        'flex items-center justify-center w-9 h-9 rounded-xl transition-colors',
+        'text-secondary-600 hover:bg-secondary-100 hover:text-secondary-900',
+        'dark:text-secondary-400 dark:hover:bg-secondary-800 dark:hover:text-secondary-100',
+        className
+      )}
+      aria-label="Toggle theme"
+    >
+      {theme === 'dark' ? (
+        <span className="material-symbols-outlined text-[20px]">light_mode</span>
+      ) : (
+        <span className="material-symbols-outlined text-[20px]">dark_mode</span>
+      )}
+    </button>
+  );
+}
+

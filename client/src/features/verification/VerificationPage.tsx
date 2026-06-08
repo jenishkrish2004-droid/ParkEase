@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { getVerificationStatus, sendOtp, verifyOtp, type VerificationStatusResponse } from './verification.service';
 import { getKycStatus, saveKycDraft, submitKyc, uploadKycDocument, type KycProfile } from './kyc.service';
+import { getPayoutAccount, savePayoutAccount, type OwnerPayoutAccount } from './payout.service';
+import { getSelfieStatus, uploadSelfie, type SelfieVerification } from './selfie.service';
 import { useParkEaseMode } from '@/app/providers/useParkEaseMode';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
@@ -38,6 +40,8 @@ export function VerificationPage() {
   const [mode] = useParkEaseMode();
   const [status, setStatus] = useState<VerificationStatusResponse | null>(null);
   const [kycProfile, setKycProfile] = useState<KycProfile | null>(null);
+  const [payoutProfile, setPayoutProfile] = useState<OwnerPayoutAccount | null>(null);
+  const [selfieProfile, setSelfieProfile] = useState<SelfieVerification | null>(null);
   const [loading, setLoading] = useState(true);
   
   // KYC State
@@ -45,11 +49,27 @@ export function VerificationPage() {
   const [kycProcessing, setKycProcessing] = useState(false);
   const [isEditingKyc, setIsEditingKyc] = useState(false);
   
+  // Payout State
+  const [payoutForm, setPayoutForm] = useState<Partial<OwnerPayoutAccount>>({ payoutMethod: 'BANK' });
+  
+  // Selfie State
+  const [selfieProcessing, setSelfieProcessing] = useState(false);
+  const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
+  const [selfieFile, setSelfieFile] = useState<File | null>(null);
+  
+  // Camera State
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  
   const isKycDisabled = (!isEditingKyc && (kycProfile?.status === 'UNDER_REVIEW' || kycProfile?.status === 'APPROVED')) || kycProcessing;
   
   const hasAadhaar = Boolean(kycForm.aadhaarNumber && kycForm.aadhaarUrl);
   const hasPan = Boolean(kycForm.panNumber && kycForm.panUrl);
   const isKycComplete = Boolean(kycForm.fullName && kycForm.dateOfBirth && (hasAadhaar || hasPan));
+  
+  const isPayoutComplete = payoutForm.payoutMethod === 'BANK'
+    ? Boolean(payoutForm.accountHolderName && payoutForm.bankName && payoutForm.accountNumber && payoutForm.ifscCode && (payoutForm as any).confirmAccountNumber === payoutForm.accountNumber)
+    : Boolean(payoutForm.accountHolderName && payoutForm.upiId);
   
   // OTP States
   const [emailOtpSent, setEmailOtpSent] = useState(false);
@@ -77,13 +97,18 @@ export function VerificationPage() {
 
   const fetchStatus = async () => {
     try {
-      const [data, kycData] = await Promise.all([
+      const [data, kycData, payoutData, selfieData] = await Promise.all([
         getVerificationStatus(),
-        getKycStatus()
+        getKycStatus(),
+        getPayoutAccount().catch(() => null), // Ignore error if not set up
+        getSelfieStatus().catch(() => null)
       ]);
       setStatus(data);
       setKycProfile(kycData);
-      setKycForm(kycData);
+      setKycForm(kycData || {});
+      setPayoutProfile(payoutData);
+      setPayoutForm(payoutData || { payoutMethod: 'BANK' });
+      setSelfieProfile(selfieData);
     } catch (err: any) {
       showToast.error('Failed to load verification status');
     } finally {
@@ -196,6 +221,88 @@ export function VerificationPage() {
   };
 
 
+  const handleUploadSelfie = async () => {
+    if (!selfieFile) return;
+    setSelfieProcessing(true);
+    try {
+      const data = await uploadSelfie(selfieFile);
+      setSelfieProfile(data);
+      setSelfieFile(null);
+      setSelfiePreview(null);
+      showToast.success('Selfie uploaded successfully');
+    } catch (err: any) {
+      showToast.error(getApiErrorMessage(err));
+    } finally {
+      setSelfieProcessing(false);
+    }
+  };
+
+  const handleSelfieFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showToast.error('Please upload an image file');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      showToast.error('File size must be less than 5MB');
+      return;
+    }
+
+    setSelfieFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => setSelfiePreview(e.target?.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      setIsCameraOpen(true);
+    } catch (err) {
+      showToast.error("Could not access camera. Please allow camera permissions or upload a file instead.");
+    }
+  };
+
+  const capturePhoto = () => {
+    if (!videoRef.current) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = videoRef.current.videoWidth;
+    canvas.height = videoRef.current.videoHeight;
+    canvas.getContext('2d')?.drawImage(videoRef.current, 0, 0);
+    const dataUrl = canvas.toDataURL('image/jpeg');
+    setSelfiePreview(dataUrl);
+    
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const file = new File([blob], 'selfie.jpg', { type: 'image/jpeg' });
+        setSelfieFile(file);
+      }
+    }, 'image/jpeg');
+    
+    stopCamera();
+  };
+
+  const stopCamera = () => {
+    if (videoRef.current?.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+    }
+    setIsCameraOpen(false);
+  };
+
+  // Cleanup camera on unmount
+  useEffect(() => {
+    return () => {
+      if (isCameraOpen) stopCamera();
+    };
+  }, [isCameraOpen]);
+
   if (loading || !status) {
     return (
       <PageLayout>
@@ -207,9 +314,13 @@ export function VerificationPage() {
   }
 
   const kycProgress = ['SUBMITTED', 'UNDER_REVIEW', 'APPROVED'].includes(kycProfile?.status || '') ? 25 : 0;
+  const payoutProgress = payoutProfile?.status && payoutProfile.status !== 'NOT_CONFIGURED' ? 25 : 0;
+  const selfieProgress = selfieProfile?.status === 'APPROVED' ? 25 : 0;
+  const contactProgress = (status.isEmailVerified && status.isPhoneVerified) ? 25 : 0;
+  
   const progress = mode === 'booking' 
     ? ((status.isEmailVerified || status.isPhoneVerified) ? 100 : 0)
-    : ((status.isEmailVerified ? 25 : 0) + (status.isPhoneVerified ? 25 : 0) + kycProgress);
+    : (contactProgress + kycProgress + selfieProgress + payoutProgress);
 
   let displayStatus = status.verificationStatus;
   if (mode === 'owner') {
@@ -268,26 +379,30 @@ export function VerificationPage() {
             {/* Visual checklist */}
             <div className={cn("grid gap-3 pt-4", mode === 'owner' ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-2")}>
               <div className="flex items-center gap-2">
-                <span className={status.isEmailVerified ? "text-success-500" : "text-secondary-400"}>
-                  {status.isEmailVerified ? "✓" : "○"}
+                <span className={status.isEmailVerified && status.isPhoneVerified ? "text-success-500" : "text-secondary-400"}>
+                  {status.isEmailVerified && status.isPhoneVerified ? "✓" : "○"}
                 </span>
-                <span className={cn("text-xs font-medium", status.isEmailVerified ? "text-secondary-900" : "text-secondary-500")}>Email</span>
+                <span className={cn("text-xs font-medium", status.isEmailVerified && status.isPhoneVerified ? "text-secondary-900" : "text-secondary-500")}>Contact</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className={status.isPhoneVerified ? "text-success-500" : "text-secondary-400"}>
-                  {status.isPhoneVerified ? "✓" : "○"}
+                <span className={kycProfile?.status === 'APPROVED' ? "text-success-500" : kycProfile?.status === 'UNDER_REVIEW' ? "text-warning-500" : "text-secondary-400"}>
+                  {kycProfile?.status === 'APPROVED' ? "✓" : kycProfile?.status === 'UNDER_REVIEW' ? "⏳" : "○"}
                 </span>
-                <span className={cn("text-xs font-medium", status.isPhoneVerified ? "text-secondary-900" : "text-secondary-500")}>Phone</span>
+                <span className={cn("text-xs font-medium", kycProfile?.status && kycProfile.status !== 'NOT_STARTED' ? "text-secondary-900" : "text-secondary-500")}>Identity</span>
               </div>
               {mode === 'owner' && (
                 <>
-                  <div className="flex items-center gap-2 opacity-50">
-                    <span className="text-warning-500">⏳</span>
-                    <span className="text-xs font-medium text-secondary-600">Identity (Phase 6)</span>
+                  <div className="flex items-center gap-2">
+                    <span className={selfieProfile?.status === 'APPROVED' ? "text-success-500" : selfieProfile?.status === 'UNDER_REVIEW' ? "text-warning-500" : "text-secondary-400"}>
+                      {selfieProfile?.status === 'APPROVED' ? "✓" : selfieProfile?.status === 'UNDER_REVIEW' ? "⏳" : "○"}
+                    </span>
+                    <span className={cn("text-xs font-medium", selfieProfile?.status && selfieProfile.status !== 'NOT_SUBMITTED' ? "text-secondary-900" : "text-secondary-500")}>Selfie</span>
                   </div>
-                  <div className="flex items-center gap-2 opacity-50">
-                    <span className="text-warning-500">⏳</span>
-                    <span className="text-xs font-medium text-secondary-600">Owner (Future)</span>
+                  <div className="flex items-center gap-2">
+                    <span className={payoutProfile?.status === 'VERIFIED' ? "text-success-500" : payoutProfile?.status === 'CONFIGURED' ? "text-primary-500" : "text-secondary-400"}>
+                      {payoutProfile?.status === 'VERIFIED' || payoutProfile?.status === 'CONFIGURED' ? "✓" : "○"}
+                    </span>
+                    <span className={cn("text-xs font-medium", payoutProfile?.status && payoutProfile.status !== 'NOT_CONFIGURED' ? "text-secondary-900" : "text-secondary-500")}>Payout</span>
                   </div>
                 </>
               )}
@@ -296,10 +411,19 @@ export function VerificationPage() {
         </div>
 
         {/* Verification Steps */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Step 1: Email */}
-          <div className="bg-white p-6 rounded-2xl border border-secondary-200 shadow-sm relative overflow-hidden flex flex-col h-full">
-            <h3 className="text-lg font-bold text-secondary-900 mb-2">1. Email Address</h3>
+        <div className="space-y-8">
+          
+          {/* 1. Contact Verification */}
+          <div>
+            <div className="mb-4">
+              <h2 className="text-xl font-bold text-secondary-900">1. Contact Verification</h2>
+              <p className="text-sm text-secondary-500 mt-1">Verify your contact details to secure your account.</p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Email Card */}
+              <div className="bg-white p-6 rounded-2xl border border-secondary-200 shadow-sm relative overflow-hidden flex flex-col h-full">
+                <h3 className="text-lg font-bold text-secondary-900 mb-2">Email Address</h3>
             <p className="text-sm text-secondary-500 mb-6">Verify your email address for account security and important updates.</p>
             
             <div className="flex-1">
@@ -411,7 +535,7 @@ export function VerificationPage() {
             </div>
           </div>
 
-          {/* Step 2: Phone */}
+          {/* Phone Card */}
           <div className="bg-white p-6 rounded-2xl border border-secondary-200 shadow-sm relative overflow-hidden flex flex-col h-full">
             <h3 className="text-lg font-bold text-secondary-900 mb-2">2. Phone Number</h3>
             <p className="text-sm text-secondary-500 mb-6">Verify your phone number to enable SMS notifications and seamless bookings.</p>
@@ -524,14 +648,15 @@ export function VerificationPage() {
               )}
             </div>
           </div>
+          </div>
         </div>
         
-        {/* 3. Identity Verification */}
+        {/* 2. Identity Verification */}
         {mode === 'owner' && (
           <div className="bg-white rounded-2xl border border-secondary-200 shadow-sm overflow-hidden">
             <div className="p-6 border-b border-secondary-200 bg-secondary-50 flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-bold text-secondary-900">3. Identity Verification</h3>
+                <h3 className="text-lg font-bold text-secondary-900">2. Identity Verification</h3>
                 <p className="text-sm text-secondary-500 mt-1">Verify your identity to unlock booking and listing features.</p>
               </div>
               <div className="flex flex-col items-end gap-2">
@@ -689,24 +814,260 @@ export function VerificationPage() {
           </div>
         )}
         
-        {/* Coming Soon Notice */}
+        {/* 3. Live Selfie Verification */}
         {mode === 'owner' && (
-          <div className="mt-8 p-6 bg-secondary-50 rounded-2xl border border-secondary-200">
-            <div className="flex items-start gap-4">
-              <div className="mt-1">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary-200 text-secondary-600 text-lg">
-                  🚧
+          <div className="bg-white rounded-2xl border border-secondary-200 shadow-sm overflow-hidden mt-6">
+            <div className="p-6 border-b border-secondary-200 bg-secondary-50 flex items-start justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-secondary-900">3. Live Selfie Verification</h3>
+                <p className="text-sm text-secondary-500 mt-1">Upload a real-time selfie to verify your identity.</p>
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <span className={cn(
+                  "px-2.5 py-1 rounded-full text-xs font-bold",
+                  selfieProfile?.status === 'APPROVED' ? "bg-success-100 text-success-700" :
+                  selfieProfile?.status === 'UNDER_REVIEW' ? "bg-warning-100 text-warning-700" :
+                  selfieProfile?.status === 'REJECTED' ? "bg-danger-100 text-danger-700" :
+                  "bg-secondary-100 text-secondary-700"
+                )}>
+                  {selfieProfile?.status || 'NOT_SUBMITTED'}
                 </span>
               </div>
+            </div>
+            
+            <div className="p-6">
+              {(!selfieProfile?.status || selfieProfile.status === 'NOT_SUBMITTED' || selfieProfile.status === 'REJECTED') ? (
+                <div className="space-y-6">
+                  {selfieProfile?.status === 'REJECTED' && (
+                    <div className="p-4 bg-danger-50 text-danger-700 rounded-xl border border-danger-100 text-sm">
+                      <span className="font-bold">Rejection Reason: </span>
+                      {selfieProfile.reviewerNotes || 'Image unclear or did not match ID. Please try again.'}
+                    </div>
+                  )}
+
+                  <div className="border-2 border-dashed border-secondary-300 rounded-xl p-8 text-center bg-secondary-50 hover:bg-secondary-100 transition-colors">
+                    {selfiePreview ? (
+                      <div className="flex flex-col items-center">
+                        <img src={selfiePreview} alt="Selfie Preview" className="max-h-64 rounded-lg object-cover mb-4 shadow-sm border border-secondary-200" />
+                        <button onClick={() => { setSelfiePreview(null); setSelfieFile(null); }} className="text-sm font-medium text-danger-600 hover:text-danger-800">
+                          Remove and capture again
+                        </button>
+                      </div>
+                    ) : isCameraOpen ? (
+                      <div className="flex flex-col items-center">
+                        <div className="relative w-full max-w-sm mx-auto overflow-hidden rounded-xl border border-secondary-300 shadow-sm bg-black mb-4">
+                          <video ref={videoRef} autoPlay playsInline className="w-full h-auto object-cover transform scale-x-[-1]" />
+                        </div>
+                        <div className="flex gap-4">
+                          <button 
+                            onClick={capturePhoto}
+                            className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-sm flex items-center gap-2"
+                          >
+                            <span className="text-xl">📸</span> Capture
+                          </button>
+                          <button 
+                            onClick={stopCamera}
+                            className="bg-secondary-200 hover:bg-secondary-300 text-secondary-800 font-medium py-2 px-6 rounded-lg transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center">
+                        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
+                          <span className="text-2xl">📸</span>
+                        </div>
+                        <p className="text-secondary-600 mb-2 font-medium">Take a live selfie</p>
+                        <p className="text-secondary-400 text-sm mb-6">Ensure your face is well-lit and clearly visible.</p>
+                        
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          <button 
+                            onClick={startCamera}
+                            className="bg-primary-600 text-white font-medium py-2.5 px-6 rounded-lg hover:bg-primary-700 transition-colors shadow-sm flex items-center justify-center gap-2"
+                          >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Open Camera
+                          </button>
+                          
+                          <label className="bg-white border border-secondary-300 text-secondary-700 font-medium py-2.5 px-6 rounded-lg cursor-pointer hover:bg-secondary-50 transition-colors shadow-sm flex items-center justify-center gap-2">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            Upload File
+                            <input type="file" accept="image/*" onChange={handleSelfieFileSelect} className="hidden" />
+                          </label>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex pt-2">
+                    <button 
+                      onClick={handleUploadSelfie}
+                      disabled={selfieProcessing || !selfieFile}
+                      className="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                      {selfieProcessing ? 'Uploading...' : 'Submit Selfie'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-4 bg-success-50 p-4 rounded-xl border border-success-100">
+                  <div className="bg-success-100 p-3 rounded-full text-success-600">
+                    <span className="text-xl">👤</span>
+                  </div>
+                  <div>
+                    <p className="font-bold text-success-800">Selfie Submitted</p>
+                    <p className="text-sm text-success-700 mt-0.5">
+                      {selfieProfile.status === 'UNDER_REVIEW' ? 'Your selfie is under review by our team.' : 'Your selfie has been approved.'}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 4. Payout Setup */}
+        {mode === 'owner' && (
+          <div className="bg-white rounded-2xl border border-secondary-200 shadow-sm overflow-hidden mt-6">
+            <div className="p-6 border-b border-secondary-200 bg-secondary-50 flex items-start justify-between">
               <div>
-                <h4 className="text-base font-bold text-secondary-900">Phase 7: Owner Verification</h4>
-                <p className="text-sm text-secondary-500 mt-1">
-                  Property ownership verification will be implemented in the next phase. Complete Identity verification first to be ready.
-                </p>
+                <h3 className="text-lg font-bold text-secondary-900">4. Payout Setup</h3>
+                <p className="text-sm text-secondary-500 mt-1">Configure your bank account or UPI details to receive payouts.</p>
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <span className={cn(
+                  "px-2.5 py-1 rounded-full text-xs font-bold",
+                  payoutProfile?.status === 'VERIFIED' ? "bg-success-100 text-success-700" :
+                  payoutProfile?.status === 'CONFIGURED' ? "bg-primary-100 text-primary-700" :
+                  payoutProfile?.status === 'REJECTED' ? "bg-danger-100 text-danger-700" :
+                  "bg-secondary-100 text-secondary-700"
+                )}>
+                  {payoutProfile?.status || 'NOT_CONFIGURED'}
+                </span>
+              </div>
+            </div>
+            
+            <div className="p-6">
+              <div className="space-y-6">
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="radio" 
+                      name="payoutMethod" 
+                      value="BANK" 
+                      checked={payoutForm.payoutMethod === 'BANK'}
+                      onChange={() => setPayoutForm({ ...payoutForm, payoutMethod: 'BANK' })}
+                      className="text-primary-600 focus:ring-primary-500"
+                    />
+                    <span className="text-sm font-medium text-secondary-900">Bank Account</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="radio" 
+                      name="payoutMethod" 
+                      value="UPI" 
+                      checked={payoutForm.payoutMethod === 'UPI'}
+                      onChange={() => setPayoutForm({ ...payoutForm, payoutMethod: 'UPI' })}
+                      className="text-primary-600 focus:ring-primary-500"
+                    />
+                    <span className="text-sm font-medium text-secondary-900">UPI ID</span>
+                  </label>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-secondary-700 mb-1">Account Holder Name</label>
+                    <input 
+                      type="text" 
+                      value={payoutForm.accountHolderName || ''}
+                      onChange={(e) => setPayoutForm({ ...payoutForm, accountHolderName: e.target.value })}
+                      className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    />
+                  </div>
+                  
+                  {payoutForm.payoutMethod === 'BANK' && (
+                    <>
+                      <div className="col-span-2">
+                        <label className="block text-sm font-medium text-secondary-700 mb-1">Bank Name</label>
+                        <input 
+                          type="text" 
+                          value={payoutForm.bankName || ''}
+                          onChange={(e) => setPayoutForm({ ...payoutForm, bankName: e.target.value })}
+                          className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-secondary-700 mb-1">Account Number</label>
+                        <input 
+                          type="password" 
+                          value={payoutForm.accountNumber || ''}
+                          onChange={(e) => setPayoutForm({ ...payoutForm, accountNumber: e.target.value })}
+                          className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-secondary-700 mb-1">Confirm Account Number</label>
+                        <input 
+                          type="text" 
+                          value={(payoutForm as any).confirmAccountNumber || ''}
+                          onChange={(e) => setPayoutForm({ ...payoutForm, confirmAccountNumber: e.target.value })}
+                          className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        />
+                      </div>
+                      <div className="col-span-2 md:col-span-1">
+                        <label className="block text-sm font-medium text-secondary-700 mb-1">IFSC Code</label>
+                        <input 
+                          type="text" 
+                          value={payoutForm.ifscCode || ''}
+                          onChange={(e) => setPayoutForm({ ...payoutForm, ifscCode: e.target.value })}
+                          className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 uppercase"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {payoutForm.payoutMethod === 'UPI' && (
+                    <div className="col-span-2">
+                      <label className="block text-sm font-medium text-secondary-700 mb-1">UPI ID</label>
+                      <input 
+                        type="text" 
+                        value={payoutForm.upiId || ''}
+                        onChange={(e) => setPayoutForm({ ...payoutForm, upiId: e.target.value })}
+                        placeholder="username@bank"
+                        className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex pt-4 border-t border-secondary-200">
+                  <button 
+                    onClick={async () => {
+                      try {
+                        await savePayoutAccount(payoutForm as any);
+                        showToast.success('Payout details saved');
+                        fetchStatus();
+                      } catch (err: any) {
+                        showToast.error(getApiErrorMessage(err));
+                      }
+                    }}
+                    disabled={!isPayoutComplete}
+                    className="flex-1 bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    Save Payout Details
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         )}
+        </div>
       </div>
     </PageLayout>
   );

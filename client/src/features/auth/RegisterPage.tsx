@@ -1,8 +1,4 @@
-// ============================================================
-// Register Page
-// ============================================================
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,7 +8,6 @@ import { useAuth } from '@/app/providers/AuthProvider';
 import { showToast } from '@/components/ui/Toast';
 import { getApiErrorMessage, getApiValidationErrors } from '@/lib/api-client';
 
-// ── Validation Schema ────────────────────────────────────────
 const registerSchema = z
   .object({
     firstName: z
@@ -52,7 +47,6 @@ const registerSchema = z
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
-// ── Password Strength Indicator ──────────────────────────────
 function PasswordStrength({ password }: { password: string }) {
   const checks = [
     { label: '8+ characters', valid: password.length >= 8 },
@@ -64,41 +58,39 @@ function PasswordStrength({ password }: { password: string }) {
   const score = checks.filter((c) => c.valid).length;
   const strength = score <= 1 ? 'weak' : score <= 2 ? 'fair' : score <= 3 ? 'good' : 'strong';
   const colors = {
-    weak:   'bg-danger-500',
-    fair:   'bg-warning-500',
-    good:   'bg-blue-500',
-    strong: 'bg-success-500',
+    weak:   'bg-[#ffb4ab]', // error
+    fair:   'bg-[#d4af37]', // primary-container
+    good:   'bg-[#97b0ff]', // tertiary-container
+    strong: 'bg-[#554300]', // on-primary-container
   };
   const labels = { weak: 'Weak', fair: 'Fair', good: 'Good', strong: 'Strong' };
 
   if (!password) return null;
 
   return (
-    <div className="mt-2 space-y-2">
-      {/* Bar */}
+    <div className="mt-1.5 space-y-1.5">
       <div className="flex gap-1">
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
             className={cn(
               'h-1 flex-1 rounded-full transition-all duration-300',
-              i <= score ? colors[strength] : 'bg-secondary-200',
+              i <= score ? colors[strength] : 'bg-[#4d4635]', // outline-variant
             )}
           />
         ))}
       </div>
-      {/* Label + checks */}
       <div className="flex items-center justify-between">
-        <div className="flex flex-wrap gap-x-3 gap-y-1">
+        <div className="flex flex-wrap gap-x-2 gap-y-1">
           {checks.map((check) => (
             <span
               key={check.label}
               className={cn(
-                'text-xs flex items-center gap-1',
-                check.valid ? 'text-success-600' : 'text-secondary-400',
+                'text-[10px] flex items-center gap-0.5 font-semibold uppercase tracking-wider',
+                check.valid ? 'text-[#f2ca50]' : 'text-[#d0c5af]/50', // primary vs on-surface-variant
               )}
             >
-              <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <svg className="w-2.5 h-2.5" viewBox="0 0 20 20" fill="currentColor">
                 {check.valid ? (
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 ) : (
@@ -109,41 +101,11 @@ function PasswordStrength({ password }: { password: string }) {
             </span>
           ))}
         </div>
-        <span className={cn('text-xs font-medium', colors[strength].replace('bg-', 'text-'))}>
-          {labels[strength]}
-        </span>
       </div>
     </div>
   );
 }
 
-// ── Field Error ──────────────────────────────────────────────
-function FieldError({ id, message }: { id: string; message?: string }) {
-  if (!message) return null;
-  return (
-    <p id={id} className="mt-1.5 text-xs text-danger-600 flex items-center gap-1" role="alert">
-      <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-      </svg>
-      {message}
-    </p>
-  );
-}
-
-// ── Input ────────────────────────────────────────────────────
-function inputClass(hasError: boolean) {
-  return cn(
-    'w-full px-3.5 py-2.5 rounded-xl text-sm',
-    'border bg-white text-secondary-900 placeholder:text-secondary-400',
-    'transition-colors duration-150',
-    'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
-    hasError
-      ? 'border-danger-400 focus:ring-danger-500'
-      : 'border-secondary-300 hover:border-secondary-400',
-  );
-}
-
-// ── Component ────────────────────────────────────────────────
 export default function RegisterPage() {
   const { register: registerUser, verifyRegistration } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -158,7 +120,6 @@ export default function RegisterPage() {
     register,
     handleSubmit,
     watch,
-    setValue,
     setError,
     formState: { errors },
   } = useForm<RegisterFormValues>({
@@ -207,7 +168,7 @@ export default function RegisterPage() {
         otp,
       });
       showToast.success('Verification successful!');
-      window.location.replace('/');
+      window.location.replace('/dashboard');
     } catch (error) {
       showToast.error(getApiErrorMessage(error));
     } finally {
@@ -215,272 +176,260 @@ export default function RegisterPage() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-secondary-50 flex flex-col">
-      {/* Top bar */}
-      <div className="bg-white border-b border-secondary-200 px-6 py-4 flex items-center justify-between shrink-0">
-        <Link to="/" className="flex items-center gap-2.5 no-underline group">
-          <svg width="20" height="25" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M12 0C5.925 0 1 4.925 1 11C1 18.5 12 30 12 30C12 30 23 18.5 23 11C23 4.925 18.075 0 12 0Z" fill="#2563EB" />
-            <rect x="7" y="5.5" width="2.5" height="13" rx="0.5" fill="white" />
-            <path d="M9.5 5.5H13C16.5 5.5 16.5 12.5 13 12.5H9.5V5.5Z" fill="white" />
-            <path d="M10 7H13C14.5 7 14.5 11 13 11H10V7Z" fill="#2563EB" />
-          </svg>
-          <span className="font-bold text-base font-display tracking-tight">
-            <span className="text-secondary-900">Park</span><span className="text-primary-600">Ease</span>
-          </span>
-        </Link>
-        <p className="text-sm text-secondary-500">
-          Already have an account?{' '}
-          <Link to="/login" className="text-primary-600 font-medium hover:text-primary-700 no-underline">
-            Sign in
-          </Link>
-        </p>
-      </div>
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const glows = document.querySelectorAll('.floating-glow') as NodeListOf<HTMLElement>;
+      const x = (e.clientX / window.innerWidth - 0.5) * 40;
+      const y = (e.clientY / window.innerHeight - 0.5) * 40;
+      
+      glows.forEach((glow, index) => {
+        const speed = (index + 1) * 0.1;
+        glow.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+      });
+    };
+    document.addEventListener('mousemove', handleMouseMove);
+    return () => document.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
-      {/* Main */}
-      <div className="flex-1 flex items-start justify-center px-4 py-10">
-        <div className="w-full max-w-lg">
-          <div className="bg-white rounded-2xl border border-secondary-200 shadow-card p-8">
-            {/* Header */}
-            <div className="mb-8">
-              <h1 className="text-2xl font-bold text-secondary-900 font-display">
-                {step === 1 ? 'Create your account' : 'Verify your account'}
-              </h1>
-              <p className="mt-1.5 text-sm text-secondary-500">
-                {step === 1 ? 'Join thousands of drivers parking smarter' : `We've sent an OTP to ${registeredIdentifier}`}
-              </p>
+  const inputClass = (hasError: boolean) => cn(
+    "auth-input w-full text-sm rounded-xl py-3 px-4 font-sans bg-transparent border-secondary-300 dark:border-white/10 focus:border-primary-500 dark:focus:border-primary-400 text-secondary-900 dark:text-[#eae1d4] placeholder:text-secondary-400 dark:placeholder:text-white/30",
+    hasError && "border-danger-500 dark:border-[#ffb4ab]/50 focus:border-danger-500 dark:focus:border-[#ffb4ab] shadow-none"
+  );
+
+  return (
+    <div className="auth-theme luminous-stack flex min-h-screen w-full flex-col md:flex-row bg-white dark:bg-[#110e07] text-secondary-900 dark:text-[#eae1d4] relative transition-colors duration-300">
+      {/* Global Background Atmosphere */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary-400 dark:bg-[#f2ca50] opacity-10 blur-[120px] rounded-full floating-glow pointer-events-none"></div>
+      <div className="absolute top-[10%] right-[-10%] w-[60%] h-[60%] bg-primary-600 dark:bg-[#d4af37] opacity-10 blur-[120px] rounded-full floating-glow pointer-events-none" style={{ animationDelay: '-2s' }}></div>
+      <div className="absolute bottom-[-10%] left-[20%] w-[50%] h-[50%] bg-primary-300 dark:bg-[#f2ca50] opacity-10 dark:opacity-[0.08] blur-[100px] rounded-full floating-glow pointer-events-none" style={{ animationDelay: '-7s' }}></div>
+
+      {/* Left Side: Atmospheric Brand Section */}
+      <section className="relative flex-1 flex flex-col justify-center px-6 md:px-10 py-10 z-10 hidden lg:flex">
+        <div className="space-y-10 max-w-2xl mx-auto md:mx-0 lg:ml-12">
+          {/* Branding Header */}
+          <div className="pt-6">
+            <span className="font-display text-5xl tracking-tight font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-700 dark:from-[#fceb96] dark:to-[#d4af37]">
+              ParkEase
+            </span>
+          </div>
+
+          {/* Hero Text */}
+          <div className="space-y-5">
+            <h1 className="font-display text-5xl md:text-6xl text-secondary-900 dark:text-[#eae1d4] font-bold leading-tight tracking-tight">
+              Smart Parking for the <br />
+              <span className="text-primary-600 dark:text-[#d4af37]">Urban Elite.</span>
+            </h1>
+            <p className="font-sans text-base md:text-lg text-secondary-600 dark:text-[#d0c5af] max-w-md leading-relaxed">
+              Experience seamless arrivals and priority access across the city's most exclusive districts. Reserved for those who value time and precision.
+            </p>
+          </div>
+
+          <div>
+            {/* Divider */}
+            <div className="w-20 h-px bg-secondary-200 dark:bg-[#4d4635] mb-8"></div>
+
+            {/* Tag */}
+            <div className="mb-6">
+              <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary-50 dark:bg-[#f2ca50]/10 border border-primary-200 dark:border-[#f2ca50]/20 text-primary-700 dark:text-[#f2ca50] text-xs tracking-widest uppercase font-semibold">
+                <span className="material-symbols-outlined text-[16px] mr-2">stars</span>
+                Book. Park. List. Earn with smart parking
+              </span>
             </div>
 
-            {/* Form */}
-            {step === 1 ? (
-              <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="reg-first-name" className="block text-sm font-medium text-secondary-700 mb-1.5">
-                    First name
-                  </label>
-                  <input
-                    {...register('firstName')}
-                    id="reg-first-name"
-                    type="text"
-                    autoComplete="given-name"
-                    placeholder="Enter first name"
-                    className={inputClass(!!errors.firstName)}
-                    aria-invalid={!!errors.firstName}
-                    aria-describedby={errors.firstName ? 'reg-fname-error' : undefined}
-                  />
-                  <FieldError id="reg-fname-error" message={errors.firstName?.message} />
+            {/* Stats */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 group">
+                <span className="material-symbols-outlined text-primary-600 dark:text-[#f2ca50] text-[22px]">check_circle</span>
+                <span className="font-sans text-base text-secondary-900 dark:text-[#eae1d4]">Find parking instantly</span>
+              </div>
+              <div className="flex items-center gap-3 group">
+                <span className="material-symbols-outlined text-primary-600 dark:text-[#f2ca50] text-[22px]">check_circle</span>
+                <span className="font-sans text-base text-secondary-900 dark:text-[#eae1d4]">Book securely online</span>
+              </div>
+              <div className="flex items-center gap-3 group">
+                <span className="material-symbols-outlined text-primary-600 dark:text-[#f2ca50] text-[22px]">check_circle</span>
+                <span className="font-sans text-base text-secondary-900 dark:text-[#eae1d4]">Earn from unused parking spaces</span>
+              </div>
+              <div className="flex items-center gap-3 group">
+                <span className="material-symbols-outlined text-primary-600 dark:text-[#f2ca50] text-[22px]">check_circle</span>
+                <span className="font-sans text-base text-secondary-900 dark:text-[#eae1d4]">Verified owners &amp; users</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Right Side: Register Section */}
+      <section className="relative flex-1 flex items-center justify-center p-6 z-10 my-8 lg:my-0">
+        {/* Register Card */}
+        <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-2xl w-full max-w-lg p-6 lg:p-8 rounded-2xl relative my-10 lg:my-0 backdrop-blur-2xl">
+          <div className="mb-6">
+            <h2 className="font-display text-2xl font-semibold text-secondary-900 dark:text-[#eae1d4] mb-1">
+              {step === 1 ? 'Create your account' : 'Verify your account'}
+            </h2>
+            <p className="font-sans text-secondary-600 dark:text-[#d0c5af] text-sm">
+              {step === 1 ? 'Join the exclusive parking network.' : `We've sent an OTP to ${registeredIdentifier}`}
+            </p>
+          </div>
+
+          {step === 1 ? (
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-secondary-600 dark:text-[#d0c5af] tracking-wide" htmlFor="firstName">First name</label>
+                  <input {...register('firstName')} id="firstName" placeholder="First name" className={inputClass(!!errors.firstName)} />
+                  {errors.firstName && <p className="text-danger-500 dark:text-[#ffb4ab] text-[10px] mt-1">{errors.firstName.message}</p>}
                 </div>
-                <div>
-                  <label htmlFor="reg-last-name" className="block text-sm font-medium text-secondary-700 mb-1.5">
-                    Last name
-                  </label>
-                  <input
-                    {...register('lastName')}
-                    id="reg-last-name"
-                    type="text"
-                    autoComplete="family-name"
-                    placeholder="Enter last name"
-                    className={inputClass(!!errors.lastName)}
-                    aria-invalid={!!errors.lastName}
-                    aria-describedby={errors.lastName ? 'reg-lname-error' : undefined}
-                  />
-                  <FieldError id="reg-lname-error" message={errors.lastName?.message} />
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-secondary-600 dark:text-[#d0c5af] tracking-wide" htmlFor="lastName">Last name</label>
+                  <input {...register('lastName')} id="lastName" placeholder="Last name" className={inputClass(!!errors.lastName)} />
+                  {errors.lastName && <p className="text-danger-500 dark:text-[#ffb4ab] text-[10px] mt-1">{errors.lastName.message}</p>}
                 </div>
               </div>
 
-              {/* Identifier */}
-              <div>
-                <label htmlFor="reg-identifier" className="block text-sm font-medium text-secondary-700 mb-1.5">
-                  Email or Phone number
-                </label>
-                <input
-                  {...register('identifier')}
-                  id="reg-identifier"
-                  type="text"
-                  autoComplete="username"
-                  placeholder="Enter email or phone number"
-                  className={inputClass(!!errors.identifier)}
-                  aria-invalid={!!errors.identifier}
-                  aria-describedby={errors.identifier ? 'reg-identifier-error' : undefined}
-                />
-                <FieldError id="reg-identifier-error" message={errors.identifier?.message} />
-              </div>
-
-              {/* Password */}
-              <div>
-                <label htmlFor="reg-password" className="block text-sm font-medium text-secondary-700 mb-1.5">
-                  Password
-                </label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-secondary-600 dark:text-[#d0c5af] tracking-wide" htmlFor="identifier">Email or Phone</label>
                 <div className="relative">
-                  <input
+                  <input 
+                    {...register('identifier')}
+                    id="identifier"
+                    placeholder="Enter your email or phone number"
+                    className={inputClass(!!errors.identifier)}
+                  />
+                </div>
+                {errors.identifier && <p className="text-danger-500 dark:text-[#ffb4ab] text-[10px] mt-1">{errors.identifier.message}</p>}
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-secondary-600 dark:text-[#d0c5af] tracking-wide" htmlFor="password">Password</label>
+                <div className="relative group/input">
+                  <input 
                     {...register('password')}
-                    id="reg-password"
+                    id="password"
                     type={showPassword ? 'text' : 'password'}
-                    autoComplete="new-password"
                     placeholder="Create a strong password"
-                    className={inputClass(!!errors.password)}
-                    aria-invalid={!!errors.password}
-                    aria-describedby="reg-password-strength"
+                    className={cn(inputClass(!!errors.password), "pr-10")}
                   />
-                  <button
+                  <button 
                     type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-400 hover:text-secondary-600"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-secondary-400 dark:text-[#d0c5af] hover:text-secondary-600 dark:hover:text-[#eae1d4] transition-colors"
                   >
-                    {showPassword ? (
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                      </svg>
-                    ) : (
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    )}
+                    <span className="material-symbols-outlined text-[18px]">{showPassword ? 'visibility_off' : 'visibility'}</span>
                   </button>
                 </div>
-                <div id="reg-password-strength">
-                  <PasswordStrength password={passwordValue} />
-                </div>
-                {errors.password && (
-                  <FieldError id="reg-password-error" message={errors.password.message} />
-                )}
+                <PasswordStrength password={passwordValue} />
+                {errors.password && <p className="text-danger-500 dark:text-[#ffb4ab] text-[10px] mt-1">{errors.password.message}</p>}
               </div>
 
-              {/* Confirm Password */}
-              <div>
-                <label htmlFor="reg-confirm-password" className="block text-sm font-medium text-secondary-700 mb-1.5">
-                  Confirm password
-                </label>
-                <div className="relative">
-                  <input
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-secondary-600 dark:text-[#d0c5af] tracking-wide" htmlFor="confirmPassword">Confirm Password</label>
+                <div className="relative group/input">
+                  <input 
                     {...register('confirmPassword')}
-                    id="reg-confirm-password"
+                    id="confirmPassword"
                     type={showConfirmPassword ? 'text' : 'password'}
-                    autoComplete="new-password"
                     placeholder="Repeat your password"
-                    className={inputClass(!!errors.confirmPassword)}
-                    aria-invalid={!!errors.confirmPassword}
-                    aria-describedby={errors.confirmPassword ? 'reg-confirm-error' : undefined}
+                    className={cn(inputClass(!!errors.confirmPassword), "pr-10")}
                   />
-                  <button
+                  <button 
                     type="button"
-                    onClick={() => setShowConfirmPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-400 hover:text-secondary-600"
-                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-secondary-400 dark:text-[#d0c5af] hover:text-secondary-600 dark:hover:text-[#eae1d4] transition-colors"
                   >
-                    {showConfirmPassword ? (
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                      </svg>
-                    ) : (
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    )}
+                    <span className="material-symbols-outlined text-[18px]">{showConfirmPassword ? 'visibility_off' : 'visibility'}</span>
                   </button>
                 </div>
-                <FieldError id="reg-confirm-error" message={errors.confirmPassword?.message} />
+                {errors.confirmPassword && <p className="text-danger-500 dark:text-[#ffb4ab] text-[10px] mt-1">{errors.confirmPassword.message}</p>}
               </div>
 
-              {/* Terms */}
-              <div>
-                <label className="flex items-start gap-3 cursor-pointer group">
-                  <input
-                    {...register('terms')}
-                    id="reg-terms"
-                    type="checkbox"
-                    className="mt-0.5 w-4 h-4 rounded border-secondary-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
-                    aria-describedby={errors.terms ? 'reg-terms-error' : undefined}
+              <div className="space-y-1.5 pt-1">
+                <label className="flex items-start gap-2.5 cursor-pointer group">
+                  <input 
+                    {...register('terms')} 
+                    type="checkbox" 
+                    className="mt-0.5 w-3.5 h-3.5 rounded border-secondary-300 bg-white text-primary-500 focus:ring-primary-500 dark:border-[#4d4635] dark:bg-[#2d2a21] dark:text-[#f2ca50] dark:focus:ring-[#f2ca50] dark:focus:ring-offset-[#110e07]" 
                   />
-                  <span className="text-sm text-secondary-600 leading-snug">
-                    I agree to the{' '}
-                    <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:text-primary-700">
-                      Terms of Service
-                    </a>{' '}
-                    and{' '}
-                    <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:text-primary-700">
-                      Privacy Policy
-                    </a>
+                  <span className="text-[11px] text-secondary-600 dark:text-[#d0c5af] leading-snug">
+                    I agree to the <Link to="/terms" className="text-primary-600 dark:text-[#f2ca50] hover:text-primary-700 dark:hover:text-[#d4af37] transition-colors">Terms of Service</Link> and <Link to="/privacy" className="text-primary-600 dark:text-[#f2ca50] hover:text-primary-700 dark:hover:text-[#d4af37] transition-colors">Privacy Policy</Link>
                   </span>
                 </label>
-                <FieldError id="reg-terms-error" message={errors.terms?.message} />
+                {errors.terms && <p className="text-danger-500 dark:text-[#ffb4ab] text-[10px]">{errors.terms.message}</p>}
               </div>
 
-              {/* Submit */}
-              <button
+              <button 
                 type="submit"
                 disabled={isSubmitting}
-                id="register-submit-btn"
-                className={cn(
-                  'w-full h-11 flex items-center justify-center gap-2 mt-6',
-                  'bg-primary-600 hover:bg-primary-700 active:bg-primary-800',
-                  'text-white font-semibold text-sm rounded-xl',
-                  'transition-all duration-150 shadow-sm hover:shadow-md',
-                  'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
-                  'disabled:opacity-60 disabled:cursor-not-allowed',
-                )}
-                aria-busy={isSubmitting}
+                className="gold-glow-button w-full py-3 rounded-xl flex items-center justify-center gap-2 text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-400 dark:text-[#3c2f00] font-semibold text-base group mt-6 disabled:opacity-70 disabled:hover:transform-none shadow-md dark:shadow-[0_0_15px_rgba(242,202,80,0.5)] transition-all duration-300"
               >
                 {isSubmitting ? (
                   <>
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
+                    <span className="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
                     Creating account...
                   </>
                 ) : (
-                  'Create account'
+                  <>
+                    Create account
+                    <span className="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                  </>
                 )}
               </button>
             </form>
-            ) : (
-              <form onSubmit={handleVerify} className="space-y-4">
-                <div>
-                  <label htmlFor="otp" className="block text-sm font-medium text-secondary-700 mb-1.5">
-                    Enter 6-digit OTP
-                  </label>
-                  <input
-                    id="otp"
-                    type="text"
-                    maxLength={6}
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                    placeholder="000000"
-                    className={inputClass(false)}
-                    autoComplete="one-time-code"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={isSubmitting || otp.length !== 6}
-                  className={cn(
-                    'w-full h-11 flex items-center justify-center gap-2 mt-2',
-                    'bg-primary-600 hover:bg-primary-700 active:bg-primary-800',
-                    'text-white font-semibold text-sm rounded-xl',
-                    'transition-all duration-150 shadow-sm hover:shadow-md',
-                    'disabled:opacity-60 disabled:cursor-not-allowed',
-                  )}
-                >
-                  {isSubmitting ? 'Verifying...' : 'Verify & Continue'}
-                </button>
-              </form>
-            )}
+          ) : (
+            <form onSubmit={handleVerify} className="space-y-5">
+              <div className="space-y-1.5">
+                <label htmlFor="otp" className="text-xs font-medium text-secondary-600 dark:text-[#d0c5af] tracking-wide block">Enter 6-digit OTP</label>
+                <input
+                  id="otp"
+                  type="text"
+                  maxLength={6}
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                  placeholder="000000"
+                  className={cn(inputClass(false), "text-center text-2xl tracking-[0.4em] font-display py-4")}
+                  autoComplete="one-time-code"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={isSubmitting || otp.length !== 6}
+                className="gold-glow-button w-full py-3 rounded-xl flex items-center justify-center gap-2 text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-400 dark:text-[#3c2f00] font-semibold text-base group mt-5 disabled:opacity-70 disabled:hover:transform-none shadow-md dark:shadow-[0_0_15px_rgba(242,202,80,0.5)] transition-all duration-300"
+              >
+                {isSubmitting ? 'Verifying...' : 'Verify & Continue'}
+              </button>
+            </form>
+          )}
+
+          {/* Social Login */}
+          <div className="mt-6">
+            <div className="relative flex items-center justify-center py-3">
+              <div className="flex-grow border-t border-secondary-200 dark:border-[#4d4635]"></div>
+              <span className="flex-shrink mx-3 text-[10px] font-semibold tracking-widest text-secondary-500 dark:text-[#d0c5af] bg-transparent uppercase">Or continue with</span>
+              <div className="flex-grow border-t border-secondary-200 dark:border-[#4d4635]"></div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 mt-3">
+              <button disabled className="flex items-center justify-center gap-2 py-2.5 border border-secondary-200 dark:border-[#4d4635] rounded-xl hover:bg-secondary-50 dark:hover:bg-[#38342b] transition-colors opacity-50 cursor-not-allowed">
+                <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.27.81-.57z" fill="#FBBC05"></path><path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path></svg>
+                <span className="text-xs font-medium text-secondary-900 dark:text-[#eae1d4]">Google</span>
+              </button>
+              <button disabled className="flex items-center justify-center gap-2 py-2.5 border border-secondary-200 dark:border-[#4d4635] rounded-xl hover:bg-secondary-50 dark:hover:bg-[#38342b] transition-colors opacity-50 cursor-not-allowed">
+                <svg className="w-4 h-4 text-[#0077b5]" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg>
+                <span className="text-xs font-medium text-secondary-900 dark:text-[#eae1d4]">LinkedIn</span>
+              </button>
+            </div>
           </div>
 
-          <p className="text-center mt-6 text-sm text-secondary-500">
-            Already have an account?{' '}
-            <Link to="/login" className="text-primary-600 font-medium hover:text-primary-700 no-underline">
-              Sign in instead
-            </Link>
+          <p className="mt-6 text-center text-xs text-secondary-600 dark:text-[#d0c5af]">
+            Already have an account? 
+            <Link to="/login" className="text-primary-600 dark:text-[#f2ca50] font-semibold hover:underline transition-all ml-1">Sign in instead</Link>
           </p>
         </div>
-      </div>
+
+        {/* Subtle background branding on right side */}
+        <div className="absolute bottom-6 right-6 opacity-20 hidden md:block pointer-events-none">
+          <p className="text-[10px] tracking-[0.2em] text-secondary-500 dark:text-[#d0c5af] uppercase font-semibold">ParkEase Urban Solutions &copy; 2024</p>
+        </div>
+      </section>
     </div>
   );
 }
