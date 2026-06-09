@@ -259,7 +259,7 @@ function AuthenticatedNav({ user }: { user: { firstName: string; lastName: strin
         {menuOpen && (
           <div className={cn(
             'absolute right-0 top-full mt-2 w-56',
-            'bg-white dark:bg-[#110e07] dark:surface-glass rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-elevated',
+            'bg-white/95 dark:bg-[#110e07]/80 backdrop-blur-3xl rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-elevated',
             'py-1 z-50 animate-fade-in',
           )}>
             {/* User info */}
@@ -549,7 +549,7 @@ function ParkEaseLogo({ size = 30 }: { size?: number }) {
 }
 
 // ── Theme Toggle Component ─────────────────────────────────────
-function ThemeToggle({ className }: { className?: string }) {
+export function ThemeToggle({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
 
   return (

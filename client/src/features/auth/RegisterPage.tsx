@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { showToast } from '@/components/ui/Toast';
 import { getApiErrorMessage, getApiValidationErrors } from '@/lib/api-client';
+import { ThemeToggle } from '@/components/layout/Header';
 
 const registerSchema = z
   .object({
@@ -168,7 +169,8 @@ export default function RegisterPage() {
         otp,
       });
       showToast.success('Verification successful!');
-      window.location.replace('/dashboard');
+      const from = (location.state as { from?: string })?.from ?? '/';
+      window.location.replace(from);
     } catch (error) {
       showToast.error(getApiErrorMessage(error));
     } finally {
@@ -203,9 +205,14 @@ export default function RegisterPage() {
       <div className="absolute top-[10%] right-[-10%] w-[60%] h-[60%] bg-primary-600 dark:bg-[#d4af37] opacity-10 blur-[120px] rounded-full floating-glow pointer-events-none" style={{ animationDelay: '-2s' }}></div>
       <div className="absolute bottom-[-10%] left-[20%] w-[50%] h-[50%] bg-primary-300 dark:bg-[#f2ca50] opacity-10 dark:opacity-[0.08] blur-[100px] rounded-full floating-glow pointer-events-none" style={{ animationDelay: '-7s' }}></div>
 
+      {/* Theme Toggle */}
+      <div className="absolute top-6 right-6 z-50">
+        <ThemeToggle className="bg-white/50 dark:bg-black/50 backdrop-blur-md border border-secondary-200 dark:border-[#4d4635] shadow-sm hover:shadow-md" />
+      </div>
+
       {/* Left Side: Atmospheric Brand Section */}
       <section className="relative flex-1 flex flex-col justify-center px-6 md:px-10 py-10 z-10 hidden lg:flex">
-        <div className="space-y-10 max-w-2xl mx-auto md:mx-0 lg:ml-12 -translate-y-16">
+        <div className="space-y-10 max-w-2xl mx-auto md:mx-0 lg:ml-12 -translate-y-10">
           {/* Branding Header */}
           <div className="pt-6">
             <div className="font-display text-5xl tracking-tight font-extrabold flex items-center gap-2">
@@ -219,11 +226,11 @@ export default function RegisterPage() {
           </div>
 
           {/* Hero Text */}
-          <div className="space-y-5">
-            <h1 className="font-display text-4xl md:text-5xl text-secondary-900 dark:text-[#eae1d4] font-bold leading-tight tracking-tight">
-              Smart Parking and EV Charging <span className="text-primary-600 dark:text-[#d4af37]">Platform.</span>
+          <div className="space-y-6">
+            <h1 className="font-display text-4xl lg:text-5xl text-secondary-900 dark:text-[#eae1d4] font-bold leading-tight tracking-tight">
+              Smart <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-700 dark:from-[#fceb96] dark:to-[#d4af37]">Parking</span> and <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-600 dark:from-emerald-300 dark:to-emerald-500">EV Charging</span> Platform.
             </h1>
-            <p className="font-sans text-base md:text-lg text-secondary-600 dark:text-[#d0c5af] max-w-md leading-relaxed">
+            <p className="font-sans text-base lg:text-lg text-secondary-600 dark:text-[#d0c5af] max-w-lg leading-relaxed">
               Experience seamless arrivals and priority access across the city's most exclusive districts. Reserved for those who value time and precision.
             </p>
           </div>
@@ -241,18 +248,18 @@ export default function RegisterPage() {
             </div>
 
             {/* Stats */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 group">
-                <span className="material-symbols-outlined text-primary-600 dark:text-[#f2ca50] text-[22px]">check_circle</span>
-                <span className="font-sans text-base text-secondary-900 dark:text-[#eae1d4]">Find parking spots instantly</span>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2.5 group">
+                <span className="material-symbols-outlined text-primary-600 dark:text-[#f2ca50] text-[18px]">check_circle</span>
+                <span className="font-sans text-sm text-secondary-900 dark:text-[#eae1d4]">Find parking spots instantly</span>
               </div>
-              <div className="flex items-center gap-3 group">
-                <span className="material-symbols-outlined text-primary-600 dark:text-[#f2ca50] text-[22px]">check_circle</span>
-                <span className="font-sans text-base text-secondary-900 dark:text-[#eae1d4]">Earn from unused parking spaces</span>
+              <div className="flex items-center gap-2.5 group">
+                <span className="material-symbols-outlined text-primary-600 dark:text-[#f2ca50] text-[18px]">check_circle</span>
+                <span className="font-sans text-sm text-secondary-900 dark:text-[#eae1d4]">Earn from unused parking spaces</span>
               </div>
-              <div className="flex items-center gap-3 group">
-                <span className="material-symbols-outlined text-primary-600 dark:text-[#f2ca50] text-[22px]">check_circle</span>
-                <span className="font-sans text-base text-secondary-900 dark:text-[#eae1d4]">Locate & book EV charging stations</span>
+              <div className="flex items-center gap-2.5 group">
+                <span className="material-symbols-outlined text-primary-600 dark:text-[#f2ca50] text-[18px]">check_circle</span>
+                <span className="font-sans text-sm text-secondary-900 dark:text-[#eae1d4]">Locate & book EV charging stations</span>
               </div>
             </div>
           </div>
@@ -260,7 +267,7 @@ export default function RegisterPage() {
       </section>
 
       {/* Right Side: Register Section */}
-      <section className="relative flex-1 flex items-center justify-center p-6 z-10 my-8 lg:my-0">
+      <section className="relative flex-1 flex items-center justify-center lg:justify-start lg:pl-16 xl:pl-24 p-6 z-10 my-8 lg:my-0">
         {/* Register Card */}
         <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-2xl w-full max-w-lg p-6 lg:p-8 rounded-2xl relative my-10 lg:my-0 backdrop-blur-2xl">
           <div className="mb-6">

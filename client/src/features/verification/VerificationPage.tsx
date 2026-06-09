@@ -6,10 +6,9 @@ import { getPayoutAccount, savePayoutAccount, type OwnerPayoutAccount } from './
 import { getSelfieStatus, uploadSelfie, type SelfieVerification } from './selfie.service';
 import { useParkEaseMode } from '@/app/providers/useParkEaseMode';
 import { cn } from '@/lib/utils';
-import { Link } from 'react-router-dom';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { showToast } from '@/components/ui/Toast';
-import { apiClient, getApiErrorMessage } from '@/lib/api-client';
+import { getApiErrorMessage } from '@/lib/api-client';
 
 const OTP_VALIDITY_SECONDS = 120;
 const OTP_COOLDOWN_SECONDS = 30;
@@ -83,7 +82,7 @@ export function VerificationPage() {
   const [newPhone, setNewPhone] = useState(user?.phone || '');
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [isEditingPhone, setIsEditingPhone] = useState(false);
-  const [savingPhone, setSavingPhone] = useState(false);
+  // OTP State
 
   const emailCountdown = useTimer(0);
   const emailCooldown = useTimer(0);
@@ -93,6 +92,20 @@ export function VerificationPage() {
 
   useEffect(() => {
     fetchStatus();
+    
+    // Background glow atmosphere animation
+    const handleMouseMove = (e: MouseEvent) => {
+      const glows = document.querySelectorAll('.floating-glow') as NodeListOf<HTMLElement>;
+      const x = (e.clientX / window.innerWidth - 0.5) * 40;
+      const y = (e.clientY / window.innerHeight - 0.5) * 40;
+      
+      glows.forEach((glow, index) => {
+        const speed = (index + 1) * 0.1;
+        glow.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+      });
+    };
+    document.addEventListener('mousemove', handleMouseMove);
+    return () => document.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
   const fetchStatus = async () => {
@@ -322,7 +335,7 @@ export function VerificationPage() {
     ? ((status.isEmailVerified || status.isPhoneVerified) ? 100 : 0)
     : (contactProgress + kycProgress + selfieProgress + payoutProgress);
 
-  let displayStatus = status.verificationStatus;
+  let displayStatus: string = status.verificationStatus;
   if (mode === 'owner') {
     if (progress === 100) displayStatus = 'APPROVED';
     else if (progress > 0) displayStatus = 'IN PROGRESS';
@@ -332,8 +345,13 @@ export function VerificationPage() {
   }
 
   return (
-    <PageLayout>
-      <div className="max-w-4xl mx-auto space-y-6 py-8 px-4 sm:px-6 lg:px-8">
+    <PageLayout mainClassName="auth-theme luminous-stack bg-white dark:bg-[#110e07] relative transition-colors duration-300 min-h-screen">
+      {/* Global Background Atmosphere */}
+      <div className="absolute top-[5%] left-[5%] w-[40%] h-[40%] bg-primary-400 dark:bg-[#f2ca50] opacity-10 blur-[120px] rounded-full floating-glow pointer-events-none z-0"></div>
+      <div className="absolute top-[20%] right-[5%] w-[40%] h-[50%] bg-primary-600 dark:bg-[#d4af37] opacity-10 blur-[120px] rounded-full floating-glow pointer-events-none z-0" style={{ animationDelay: '-2s' }}></div>
+      <div className="absolute bottom-[10%] left-[30%] w-[40%] h-[40%] bg-primary-300 dark:bg-[#f2ca50] opacity-10 dark:opacity-[0.08] blur-[100px] rounded-full floating-glow pointer-events-none z-0" style={{ animationDelay: '-7s' }}></div>
+
+      <div className="max-w-4xl mx-auto space-y-6 py-8 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold font-display text-secondary-900 dark:text-[#eae1d4]">
@@ -348,17 +366,17 @@ export function VerificationPage() {
         </div>
 
         {/* Overview Card */}
-        <div className="bg-white dark:bg-[#1a1712] p-6 rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-sm">
+        <div className="bg-white/80 dark:bg-transparent surface-glass p-6 rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-lg backdrop-blur-2xl hover:border-primary-400 dark:hover:border-[#f2ca50]/50 hover:shadow-xl dark:hover:shadow-[0_0_20px_rgba(242,202,80,0.15)] transition-all duration-300">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-secondary-900 dark:text-[#eae1d4]">Verification Progress</h2>
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-secondary-500">Status:</span>
               <span className={cn(
                 "px-2.5 py-1 rounded-full text-xs font-bold",
-                displayStatus === 'APPROVED' ? "bg-success-100 text-success-700" :
-                displayStatus === 'PENDING' ? "bg-warning-100 text-warning-700" :
+                displayStatus === 'APPROVED' ? "bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400" :
+                displayStatus === 'PENDING' ? "bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400" :
                 displayStatus === 'IN PROGRESS' ? "bg-primary-100 text-primary-700" :
-                "bg-secondary-100 text-secondary-700"
+                "bg-secondary-100 dark:bg-white/10 text-secondary-700 dark:text-[#d0c5af]"
               )}>
                 {displayStatus}
               </span>
@@ -367,8 +385,8 @@ export function VerificationPage() {
 
           <div className="space-y-4">
             <div className="flex justify-between text-sm font-medium">
-              <span className="text-secondary-700">{progress}% Completed</span>
-              {mode === 'owner' && <span className="text-secondary-500">Level 1</span>}
+              <span className="text-secondary-700 dark:text-[#eae1d4]">{progress}% Completed</span>
+              {mode === 'owner' && <span className="text-secondary-500 dark:text-[#d0c5af]">Level 1</span>}
             </div>
             <div className="h-2 w-full bg-secondary-100 rounded-full overflow-hidden">
               <div 
@@ -382,13 +400,13 @@ export function VerificationPage() {
                 <span className={status.isEmailVerified && status.isPhoneVerified ? "text-success-500" : "text-secondary-400"}>
                   {status.isEmailVerified && status.isPhoneVerified ? "✓" : "○"}
                 </span>
-                <span className={cn("text-xs font-medium", status.isEmailVerified && status.isPhoneVerified ? "text-secondary-900" : "text-secondary-500")}>Contact</span>
+                <span className={cn("text-xs font-medium", status.isEmailVerified && status.isPhoneVerified ? "text-secondary-900 dark:text-[#eae1d4]" : "text-secondary-500 dark:text-[#d0c5af]")}>Contact</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className={kycProfile?.status === 'APPROVED' ? "text-success-500" : kycProfile?.status === 'UNDER_REVIEW' ? "text-warning-500" : "text-secondary-400"}>
                   {kycProfile?.status === 'APPROVED' ? "✓" : kycProfile?.status === 'UNDER_REVIEW' ? "⏳" : "○"}
                 </span>
-                <span className={cn("text-xs font-medium", kycProfile?.status && kycProfile.status !== 'NOT_STARTED' ? "text-secondary-900" : "text-secondary-500")}>Identity</span>
+                <span className={cn("text-xs font-medium", kycProfile?.status && kycProfile.status !== 'NOT_STARTED' ? "text-secondary-900 dark:text-[#eae1d4]" : "text-secondary-500 dark:text-[#d0c5af]")}>Identity</span>
               </div>
               {mode === 'owner' && (
                 <>
@@ -396,13 +414,13 @@ export function VerificationPage() {
                     <span className={selfieProfile?.status === 'APPROVED' ? "text-success-500" : selfieProfile?.status === 'UNDER_REVIEW' ? "text-warning-500" : "text-secondary-400"}>
                       {selfieProfile?.status === 'APPROVED' ? "✓" : selfieProfile?.status === 'UNDER_REVIEW' ? "⏳" : "○"}
                     </span>
-                    <span className={cn("text-xs font-medium", selfieProfile?.status && selfieProfile.status !== 'NOT_SUBMITTED' ? "text-secondary-900" : "text-secondary-500")}>Selfie</span>
+                    <span className={cn("text-xs font-medium", selfieProfile?.status && selfieProfile.status !== 'NOT_SUBMITTED' ? "text-secondary-900 dark:text-[#eae1d4]" : "text-secondary-500 dark:text-[#d0c5af]")}>Selfie</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={payoutProfile?.status === 'VERIFIED' ? "text-success-500" : payoutProfile?.status === 'CONFIGURED' ? "text-primary-500" : "text-secondary-400"}>
                       {payoutProfile?.status === 'VERIFIED' || payoutProfile?.status === 'CONFIGURED' ? "✓" : "○"}
                     </span>
-                    <span className={cn("text-xs font-medium", payoutProfile?.status && payoutProfile.status !== 'NOT_CONFIGURED' ? "text-secondary-900" : "text-secondary-500")}>Payout</span>
+                    <span className={cn("text-xs font-medium", payoutProfile?.status && payoutProfile.status !== 'NOT_CONFIGURED' ? "text-secondary-900 dark:text-[#eae1d4]" : "text-secondary-500 dark:text-[#d0c5af]")}>Payout</span>
                   </div>
                 </>
               )}
@@ -422,14 +440,14 @@ export function VerificationPage() {
             
             <div className="grid md:grid-cols-2 gap-6">
               {/* Email Card */}
-              <div className="bg-white dark:bg-[#1a1712] p-6 rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-sm relative overflow-hidden flex flex-col h-full">
+              <div className="bg-white/80 dark:bg-transparent surface-glass p-6 rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-lg backdrop-blur-2xl hover:border-primary-400 dark:hover:border-[#f2ca50]/50 hover:shadow-xl dark:hover:shadow-[0_0_20px_rgba(242,202,80,0.15)] transition-all duration-300 relative overflow-hidden flex flex-col h-full group">
                 <h3 className="text-lg font-bold text-secondary-900 dark:text-[#eae1d4] mb-2">Email Address</h3>
             <p className="text-sm text-secondary-500 dark:text-[#d0c5af] mb-6">Verify your email address for account security and important updates.</p>
             
             <div className="flex-1">
               {status.isEmailVerified && !isEditingEmail ? (
                 <>
-                  <div className="text-sm font-medium text-secondary-900 mb-4 bg-secondary-50 p-3 rounded-lg border border-secondary-100 flex items-center justify-between">
+                  <div className="text-sm font-medium text-secondary-900 dark:text-[#eae1d4] mb-4 bg-secondary-50 dark:bg-[#1a1712]/50 p-3 rounded-lg border border-secondary-100 dark:border-[#4d4635] flex items-center justify-between">
                     <span>{user?.email}</span>
                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-success-100 text-success-600">
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -437,9 +455,9 @@ export function VerificationPage() {
                       </svg>
                     </span>
                   </div>
-                  <div className="mt-4 p-4 bg-success-50 border border-success-200 rounded-xl flex items-center justify-between">
+                  <div className="mt-4 p-4 bg-success-50 dark:bg-success-900/10 border border-success-200 dark:border-success-500/20 rounded-xl flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="bg-success-100 p-2 rounded-full">
+                      <div className="bg-success-100 dark:bg-success-900/30 p-2 rounded-full">
                         <svg className="w-5 h-5 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
@@ -453,7 +471,7 @@ export function VerificationPage() {
                 </>
               ) : emailOtpSent ? (
                 <div className="space-y-4">
-                  <div className="text-sm text-secondary-600 flex justify-between items-center">
+                  <div className="text-sm text-secondary-600 dark:text-[#d0c5af] flex justify-between items-center">
                     <span>OTP sent to: <strong>{newEmail || user?.email}</strong></span>
                     {emailCountdown.timeLeft > 0 ? (
                       <span className="font-mono text-primary-600 font-medium">Time remaining: {formatTime(emailCountdown.timeLeft)}</span>
@@ -469,7 +487,7 @@ export function VerificationPage() {
                     value={emailOtp}
                     onChange={(e) => setEmailOtp(e.target.value.replace(/\D/g, ''))}
                     disabled={emailCountdown.timeLeft === 0}
-                    className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50 disabled:bg-secondary-50"
+                    className="w-full px-3 py-2 border border-secondary-300 dark:border-[#4d4635] bg-transparent dark:bg-[#1a1712]/50 text-secondary-900 dark:text-[#eae1d4] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50 disabled:bg-secondary-50"
                   />
                   <div className="flex gap-3">
                     <button
@@ -482,7 +500,7 @@ export function VerificationPage() {
                     <button
                       onClick={() => handleSendOtp('EMAIL')}
                       disabled={processing || emailCooldown.timeLeft > 0}
-                      className="flex-1 bg-secondary-100 hover:bg-secondary-200 text-secondary-900 font-medium py-2 rounded-lg transition-colors disabled:opacity-50"
+                      className="flex-1 bg-secondary-100 dark:bg-white/10 hover:bg-secondary-200 dark:hover:bg-white/20 text-secondary-900 dark:text-[#eae1d4] font-medium py-2 rounded-lg transition-colors disabled:opacity-50"
                     >
                       {emailCooldown.timeLeft > 0 ? `Resend (${emailCooldown.timeLeft}s)` : 'Resend OTP'}
                     </button>
@@ -491,7 +509,7 @@ export function VerificationPage() {
               ) : (
                 <div className="space-y-4">
                   {!user?.email && (
-                    <div className="text-sm text-warning-700 bg-warning-50 p-3 rounded-lg border border-warning-200">
+                    <div className="text-sm text-warning-700 bg-warning-50 dark:bg-warning-900/10 p-3 rounded-lg border border-warning-200 dark:border-warning-500/20">
                       No email address set. Please add one to continue.
                     </div>
                   )}
@@ -504,7 +522,7 @@ export function VerificationPage() {
                           value={newEmail}
                           onChange={(e) => setNewEmail(e.target.value)}
                           disabled={processing}
-                          className="flex-1 px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
+                          className="flex-1 px-3 py-2 border border-secondary-300 dark:border-[#4d4635] bg-transparent dark:bg-[#1a1712]/50 text-secondary-900 dark:text-[#eae1d4] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
                         />
                         <button
                           onClick={() => handleSendOtp('EMAIL')}
@@ -536,14 +554,14 @@ export function VerificationPage() {
           </div>
 
           {/* Phone Card */}
-          <div className="bg-white dark:bg-[#1a1712] p-6 rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-sm relative overflow-hidden flex flex-col h-full">
+          <div className="bg-white/80 dark:bg-transparent surface-glass p-6 rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-lg backdrop-blur-2xl hover:border-primary-400 dark:hover:border-[#f2ca50]/50 hover:shadow-xl dark:hover:shadow-[0_0_20px_rgba(242,202,80,0.15)] transition-all duration-300 relative overflow-hidden flex flex-col h-full group">
             <h3 className="text-lg font-bold text-secondary-900 dark:text-[#eae1d4] mb-2">2. Phone Number</h3>
             <p className="text-sm text-secondary-500 dark:text-[#d0c5af] mb-6">Verify your phone number to enable SMS notifications and seamless bookings.</p>
             
             <div className="flex-1">
               {status.isPhoneVerified && !isEditingPhone ? (
                 <>
-                  <div className="text-sm font-medium text-secondary-900 mb-4 bg-secondary-50 p-3 rounded-lg border border-secondary-100 flex items-center justify-between">
+                  <div className="text-sm font-medium text-secondary-900 dark:text-[#eae1d4] mb-4 bg-secondary-50 dark:bg-[#1a1712]/50 p-3 rounded-lg border border-secondary-100 dark:border-[#4d4635] flex items-center justify-between">
                     <span>{user?.phone}</span>
                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-success-100 text-success-600">
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -551,9 +569,9 @@ export function VerificationPage() {
                       </svg>
                     </span>
                   </div>
-                  <div className="mt-4 p-4 bg-success-50 border border-success-200 rounded-xl flex items-center justify-between">
+                  <div className="mt-4 p-4 bg-success-50 dark:bg-success-900/10 border border-success-200 dark:border-success-500/20 rounded-xl flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="bg-success-100 p-2 rounded-full">
+                      <div className="bg-success-100 dark:bg-success-900/30 p-2 rounded-full">
                         <svg className="w-5 h-5 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
@@ -567,7 +585,7 @@ export function VerificationPage() {
                 </>
               ) : phoneOtpSent ? (
                 <div className="space-y-4">
-                  <div className="text-sm text-secondary-600 flex justify-between items-center">
+                  <div className="text-sm text-secondary-600 dark:text-[#d0c5af] flex justify-between items-center">
                     <span>OTP sent to: <strong>{newPhone || user?.phone}</strong></span>
                     {phoneCountdown.timeLeft > 0 ? (
                       <span className="font-mono text-primary-600 font-medium">Time remaining: {formatTime(phoneCountdown.timeLeft)}</span>
@@ -583,7 +601,7 @@ export function VerificationPage() {
                     value={phoneOtp}
                     onChange={(e) => setPhoneOtp(e.target.value.replace(/\D/g, ''))}
                     disabled={phoneCountdown.timeLeft === 0}
-                    className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50 disabled:bg-secondary-50"
+                    className="w-full px-3 py-2 border border-secondary-300 dark:border-[#4d4635] bg-transparent dark:bg-[#1a1712]/50 text-secondary-900 dark:text-[#eae1d4] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50 disabled:bg-secondary-50"
                   />
                   <div className="flex gap-3">
                     <button
@@ -596,7 +614,7 @@ export function VerificationPage() {
                     <button
                       onClick={() => handleSendOtp('PHONE')}
                       disabled={processing || phoneCooldown.timeLeft > 0}
-                      className="flex-1 bg-secondary-100 hover:bg-secondary-200 text-secondary-900 font-medium py-2 rounded-lg transition-colors disabled:opacity-50"
+                      className="flex-1 bg-secondary-100 dark:bg-white/10 hover:bg-secondary-200 dark:hover:bg-white/20 text-secondary-900 dark:text-[#eae1d4] font-medium py-2 rounded-lg transition-colors disabled:opacity-50"
                     >
                       {phoneCooldown.timeLeft > 0 ? `Resend (${phoneCooldown.timeLeft}s)` : 'Resend OTP'}
                     </button>
@@ -605,7 +623,7 @@ export function VerificationPage() {
               ) : (
                 <div className="space-y-4">
                   {!user?.phone && (
-                    <div className="text-sm text-warning-700 bg-warning-50 p-3 rounded-lg border border-warning-200">
+                    <div className="text-sm text-warning-700 bg-warning-50 dark:bg-warning-900/10 p-3 rounded-lg border border-warning-200 dark:border-warning-500/20">
                       No phone number set. Please add one to continue.
                     </div>
                   )}
@@ -618,7 +636,7 @@ export function VerificationPage() {
                           value={newPhone}
                           onChange={(e) => setNewPhone(e.target.value)}
                           disabled={processing}
-                          className="flex-1 px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
+                          className="flex-1 px-3 py-2 border border-secondary-300 dark:border-[#4d4635] bg-transparent dark:bg-[#1a1712]/50 text-secondary-900 dark:text-[#eae1d4] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
                         />
                         <button
                           onClick={() => handleSendOtp('PHONE')}
@@ -653,7 +671,7 @@ export function VerificationPage() {
         
         {/* 2. Identity Verification */}
         {mode === 'owner' && (
-          <div className="bg-white dark:bg-[#1a1712] rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-sm overflow-hidden">
+          <div className="bg-white/80 dark:bg-transparent surface-glass rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-lg backdrop-blur-2xl hover:border-primary-400 dark:hover:border-[#f2ca50]/50 hover:shadow-xl dark:hover:shadow-[0_0_20px_rgba(242,202,80,0.15)] transition-all duration-300 overflow-hidden">
             <div className="p-6 border-b border-secondary-200 dark:border-[#4d4635] bg-secondary-50 dark:bg-[#1a1712]/50 flex items-start justify-between">
               <div>
                 <h3 className="text-lg font-bold text-secondary-900 dark:text-[#eae1d4]">2. Identity Verification</h3>
@@ -663,9 +681,9 @@ export function VerificationPage() {
                 {kycProfile?.status && kycProfile.status !== 'NOT_STARTED' && (
                   <span className={cn(
                     "px-2.5 py-1 rounded-full text-xs font-bold",
-                    kycProfile.status === 'APPROVED' ? "bg-success-100 text-success-700" :
-                    kycProfile.status === 'REJECTED' ? "bg-danger-100 text-danger-700" :
-                    "bg-warning-100 text-warning-700"
+                    kycProfile.status === 'APPROVED' ? "bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400" :
+                    kycProfile.status === 'REJECTED' ? "bg-danger-100 dark:bg-danger-900/30 text-danger-700 dark:text-danger-400" :
+                    "bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400"
                   )}>
                     {kycProfile.status}
                   </span>
@@ -680,67 +698,67 @@ export function VerificationPage() {
             
             <div className="p-6">
               {!(status.isEmailVerified && status.isPhoneVerified) ? (
-                <div className="text-sm text-warning-700 bg-warning-50 p-4 rounded-lg border border-warning-200 text-center">
+                <div className="text-sm text-warning-700 bg-warning-50 dark:bg-warning-900/10 p-4 rounded-lg border border-warning-200 dark:border-warning-500/20 text-center">
                   Please verify your Email and Phone Number before proceeding with Identity Verification.
                 </div>
               ) : (
                 <div className="space-y-6">
                   {kycProfile?.status === 'REJECTED' && (
-                    <div className="text-sm text-danger-700 bg-danger-50 p-3 rounded-lg border border-danger-200">
+                    <div className="text-sm text-danger-700 bg-danger-50 dark:bg-danger-900/10 p-3 rounded-lg border border-danger-200 dark:border-danger-500/20">
                       <strong>Verification Rejected:</strong> {kycProfile.rejectionReason || 'Please resubmit valid documents.'}
                     </div>
                   )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-secondary-700 mb-1">Full Name</label>
+                      <label className="block text-sm font-medium text-secondary-700 dark:text-[#eae1d4] mb-1">Full Name</label>
                       <input 
                         type="text" 
                         value={kycForm.fullName || ''} 
                         onChange={e => setKycForm(prev => ({ ...prev, fullName: e.target.value }))}
                         disabled={isKycDisabled}
-                        className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
+                        className="w-full px-3 py-2 border border-secondary-300 dark:border-[#4d4635] bg-transparent dark:bg-[#1a1712]/50 text-secondary-900 dark:text-[#eae1d4] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
                         placeholder="As per Aadhaar"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-secondary-700 mb-1">Date of Birth</label>
+                      <label className="block text-sm font-medium text-secondary-700 dark:text-[#eae1d4] mb-1">Date of Birth</label>
                       <input 
                         type="date"
                         max={new Date().toISOString().split('T')[0]}
                         value={kycForm.dateOfBirth ? new Date(kycForm.dateOfBirth).toISOString().split('T')[0] : ''} 
                         onChange={e => setKycForm(prev => ({ ...prev, dateOfBirth: e.target.value }))}
                         disabled={isKycDisabled}
-                        className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
+                        className="w-full px-3 py-2 border border-secondary-300 dark:border-[#4d4635] bg-transparent dark:bg-[#1a1712]/50 text-secondary-900 dark:text-[#eae1d4] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-secondary-700 mb-1">Aadhaar Number <span className="text-secondary-400 font-normal">(Optional if PAN is provided)</span></label>
+                      <label className="block text-sm font-medium text-secondary-700 dark:text-[#eae1d4] mb-1">Aadhaar Number <span className="text-secondary-400 font-normal">(Optional if PAN is provided)</span></label>
                       <input 
                         type="text" 
                         maxLength={12}
                         value={kycForm.aadhaarNumber || ''} 
                         onChange={e => setKycForm(prev => ({ ...prev, aadhaarNumber: e.target.value.replace(/\D/g, '') }))}
                         disabled={isKycDisabled}
-                        className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
+                        className="w-full px-3 py-2 border border-secondary-300 dark:border-[#4d4635] bg-transparent dark:bg-[#1a1712]/50 text-secondary-900 dark:text-[#eae1d4] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
                         placeholder="12 digit Aadhaar"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-secondary-700 mb-1">PAN Number <span className="text-secondary-400 font-normal">(Optional if Aadhaar is provided)</span></label>
+                      <label className="block text-sm font-medium text-secondary-700 dark:text-[#eae1d4] mb-1">PAN Number <span className="text-secondary-400 font-normal">(Optional if Aadhaar is provided)</span></label>
                       <input 
                         type="text" 
                         maxLength={10}
                         value={kycForm.panNumber || ''} 
                         onChange={e => setKycForm(prev => ({ ...prev, panNumber: e.target.value.toUpperCase() }))}
                         disabled={isKycDisabled}
-                        className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50 uppercase"
+                        className="w-full px-3 py-2 border border-secondary-300 dark:border-[#4d4635] bg-transparent dark:bg-[#1a1712]/50 text-secondary-900 dark:text-[#eae1d4] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50 uppercase"
                         placeholder="ABCDE1234F"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-secondary-700 mb-1">Aadhaar Document <span className="text-secondary-400 font-normal">(Optional if PAN is provided)</span></label>
+                      <label className="block text-sm font-medium text-secondary-700 dark:text-[#eae1d4] mb-1">Aadhaar Document <span className="text-secondary-400 font-normal">(Optional if PAN is provided)</span></label>
                       {kycForm.aadhaarUrl ? (
-                        <div className="flex items-center justify-between p-2 border border-secondary-200 rounded-lg bg-secondary-50">
+                        <div className="flex items-center justify-between p-2 border border-secondary-200 dark:border-[#4d4635] rounded-lg bg-secondary-50 dark:bg-[#1a1712]/50">
                           <a href={kycForm.aadhaarUrl} target="_blank" rel="noreferrer" className="text-sm truncate mr-2 text-primary-600 hover:underline">View Document</a>
                           {(kycProfile?.status === 'DRAFT' || kycProfile?.status === 'REJECTED' || !kycProfile?.status || kycProfile.status === 'NOT_STARTED' || isEditingKyc) && (
                             <button onClick={() => setKycForm(prev => ({ ...prev, aadhaarUrl: null }))} className="text-danger-600 hover:text-danger-700 text-sm font-medium">Remove</button>
@@ -757,9 +775,9 @@ export function VerificationPage() {
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-secondary-700 mb-1">PAN Document <span className="text-secondary-400 font-normal">(Optional if Aadhaar is provided)</span></label>
+                      <label className="block text-sm font-medium text-secondary-700 dark:text-[#eae1d4] mb-1">PAN Document <span className="text-secondary-400 font-normal">(Optional if Aadhaar is provided)</span></label>
                       {kycForm.panUrl ? (
-                        <div className="flex items-center justify-between p-2 border border-secondary-200 rounded-lg bg-secondary-50">
+                        <div className="flex items-center justify-between p-2 border border-secondary-200 dark:border-[#4d4635] rounded-lg bg-secondary-50 dark:bg-[#1a1712]/50">
                           <a href={kycForm.panUrl} target="_blank" rel="noreferrer" className="text-sm truncate mr-2 text-primary-600 hover:underline">View Document</a>
                           {(kycProfile?.status === 'DRAFT' || kycProfile?.status === 'REJECTED' || !kycProfile?.status || kycProfile.status === 'NOT_STARTED' || isEditingKyc) && (
                             <button onClick={() => setKycForm(prev => ({ ...prev, panUrl: null }))} className="text-danger-600 hover:text-danger-700 text-sm font-medium">Remove</button>
@@ -816,8 +834,8 @@ export function VerificationPage() {
         
         {/* 3. Live Selfie Verification */}
         {mode === 'owner' && (
-          <div className="bg-white dark:bg-[#1a1712] rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-sm overflow-hidden mt-6">
-            <div className="p-6 border-b border-secondary-200 bg-secondary-50 flex items-start justify-between">
+          <div className="bg-white/80 dark:bg-transparent surface-glass rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-lg backdrop-blur-2xl hover:border-primary-400 dark:hover:border-[#f2ca50]/50 hover:shadow-xl dark:hover:shadow-[0_0_20px_rgba(242,202,80,0.15)] transition-all duration-300 overflow-hidden mt-6">
+            <div className="p-6 border-b border-secondary-200 dark:border-[#4d4635] bg-secondary-50 dark:bg-[#1a1712]/50 flex items-start justify-between">
               <div>
                 <h3 className="text-lg font-bold text-secondary-900 dark:text-[#eae1d4]">3. Live Selfie Verification</h3>
                 <p className="text-sm text-secondary-500 dark:text-[#d0c5af] mt-1">Upload a real-time selfie to verify your identity.</p>
@@ -825,10 +843,10 @@ export function VerificationPage() {
               <div className="flex flex-col items-end gap-2">
                 <span className={cn(
                   "px-2.5 py-1 rounded-full text-xs font-bold",
-                  selfieProfile?.status === 'APPROVED' ? "bg-success-100 text-success-700" :
-                  selfieProfile?.status === 'UNDER_REVIEW' ? "bg-warning-100 text-warning-700" :
-                  selfieProfile?.status === 'REJECTED' ? "bg-danger-100 text-danger-700" :
-                  "bg-secondary-100 text-secondary-700"
+                  selfieProfile?.status === 'APPROVED' ? "bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400" :
+                  selfieProfile?.status === 'UNDER_REVIEW' ? "bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400" :
+                  selfieProfile?.status === 'REJECTED' ? "bg-danger-100 dark:bg-danger-900/30 text-danger-700 dark:text-danger-400" :
+                  "bg-secondary-100 dark:bg-white/10 text-secondary-700 dark:text-[#d0c5af]"
                 )}>
                   {selfieProfile?.status || 'NOT_SUBMITTED'}
                 </span>
@@ -839,13 +857,13 @@ export function VerificationPage() {
               {(!selfieProfile?.status || selfieProfile.status === 'NOT_SUBMITTED' || selfieProfile.status === 'REJECTED') ? (
                 <div className="space-y-6">
                   {selfieProfile?.status === 'REJECTED' && (
-                    <div className="p-4 bg-danger-50 text-danger-700 rounded-xl border border-danger-100 text-sm">
+                    <div className="p-4 bg-danger-50 dark:bg-danger-900/10 text-danger-700 dark:text-danger-400 rounded-xl border border-danger-100 dark:border-danger-500/20 text-sm">
                       <span className="font-bold">Rejection Reason: </span>
                       {selfieProfile.reviewerNotes || 'Image unclear or did not match ID. Please try again.'}
                     </div>
                   )}
 
-                  <div className="border-2 border-dashed border-secondary-300 rounded-xl p-8 text-center bg-secondary-50 hover:bg-secondary-100 transition-colors">
+                  <div className="border-2 border-dashed border-secondary-300 dark:border-[#4d4635] rounded-xl p-8 text-center bg-secondary-50 dark:bg-[#1a1712]/50 hover:bg-secondary-100 dark:hover:bg-[#252119] transition-colors">
                     {selfiePreview ? (
                       <div className="flex flex-col items-center">
                         <img src={selfiePreview} alt="Selfie Preview" className="max-h-64 rounded-lg object-cover mb-4 shadow-sm border border-secondary-200" />
@@ -916,7 +934,7 @@ export function VerificationPage() {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-4 bg-success-50 p-4 rounded-xl border border-success-100">
+                <div className="flex items-center gap-4 bg-success-50 dark:bg-success-900/10 p-4 rounded-xl border border-success-100 dark:border-success-500/20">
                   <div className="bg-success-100 p-3 rounded-full text-success-600">
                     <span className="text-xl">👤</span>
                   </div>
@@ -934,8 +952,8 @@ export function VerificationPage() {
 
         {/* 4. Payout Setup */}
         {mode === 'owner' && (
-          <div className="bg-white dark:bg-[#1a1712] rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-sm overflow-hidden mt-6">
-            <div className="p-6 border-b border-secondary-200 bg-secondary-50 flex items-start justify-between">
+          <div className="bg-white/80 dark:bg-transparent surface-glass rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-lg backdrop-blur-2xl hover:border-primary-400 dark:hover:border-[#f2ca50]/50 hover:shadow-xl dark:hover:shadow-[0_0_20px_rgba(242,202,80,0.15)] transition-all duration-300 overflow-hidden mt-6">
+            <div className="p-6 border-b border-secondary-200 dark:border-[#4d4635] bg-secondary-50 dark:bg-[#1a1712]/50 flex items-start justify-between">
               <div>
                 <h3 className="text-lg font-bold text-secondary-900 dark:text-[#eae1d4]">4. Payout Setup</h3>
                 <p className="text-sm text-secondary-500 dark:text-[#d0c5af] mt-1">Configure your bank account or UPI details to receive payouts.</p>
@@ -943,10 +961,10 @@ export function VerificationPage() {
               <div className="flex flex-col items-end gap-2">
                 <span className={cn(
                   "px-2.5 py-1 rounded-full text-xs font-bold",
-                  payoutProfile?.status === 'VERIFIED' ? "bg-success-100 text-success-700" :
+                  payoutProfile?.status === 'VERIFIED' ? "bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400" :
                   payoutProfile?.status === 'CONFIGURED' ? "bg-primary-100 text-primary-700" :
-                  payoutProfile?.status === 'REJECTED' ? "bg-danger-100 text-danger-700" :
-                  "bg-secondary-100 text-secondary-700"
+                  payoutProfile?.status === 'REJECTED' ? "bg-danger-100 dark:bg-danger-900/30 text-danger-700 dark:text-danger-400" :
+                  "bg-secondary-100 dark:bg-white/10 text-secondary-700 dark:text-[#d0c5af]"
                 )}>
                   {payoutProfile?.status || 'NOT_CONFIGURED'}
                 </span>
@@ -982,51 +1000,51 @@ export function VerificationPage() {
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-secondary-700 mb-1">Account Holder Name</label>
+                    <label className="block text-sm font-medium text-secondary-700 dark:text-[#eae1d4] mb-1">Account Holder Name</label>
                     <input 
                       type="text" 
                       value={payoutForm.accountHolderName || ''}
                       onChange={(e) => setPayoutForm({ ...payoutForm, accountHolderName: e.target.value })}
-                      className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full px-3 py-2 border border-secondary-300 dark:border-[#4d4635] bg-transparent dark:bg-[#1a1712]/50 text-secondary-900 dark:text-[#eae1d4] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                     />
                   </div>
                   
                   {payoutForm.payoutMethod === 'BANK' && (
                     <>
                       <div className="col-span-2">
-                        <label className="block text-sm font-medium text-secondary-700 mb-1">Bank Name</label>
+                        <label className="block text-sm font-medium text-secondary-700 dark:text-[#eae1d4] mb-1">Bank Name</label>
                         <input 
                           type="text" 
                           value={payoutForm.bankName || ''}
                           onChange={(e) => setPayoutForm({ ...payoutForm, bankName: e.target.value })}
-                          className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="w-full px-3 py-2 border border-secondary-300 dark:border-[#4d4635] bg-transparent dark:bg-[#1a1712]/50 text-secondary-900 dark:text-[#eae1d4] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-secondary-700 mb-1">Account Number</label>
+                        <label className="block text-sm font-medium text-secondary-700 dark:text-[#eae1d4] mb-1">Account Number</label>
                         <input 
                           type="password" 
                           value={payoutForm.accountNumber || ''}
                           onChange={(e) => setPayoutForm({ ...payoutForm, accountNumber: e.target.value })}
-                          className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="w-full px-3 py-2 border border-secondary-300 dark:border-[#4d4635] bg-transparent dark:bg-[#1a1712]/50 text-secondary-900 dark:text-[#eae1d4] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-secondary-700 mb-1">Confirm Account Number</label>
+                        <label className="block text-sm font-medium text-secondary-700 dark:text-[#eae1d4] mb-1">Confirm Account Number</label>
                         <input 
                           type="text" 
                           value={(payoutForm as any).confirmAccountNumber || ''}
-                          onChange={(e) => setPayoutForm({ ...payoutForm, confirmAccountNumber: e.target.value })}
-                          className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          onChange={(e) => setPayoutForm({ ...payoutForm, confirmAccountNumber: e.target.value } as any)}
+                          className="w-full px-3 py-2 border border-secondary-300 dark:border-[#4d4635] bg-transparent dark:bg-[#1a1712]/50 text-secondary-900 dark:text-[#eae1d4] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         />
                       </div>
                       <div className="col-span-2 md:col-span-1">
-                        <label className="block text-sm font-medium text-secondary-700 mb-1">IFSC Code</label>
+                        <label className="block text-sm font-medium text-secondary-700 dark:text-[#eae1d4] mb-1">IFSC Code</label>
                         <input 
                           type="text" 
                           value={payoutForm.ifscCode || ''}
                           onChange={(e) => setPayoutForm({ ...payoutForm, ifscCode: e.target.value })}
-                          className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 uppercase"
+                          className="w-full px-3 py-2 border border-secondary-300 dark:border-[#4d4635] bg-transparent dark:bg-[#1a1712]/50 text-secondary-900 dark:text-[#eae1d4] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 uppercase"
                         />
                       </div>
                     </>
@@ -1034,13 +1052,13 @@ export function VerificationPage() {
 
                   {payoutForm.payoutMethod === 'UPI' && (
                     <div className="col-span-2">
-                      <label className="block text-sm font-medium text-secondary-700 mb-1">UPI ID</label>
+                      <label className="block text-sm font-medium text-secondary-700 dark:text-[#eae1d4] mb-1">UPI ID</label>
                       <input 
                         type="text" 
                         value={payoutForm.upiId || ''}
                         onChange={(e) => setPayoutForm({ ...payoutForm, upiId: e.target.value })}
                         placeholder="username@bank"
-                        className="w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        className="w-full px-3 py-2 border border-secondary-300 dark:border-[#4d4635] bg-transparent dark:bg-[#1a1712]/50 text-secondary-900 dark:text-[#eae1d4] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                       />
                     </div>
                   )}

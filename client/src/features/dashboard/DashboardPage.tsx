@@ -62,7 +62,7 @@ export default function DashboardPage() {
             </div>
             
             <button 
-              onClick={() => navigate('/search')}
+              onClick={() => navigate('/')}
               className="gold-glow-button px-8 py-3.5 rounded-xl flex items-center justify-center gap-2 text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-400 dark:text-[#3c2f00] font-semibold text-base group shadow-md dark:shadow-[0_0_15px_rgba(242,202,80,0.5)] transition-all duration-300 shrink-0"
             >
               <span className="material-symbols-outlined text-[22px]">search</span>

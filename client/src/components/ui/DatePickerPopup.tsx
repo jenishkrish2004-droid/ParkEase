@@ -5,9 +5,10 @@ interface DatePickerPopupProps {
   selectedDate: string;
   onSelectDate: (date: string) => void;
   onClose: () => void;
+  className?: string;
 }
 
-export function DatePickerPopup({ selectedDate, onSelectDate, onClose }: DatePickerPopupProps) {
+export function DatePickerPopup({ selectedDate, onSelectDate, onClose, className }: DatePickerPopupProps) {
   const [currentMonth, setCurrentMonth] = useState(() => {
     const d = selectedDate ? new Date(selectedDate) : new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
@@ -47,23 +48,23 @@ export function DatePickerPopup({ selectedDate, onSelectDate, onClose }: DatePic
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
   return (
-    <div className="absolute bottom-full mb-3 left-0 sm:left-auto sm:right-0 w-[320px] bg-white dark:bg-[#1a1712] rounded-2xl shadow-2xl border border-secondary-200 dark:border-[#4d4635] p-5 z-50 animate-slide-up origin-bottom backdrop-blur-3xl dark:bg-[#1a1712]/95">
+    <div className={cn("w-[280px] bg-white/95 dark:bg-[#252119]/95 backdrop-blur-md rounded-2xl shadow-2xl border border-secondary-200 dark:border-[#4d4635] p-4 z-50", className)}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-4">
         <button 
           onClick={handlePrevMonth}
-          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-secondary-100 dark:hover:bg-white/10 text-secondary-500 dark:text-[#d0c5af] transition-colors"
+          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-secondary-100 dark:hover:bg-white/10 text-secondary-500 dark:text-[#d0c5af] transition-colors"
         >
-          <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+          <span className="material-symbols-outlined text-[18px]">chevron_left</span>
         </button>
-        <span className="font-bold text-secondary-900 dark:text-[#eae1d4] text-[15px]">
+        <span className="font-bold text-secondary-900 dark:text-[#eae1d4] text-[14px]">
           {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
         </span>
         <button 
           onClick={handleNextMonth}
-          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-secondary-100 dark:hover:bg-white/10 text-secondary-500 dark:text-[#d0c5af] transition-colors"
+          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-secondary-100 dark:hover:bg-white/10 text-secondary-500 dark:text-[#d0c5af] transition-colors"
         >
-          <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+          <span className="material-symbols-outlined text-[18px]">chevron_right</span>
         </button>
       </div>
 
@@ -96,7 +97,7 @@ export function DatePickerPopup({ selectedDate, onSelectDate, onClose }: DatePic
               disabled={isPast}
               onClick={() => handleDateClick(day)}
               className={cn(
-                "w-9 h-9 flex items-center justify-center rounded-full text-sm transition-all duration-200 mx-auto",
+                "w-8 h-8 flex items-center justify-center rounded-full text-xs transition-all duration-200 mx-auto",
                 isPast && "text-secondary-300 dark:text-[#4d4635] cursor-not-allowed opacity-50",
                 !isPast && !isSelected && "text-secondary-700 dark:text-[#eae1d4] hover:bg-secondary-100 dark:hover:bg-white/10",
                 isSelected && "bg-primary-500 text-white dark:bg-[#f2ca50] dark:text-[#3c2f00] font-bold shadow-md dark:shadow-[0_0_10px_rgba(242,202,80,0.4)] scale-105",

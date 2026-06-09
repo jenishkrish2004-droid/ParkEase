@@ -8,6 +8,9 @@ export interface ParkingSpotData {
   supportedVehicles: string[];
   rating: number;
   reviews: number;
+  images: string[];
+  lat: number;
+  lng: number;
 }
 
 export interface EVStationData {
@@ -30,14 +33,13 @@ export async function fetchSearchResults(query: string): Promise<SearchResults> 
   // Simulate network delay
   await new Promise((resolve) => setTimeout(resolve, 800));
 
-  // If query is empty, maybe return some default popular ones, but let's just return a standard mock set
   const normalizedQuery = query.trim().toLowerCase();
 
-  // If someone searches for something completely unrelated that we want to show empty states for:
   if (normalizedQuery === 'nowhere' || normalizedQuery === 'empty') {
     return { parkingSpots: [], evStations: [] };
   }
 
+  // Dummy coordinates around New Delhi / Connaught Place: 28.6304, 77.2177
   return {
     parkingSpots: [
       {
@@ -50,6 +52,9 @@ export async function fetchSearchResults(query: string): Promise<SearchResults> 
         supportedVehicles: ['Car', 'Bike'],
         rating: 4.8,
         reviews: 124,
+        images: ['https://images.unsplash.com/photo-1590674899484-d5640e854abe?q=80&w=600&auto=format&fit=crop'],
+        lat: 28.6310,
+        lng: 77.2180,
       },
       {
         id: 'p2',
@@ -61,6 +66,9 @@ export async function fetchSearchResults(query: string): Promise<SearchResults> 
         supportedVehicles: ['Car'],
         rating: 4.9,
         reviews: 312,
+        images: ['https://images.unsplash.com/photo-1604061986761-d9d0cc41b0d1?q=80&w=600&auto=format&fit=crop'],
+        lat: 28.6250,
+        lng: 77.2100,
       },
       {
         id: 'p3',
@@ -72,6 +80,9 @@ export async function fetchSearchResults(query: string): Promise<SearchResults> 
         supportedVehicles: ['Car', 'Bike', 'Commercial'],
         rating: 4.2,
         reviews: 89,
+        images: ['https://images.unsplash.com/photo-1573348722427-f1d6819fdf98?q=80&w=600&auto=format&fit=crop'],
+        lat: 28.6350,
+        lng: 77.2250,
       },
     ],
     evStations: [

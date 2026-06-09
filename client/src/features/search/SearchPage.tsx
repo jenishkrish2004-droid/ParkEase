@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { cn } from '@/lib/utils';
@@ -8,6 +8,8 @@ import { AvailabilitySelector } from './components/AvailabilitySelector';
 import { VehicleTypeSelector, type VehicleType } from './components/VehicleTypeSelector';
 import { ParkingFilters, AMENITIES_DISPLAY_MAP } from './components/ParkingFilters';
 import { SortSelector, type SortOption } from './components/SortSelector';
+import { ParkingSpotCard } from './components/ParkingSpotCard';
+import { ParkingMap } from './components/ParkingMap';
 
 export default function SearchPage() {
   const [searchParams] = useSearchParams();
@@ -25,6 +27,29 @@ export default function SearchPage() {
   const [vehicleType, setVehicleType] = useState<VehicleType>('Car');
   const [activeAmenities, setActiveAmenities] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>('Recommended');
+  const [activeSpotId, setActiveSpotId] = useState<string | null>(null);
+
+  // Scroll Header State
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const currentScrollY = e.currentTarget.scrollTop;
+    if (currentScrollY > lastScrollY.current + 10) {
+      setIsHeaderVisible(false); // scrolling down
+    } else if (currentScrollY < lastScrollY.current - 10 || currentScrollY <= 10) {
+      setIsHeaderVisible(true); // scrolling up
+    }
+    lastScrollY.current = currentScrollY;
+  };
+
+  const handleMarkerClick = (id: string) => {
+    setActiveSpotId(id);
+    const element = document.getElementById(`spot-card-${id}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -90,71 +115,108 @@ export default function SearchPage() {
     );
   };
 
-  return (
-    <PageLayout mainClassName="bg-white dark:bg-transparent min-h-screen pt-0 transition-colors duration-300">
-      {/* Sticky Filter Bar (Full Width) - Only Availability Controls */}
-      <div className="sticky top-[4rem] z-40 w-full bg-white/95 dark:bg-[#110e07]/95 backdrop-blur-xl border-b border-secondary-200 dark:border-[#4d4635] shadow-sm py-3 transition-colors duration-300">
-        <div className="container-app">
-          <div className="max-w-4xl mx-auto flex items-center justify-center">
-            <AvailabilitySelector 
-              selectedDate={selectedDate}
-              selectedTime={selectedTime}
-              durationHours={durationHours}
-              onDateChange={setSelectedDate}
-              onTimeChange={setSelectedTime}
-              onDurationChange={setDurationHours}
-            />
-          </div>
-        </div>
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+
+  const SidebarContent = (
+    <div className="space-y-5">
+      {/* Availability Section */}
+      <div>
+        <h3 className="text-sm font-bold text-secondary-900 dark:text-[#eae1d4] mb-3">Booking Availability</h3>
+        <AvailabilitySelector 
+          selectedDate={selectedDate}
+          selectedTime={selectedTime}
+          durationHours={durationHours}
+          onDateChange={setSelectedDate}
+          onTimeChange={setSelectedTime}
+          onDurationChange={setDurationHours}
+        />
       </div>
 
-      {/* Results Area */}
-      <div className="container-app py-6 pb-12">
-        <div className="max-w-4xl mx-auto">
-          {/* Compact Results Header & Quick Filters */}
-          <div className="space-y-4 mb-6 pb-4 border-b border-secondary-100 dark:border-[#4d4635]/35">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-bold text-secondary-900 dark:text-[#eae1d4]">
-                  Showing {isLoading ? '...' : filteredAndSortedResults.length} Parking Spots
-                </h2>
-                
-                {/* Active Filter Tags */}
-                <div className="text-xs text-secondary-500 dark:text-[#d0c5af] mt-1 flex flex-wrap items-center gap-1.5">
-                  <span className="uppercase tracking-wider font-semibold text-secondary-400">Filters:</span>
-                  <span className="font-bold text-secondary-800 dark:text-[#eae1d4]">{vehicleType}</span>
-                  {activeAmenities.map((amenity) => (
-                    <span key={amenity} className="flex items-center gap-1.5">
-                      <span className="text-secondary-300 dark:text-[#4d4635]">•</span>
-                      <span className="font-bold text-secondary-800 dark:text-[#eae1d4]">{AMENITIES_DISPLAY_MAP[amenity] || amenity}</span>
-                    </span>
-                  ))}
-                  {(activeAmenities.length > 0) && (
-                    <>
-                      <span className="text-secondary-300 dark:text-[#4d4635]">•</span>
-                      <button 
-                        onClick={() => {
-                          setActiveAmenities([]);
-                          setVehicleType('Car');
-                        }}
-                        className="text-danger-600 dark:text-[#ffb4ab] font-bold hover:underline"
-                      >
-                        [ Clear Filters ]
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
+      {/* Vehicle Type Section */}
+      <div>
+        <h3 className="text-sm font-bold text-secondary-900 dark:text-[#eae1d4] mb-3">Vehicle Type</h3>
+        <VehicleTypeSelector 
+          selectedVehicle={vehicleType}
+          onVehicleChange={setVehicleType}
+        />
+      </div>
 
-              {/* Controls: Vehicle Type & Sort Dropdown */}
-              <div className="flex flex-wrap items-center gap-3 shrink-0">
-                <VehicleTypeSelector 
-                  selectedVehicle={vehicleType}
-                  onVehicleChange={setVehicleType}
-                />
-                <div className="hidden sm:block h-6 w-px bg-secondary-200 dark:bg-[#4d4635]/60"></div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-secondary-500 dark:text-[#d0c5af] uppercase tracking-wider">Sort By:</span>
+      {/* Quick Filters Section */}
+      <ParkingFilters 
+        activeAmenities={activeAmenities}
+        onToggleAmenity={handleToggleAmenity}
+        onClearAll={() => setActiveAmenities([])}
+      />
+
+      {/* Future Placeholders */}
+      <div className="pt-6 border-t border-secondary-200 dark:border-[#4d4635] space-y-6 opacity-50 pointer-events-none">
+        <div>
+          <h3 className="text-sm font-bold text-secondary-900 dark:text-[#eae1d4] mb-3">Price Range</h3>
+          <div className="h-2 bg-secondary-200 dark:bg-[#4d4635] rounded-full w-full"></div>
+        </div>
+        <div>
+          <h3 className="text-sm font-bold text-secondary-900 dark:text-[#eae1d4] mb-3">Distance Radius</h3>
+          <div className="h-2 bg-secondary-200 dark:bg-[#4d4635] rounded-full w-full"></div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <PageLayout 
+      showFooter={false} 
+      className="h-screen overflow-hidden"
+      mainClassName="flex flex-col flex-1 min-h-0 bg-secondary-50/50 dark:bg-transparent overflow-hidden transition-colors duration-300"
+    >
+      <div className="container-app pt-0 pb-4 sm:pb-6 max-w-[1536px] mx-auto flex-1 flex flex-col min-h-0">
+        <div className="grid lg:grid-cols-[220px_minmax(0,1fr)_minmax(0,350px)] xl:grid-cols-[240px_minmax(0,1fr)_minmax(0,450px)] h-full min-h-0">
+          
+          {/* Left Sidebar (Desktop) */}
+          <aside className="hidden lg:block w-full h-full overflow-y-auto custom-scrollbar pr-2 pb-10 pt-4 sm:pt-6">
+            {SidebarContent}
+          </aside>
+
+          {/* Center Results List */}
+          <main 
+            className="w-full h-full overflow-y-auto custom-scrollbar pb-24 lg:pb-10 relative border-l border-r border-secondary-200 dark:border-[#4d4635]"
+            onScroll={handleScroll}
+          >
+            {/* Results Header */}
+            <div 
+              className={cn(
+                "sticky top-0 z-30 transition-all duration-300 mb-2",
+                isHeaderVisible ? "translate-y-0 opacity-100" : "-translate-y-[120%] opacity-0 pointer-events-none"
+              )}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 lg:px-6 bg-white/95 dark:bg-[#1a1712]/95 backdrop-blur-md border-b border-secondary-200 dark:border-[#4d4635] shrink-0">
+                <div>
+                  <h2 className="text-lg font-bold text-secondary-900 dark:text-[#eae1d4]">
+                    Showing {isLoading ? '...' : filteredAndSortedResults.length} Parking Spots
+                  </h2>
+                  
+                  {/* Active Filter Tags (Mobile only or extra visibility) */}
+                  <div className="text-[11px] text-secondary-500 dark:text-[#d0c5af] mt-1.5 flex flex-wrap items-center gap-1.5">
+                    <span className="px-2 py-0.5 rounded-md font-bold text-[#3c2f00] dark:text-[#3c2f00] bg-primary-400 dark:bg-[#f2ca50] shadow-md dark:shadow-[0_0_10px_rgba(242,202,80,0.3)] border border-primary-500/20">
+                      {vehicleType}
+                    </span>
+                    {activeAmenities.map((amenity) => (
+                      <span key={amenity} className="px-2 py-0.5 rounded-md font-bold text-[#3c2f00] dark:text-[#3c2f00] bg-primary-400 dark:bg-[#f2ca50] shadow-md dark:shadow-[0_0_10px_rgba(242,202,80,0.3)] border border-primary-500/20">
+                        {AMENITIES_DISPLAY_MAP[amenity] || amenity}
+                      </span>
+                    ))}
+                    {(activeAmenities.length > 0) && (
+                      <button 
+                        onClick={() => setActiveAmenities([])}
+                        className="text-danger-600 dark:text-[#ffb4ab] font-bold hover:underline ml-1"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Sort Dropdown */}
+                <div className="flex items-center gap-2 shrink-0">
                   <SortSelector 
                     selectedSort={sortBy}
                     onSortChange={setSortBy}
@@ -163,27 +225,16 @@ export default function SearchPage() {
               </div>
             </div>
 
-            {/* Compressed Quick Filters Component */}
-            <div className="pt-1">
-              <ParkingFilters 
-                activeAmenities={activeAmenities}
-                onToggleAmenity={handleToggleAmenity}
-                onClearAll={() => setActiveAmenities([])}
-              />
-            </div>
-          </div>
-
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-20 opacity-50">
-              <span className="material-symbols-outlined animate-spin text-4xl text-primary-500 dark:text-[#f2ca50] mb-4">progress_activity</span>
-              <p className="text-secondary-500 dark:text-[#d0c5af]">Searching for optimal locations...</p>
-            </div>
-          ) : (
-            <div className="animate-slide-up">
-              {/* Parking Results List */}
-              <div className="space-y-4">
+            {/* Results List */}
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center py-20 opacity-50 flex-1">
+                <span className="material-symbols-outlined animate-spin text-4xl text-primary-500 dark:text-[#f2ca50] mb-4">progress_activity</span>
+                <p className="text-secondary-500 dark:text-[#d0c5af]">Searching for optimal locations...</p>
+              </div>
+            ) : (
+              <div className="animate-slide-up space-y-5 sm:space-y-6 pb-6 px-4 lg:px-6 pt-4 lg:pt-6">
                 {filteredAndSortedResults.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-20 text-center surface-glass border border-secondary-200 dark:border-[#4d4635] rounded-2xl bg-white/50 dark:bg-[#110e07]/50">
+                  <div className="flex flex-col items-center justify-center py-20 text-center bg-white dark:bg-[#110e07] border border-secondary-200 dark:border-[#4d4635] rounded-3xl">
                     <span className="material-symbols-outlined text-6xl text-secondary-300 dark:text-[#4d4635] mb-4">local_parking</span>
                     <h3 className="text-xl font-bold text-secondary-900 dark:text-[#eae1d4] mb-2">No parking spots found</h3>
                     <p className="text-secondary-500 dark:text-[#d0c5af]">Try adjusting your filters or search location.</p>
@@ -199,58 +250,80 @@ export default function SearchPage() {
                   </div>
                 ) : (
                   filteredAndSortedResults.map((spot) => (
-                    <div key={spot.id} className="flex flex-col sm:flex-row items-center justify-between p-6 bg-white dark:bg-[#1a1712] border border-secondary-200 dark:border-[#4d4635] rounded-2xl shadow-sm hover:shadow-md dark:hover:shadow-[0_0_15px_rgba(242,202,80,0.1)] transition-all duration-300 group">
-                      <div className="flex items-start gap-5 w-full sm:w-auto">
-                        <div className="w-14 h-14 rounded-xl bg-primary-50 dark:bg-[#f2ca50]/10 border border-primary-100 dark:border-[#f2ca50]/20 flex items-center justify-center shrink-0">
-                          <span className="text-[28px]">🅿</span>
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-lg font-bold text-secondary-900 dark:text-[#eae1d4] group-hover:text-primary-600 dark:group-hover:text-[#f2ca50] transition-colors">{spot.name}</h3>
-                            <div className="flex items-center gap-1 bg-secondary-100 dark:bg-[#110e07] px-2 py-0.5 rounded-md text-xs font-bold text-secondary-700 dark:text-[#eae1d4]">
-                              <span className="material-symbols-outlined text-[14px] text-warning-500">star</span>
-                              {spot.rating} <span className="text-secondary-400 font-normal">({spot.reviews})</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3 text-sm text-secondary-500 dark:text-[#d0c5af] mt-1.5">
-                            <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[16px]">distance</span> {spot.distanceKm} km away</span>
-                            <span className="w-1 h-1 rounded-full bg-secondary-300 dark:bg-[#4d4635]"></span>
-                            <span className="flex items-center gap-1 text-success-600 dark:text-success-400 font-medium"><span className="material-symbols-outlined text-[16px]">local_parking</span> {spot.availableSpots} spots available</span>
-                          </div>
-                          
-                          {/* Spot Amenities Tags */}
-                          <div className="flex flex-wrap gap-1.5 mt-3">
-                            {spot.amenities.slice(0, 3).map((amenity) => (
-                              <span key={amenity} className="text-[10px] uppercase tracking-wider font-semibold px-2 py-1 bg-secondary-50 dark:bg-[#252119] text-secondary-500 dark:text-[#d0c5af] rounded-md border border-secondary-200 dark:border-[#4d4635]/50">
-                                {amenity}
-                              </span>
-                            ))}
-                            {spot.amenities.length > 3 && (
-                              <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-1 bg-secondary-50 dark:bg-[#252119] text-secondary-500 dark:text-[#d0c5af] rounded-md border border-secondary-200 dark:border-[#4d4635]/50">
-                                +{spot.amenities.length - 3} more
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="mt-5 sm:mt-0 flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto self-stretch sm:self-auto border-t sm:border-t-0 border-secondary-200 dark:border-[#4d4635] pt-4 sm:pt-0">
-                        <div className="text-right">
-                          <div className="text-xs text-secondary-500 dark:text-[#d0c5af] font-semibold uppercase tracking-wider mb-1">Total for {durationHours} hrs</div>
-                          <div className="text-xl font-bold text-secondary-900 dark:text-[#eae1d4]">₹{spot.pricePerHour * durationHours}</div>
-                          <div className="text-xs text-secondary-500 dark:text-[#d0c5af] mt-0.5">₹{spot.pricePerHour}/hr</div>
-                        </div>
-                        <button className="gold-glow-button mt-0 sm:mt-4 px-6 py-2.5 rounded-lg text-white bg-primary-600 hover:bg-primary-700 dark:bg-[#f2ca50] dark:hover:bg-[#fceb96] dark:text-[#3c2f00] font-bold text-sm transition-all shadow-sm dark:shadow-[0_0_10px_rgba(242,202,80,0.3)]">
-                          Book Now
-                        </button>
-                      </div>
-                    </div>
+                    <ParkingSpotCard 
+                      key={spot.id} 
+                      spot={spot} 
+                      durationHours={durationHours} 
+                      isActive={spot.id === activeSpotId}
+                      onHover={setActiveSpotId}
+                      onClick={(id) => setActiveSpotId(id)}
+                    />
                   ))
                 )}
               </div>
-            </div>
-          )}
+            )}
+          </main>
+
+          {/* Right Map Panel (Desktop) */}
+          <div className="hidden lg:block w-full h-full pl-4 lg:pl-6 pt-4 lg:pt-6">
+            <aside className="w-full h-[calc(100%-1.5rem)] rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-secondary-200 dark:border-[#4d4635] dark:shadow-none">
+              <ParkingMap 
+                parkingSpots={filteredAndSortedResults} 
+                activeSpotId={activeSpotId} 
+                onMarkerHover={setActiveSpotId}
+                onMarkerClick={handleMarkerClick}
+              />
+            </aside>
+          </div>
         </div>
       </div>
+
+      {/* Mobile Floating Filters Button */}
+      <div className="lg:hidden fixed bottom-6 right-6 z-40">
+        <button
+          onClick={() => setIsMobileFiltersOpen(true)}
+          className="gold-glow-button flex items-center gap-2 px-5 py-3 rounded-full bg-primary-600 dark:bg-[#f2ca50] text-white dark:text-[#3c2f00] font-bold shadow-xl dark:shadow-[0_0_20px_rgba(242,202,80,0.3)] transition-transform hover:scale-105 active:scale-95"
+        >
+          <span className="material-symbols-outlined">tune</span>
+          Filters
+          {(activeAmenities.length > 0) && (
+            <span className="ml-1 flex items-center justify-center w-5 h-5 bg-white dark:bg-[#3c2f00] text-primary-600 dark:text-[#f2ca50] rounded-full text-xs">
+              {activeAmenities.length}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* Mobile Filters Drawer / Modal */}
+      {isMobileFiltersOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div 
+            className="w-full max-w-sm h-full bg-white dark:bg-[#110e07] shadow-2xl flex flex-col animate-slide-left"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b border-secondary-200 dark:border-[#4d4635]">
+              <h2 className="text-lg font-bold text-secondary-900 dark:text-[#eae1d4]">Filters</h2>
+              <button 
+                onClick={() => setIsMobileFiltersOpen(false)}
+                className="p-2 text-secondary-500 hover:text-secondary-900 dark:text-[#d0c5af] dark:hover:text-[#eae1d4] rounded-full hover:bg-secondary-100 dark:hover:bg-[#252119] transition-colors"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+              {SidebarContent}
+            </div>
+            <div className="p-4 border-t border-secondary-200 dark:border-[#4d4635] bg-secondary-50/50 dark:bg-[#1a1712]">
+              <button
+                onClick={() => setIsMobileFiltersOpen(false)}
+                className="w-full gold-glow-button px-6 py-3 rounded-xl bg-primary-600 dark:bg-[#f2ca50] text-white dark:text-[#3c2f00] font-bold shadow-lg"
+              >
+                Show Results ({filteredAndSortedResults.length})
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </PageLayout>
   );
 }

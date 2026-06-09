@@ -100,33 +100,34 @@
 
   /* ── Custom Scrollbar ── */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 5px;
+    height: 5px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
+    margin: 4px;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-secondary-300 rounded-full border-2 border-transparent bg-clip-content;
+    @apply bg-secondary-300/60 rounded-full transition-colors;
   }
   .dark ::-webkit-scrollbar-thumb {
-    @apply bg-secondary-700;
+    @apply bg-[#4d4635]/60;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-secondary-400;
+    @apply bg-secondary-400/80;
   }
   .dark ::-webkit-scrollbar-thumb:hover {
-    @apply bg-secondary-600;
+    @apply bg-[#f2ca50]/50;
   }
 
   /* Firefox specific scrollbar */
   @supports (-moz-appearance: none) {
     * {
       scrollbar-width: thin;
-      scrollbar-color: #CBD5E1 transparent;
+      scrollbar-color: rgba(203, 213, 225, 0.6) transparent;
     }
     .dark * {
-      scrollbar-color: #334155 transparent;
+      scrollbar-color: rgba(77, 70, 53, 0.6) transparent;
     }
   }
 
@@ -192,7 +193,7 @@
 @layer components {
   /* ── Layout Container ── */
   .container-app {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    @apply w-full px-4 sm:px-6 lg:px-8 xl:px-12;
   }
 
   .container-narrow {
@@ -334,6 +335,14 @@
       position: relative;
   }
   
+  body,
+  .auth-theme.luminous-stack,
+  .auth-theme .luminous-stack {
+      background-image: radial-gradient(circle at 0% 0%, rgba(242, 202, 80, 0.12) 0%, transparent 55%),
+                        radial-gradient(circle at 100% 100%, rgba(242, 202, 80, 0.08) 0%, transparent 50%);
+      background-attachment: fixed;
+  }
+
   .dark body,
   .dark .auth-theme.luminous-stack,
   .dark .auth-theme .luminous-stack {

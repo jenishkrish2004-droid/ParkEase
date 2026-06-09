@@ -42,8 +42,8 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
   ) => {
     return (
       <Tag
-        ref={ref as React.Ref<HTMLDivElement>}
-        onClick={onClick}
+        ref={ref as any}
+        onClick={onClick as any}
         className={cn(
           'rounded-xl overflow-hidden',
           variantStyles[variant],

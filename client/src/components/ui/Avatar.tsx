@@ -36,7 +36,7 @@ function getAvatarColor(name: string): string {
   return colorPalettes[Math.abs(hash) % colorPalettes.length];
 }
 
-export interface AvatarProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'size'> {
+export interface AvatarProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'size' | 'src'> {
   src?: string | null;
   firstName?: string;
   lastName?: string;

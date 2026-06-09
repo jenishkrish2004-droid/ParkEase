@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { DatePickerPopup } from '@/components/ui/DatePickerPopup';
+import { useAuth } from '@/app/providers/AuthProvider';
 
 const popularLocations = [
   'Connaught Place, Delhi',
@@ -21,6 +22,7 @@ const popularRoutes = [
 ];
 
 export function HeroSection() {
+  const { user, isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchDate, setSearchDate] = useState(new Date().toISOString());
   const [searchMode, setSearchMode] = useState<'parking' | 'ev'>('parking');
@@ -30,6 +32,12 @@ export function HeroSection() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const navigate = useNavigate();
   const dateContainerRef = useRef<HTMLDivElement>(null);
+
+  const greetingHour = new Date().getHours();
+  const greeting =
+    greetingHour < 12 ? 'Good morning' :
+    greetingHour < 17 ? 'Good afternoon' :
+    'Good evening';
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -74,16 +82,25 @@ export function HeroSection() {
       className="relative z-10 text-secondary-900 dark:text-[#eae1d4] min-h-[75vh] flex items-center justify-center w-full transition-colors duration-300"
       aria-labelledby="hero-heading"
     >
-      <div className="container-app relative z-10 -translate-y-12 w-full">
+      <div className="container-app relative z-10 -translate-y-16 lg:-translate-y-24 w-full">
         <div className="pt-20 pb-10 lg:pt-28 lg:pb-12 xl:pt-32 xl:pb-16">
           <div className="w-full mx-auto text-center">
             {/* Announcement Badge */}
-            <div className="flex justify-center mb-8 animate-fade-in">
-              <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary-50 dark:bg-[#f2ca50]/10 border border-primary-200 dark:border-[#f2ca50]/20 text-primary-700 dark:text-[#f2ca50] text-xs tracking-widest uppercase font-semibold shadow-sm dark:shadow-[0_0_15px_rgba(242,202,80,0.15)]">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary-500 dark:bg-[#f2ca50] mr-2 animate-pulse" />
-                Now available in 100+ cities across India
-              </span>
-            </div>
+            {!isAuthenticated && (
+              <div className="flex justify-center mb-8 animate-fade-in">
+                <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary-50 dark:bg-[#f2ca50]/10 border border-primary-200 dark:border-[#f2ca50]/20 text-primary-700 dark:text-[#f2ca50] text-xs tracking-widest uppercase font-semibold shadow-sm dark:shadow-[0_0_15px_rgba(242,202,80,0.15)]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary-500 dark:bg-[#f2ca50] mr-2 animate-pulse" />
+                  Now available in 100+ cities across India
+                </span>
+              </div>
+            )}
+
+            {/* Personalized Greeting */}
+            {isAuthenticated && user && (
+              <div className="font-display text-3xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-700 dark:from-[#fceb96] dark:to-[#d4af37] tracking-tight mb-6 animate-fade-in">
+                {greeting}, {user.firstName}!
+              </div>
+            )}
 
             {/* Headline */}
             <h1
@@ -189,6 +206,7 @@ export function HeroSection() {
                           selectedDate={searchDate} 
                           onSelectDate={setSearchDate} 
                           onClose={() => setShowDatePicker(false)} 
+                          className="absolute bottom-full mb-3 left-0 sm:left-auto sm:right-0 animate-slide-up origin-bottom"
                         />
                       )}
                     </div>

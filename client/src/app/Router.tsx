@@ -18,6 +18,7 @@ const RegisterPage       = lazy(() => import('@/features/auth/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('@/features/auth/ForgotPasswordPage'));
 const DashboardPage      = lazy(() => import('@/features/dashboard/DashboardPage'));
 const SearchPage         = lazy(() => import('@/features/search/SearchPage'));
+const ParkingDetailsPage = lazy(() => import('@/features/search/ParkingDetailsPage'));
 const EVRoutePage        = lazy(() => import('@/features/search/EVRoutePage'));
 
 // Phase 4 Lazy Imports
@@ -62,7 +63,7 @@ function NotFoundPage() {
         <Link to="/" className={cn('px-5 py-2.5 rounded-xl text-sm font-semibold bg-primary-600 text-white hover:bg-primary-700 transition-colors no-underline')}>
           Back to Home
         </Link>
-        <Link to="/search" className={cn('px-5 py-2.5 rounded-xl text-sm font-medium border border-secondary-300 text-secondary-700 hover:bg-secondary-50 transition-colors no-underline')}>
+        <Link to="/" className={cn('px-5 py-2.5 rounded-xl text-sm font-medium border border-secondary-300 text-secondary-700 hover:bg-secondary-50 transition-colors no-underline')}>
           Find Parking
         </Link>
       </div>
@@ -142,6 +143,10 @@ const router = createBrowserRouter([
       {
         path: 'search',
         element: <SearchPage />,
+      },
+      {
+        path: 'parking/:id',
+        element: <ParkingDetailsPage />,
       },
       {
         path: 'ev-route',
