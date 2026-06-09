@@ -84,19 +84,23 @@ export default function LoginPage() {
 
       {/* Left Side: Atmospheric Brand Section */}
       <section className="relative flex-1 flex flex-col justify-center px-6 md:px-10 py-10 z-10 hidden lg:flex">
-        <div className="space-y-10 max-w-2xl mx-auto md:mx-0 lg:ml-12">
+        <div className="space-y-10 max-w-2xl mx-auto md:mx-0 lg:ml-12 -translate-y-16">
           {/* Branding Header */}
           <div className="pt-6">
-            <span className="font-display text-5xl tracking-tight font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-700 dark:from-[#fceb96] dark:to-[#d4af37]">
-              ParkEase
-            </span>
+            <div className="font-display text-5xl tracking-tight font-extrabold flex items-center gap-2">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-700 dark:from-[#fceb96] dark:to-[#d4af37]">
+                Parkora
+              </span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-600 dark:from-emerald-300 dark:to-emerald-500">
+                EV
+              </span>
+            </div>
           </div>
 
           {/* Hero Text */}
           <div className="space-y-5">
-            <h1 className="font-display text-5xl md:text-6xl text-secondary-900 dark:text-[#eae1d4] font-bold leading-tight tracking-tight">
-              Smart Parking for the <br />
-              <span className="text-primary-600 dark:text-[#d4af37]">Urban Elite.</span>
+            <h1 className="font-display text-4xl md:text-5xl text-secondary-900 dark:text-[#eae1d4] font-bold leading-tight tracking-tight">
+              Smart Parking and EV Charging <span className="text-primary-600 dark:text-[#d4af37]">Platform.</span>
             </h1>
             <p className="font-sans text-base md:text-lg text-secondary-600 dark:text-[#d0c5af] max-w-md leading-relaxed">
               Experience seamless arrivals and priority access across the city's most exclusive districts. Reserved for those who value time and precision.
@@ -119,11 +123,7 @@ export default function LoginPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-3 group">
                 <span className="material-symbols-outlined text-primary-600 dark:text-[#f2ca50] text-[22px]">check_circle</span>
-                <span className="font-sans text-base text-secondary-900 dark:text-[#eae1d4]">Find parking instantly</span>
-              </div>
-              <div className="flex items-center gap-3 group">
-                <span className="material-symbols-outlined text-primary-600 dark:text-[#f2ca50] text-[22px]">check_circle</span>
-                <span className="font-sans text-base text-secondary-900 dark:text-[#eae1d4]">Book securely online</span>
+                <span className="font-sans text-base text-secondary-900 dark:text-[#eae1d4]">Find parking spots instantly</span>
               </div>
               <div className="flex items-center gap-3 group">
                 <span className="material-symbols-outlined text-primary-600 dark:text-[#f2ca50] text-[22px]">check_circle</span>
@@ -131,7 +131,7 @@ export default function LoginPage() {
               </div>
               <div className="flex items-center gap-3 group">
                 <span className="material-symbols-outlined text-primary-600 dark:text-[#f2ca50] text-[22px]">check_circle</span>
-                <span className="font-sans text-base text-secondary-900 dark:text-[#eae1d4]">Verified owners &amp; users</span>
+                <span className="font-sans text-base text-secondary-900 dark:text-[#eae1d4]">Locate & book EV charging stations</span>
               </div>
             </div>
           </div>
@@ -143,7 +143,7 @@ export default function LoginPage() {
         {/* Login Card */}
         <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-2xl w-full max-w-md p-6 lg:p-8 rounded-2xl relative my-10 lg:my-0 backdrop-blur-2xl">
           <div className="mb-6">
-            <h2 className="font-display text-2xl font-semibold text-secondary-900 dark:text-[#eae1d4] mb-1">Login to ParkEase</h2>
+            <h2 className="font-display text-2xl font-semibold text-secondary-900 dark:text-[#eae1d4] mb-1 flex items-center gap-1.5">Login to Parkora <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-600 dark:from-emerald-300 dark:to-emerald-500">EV</span></h2>
             <p className="font-sans text-secondary-600 dark:text-[#d0c5af] text-sm">Welcome back. Please enter your credentials.</p>
           </div>
 
@@ -240,7 +240,7 @@ export default function LoginPage() {
 
         {/* Subtle background branding on right side */}
         <div className="absolute bottom-6 right-6 opacity-20 hidden md:block pointer-events-none">
-          <p className="text-[10px] tracking-[0.2em] text-secondary-500 dark:text-[#d0c5af] uppercase font-semibold">ParkEase Urban Solutions &copy; 2024</p>
+          <p className="text-[10px] tracking-[0.2em] text-secondary-500 dark:text-[#d0c5af] uppercase font-semibold">Parkora EV Urban Solutions &copy; 2024</p>
         </div>
       </section>
     </div>

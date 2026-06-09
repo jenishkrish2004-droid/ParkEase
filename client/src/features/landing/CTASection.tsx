@@ -54,7 +54,7 @@ function StarRating({ count }: { count: number }) {
 
 export function TestimonialsSection() {
   return (
-    <section className="section-pad bg-secondary-50 dark:bg-[#0a0a0b] relative overflow-hidden transition-colors duration-300" aria-labelledby="testimonials-heading">
+    <section className="section-pad relative z-10 transition-colors duration-300" aria-labelledby="testimonials-heading">
       <div className="container-app relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <p className="text-xs font-bold text-primary-600 dark:text-[#f2ca50] uppercase tracking-[0.2em] mb-4">
@@ -107,7 +107,7 @@ export function TestimonialsSection() {
 export function CTASection() {
   return (
     <section
-      className="section-pad bg-primary-600 dark:bg-[#1a1710] border-t border-transparent dark:border-[#f2ca50]/10 relative overflow-hidden transition-colors duration-300"
+      className="section-pad relative z-10 transition-colors duration-300"
       aria-labelledby="cta-heading"
     >
       {/* Background decoration */}
@@ -117,7 +117,7 @@ export function CTASection() {
         <svg className="absolute inset-0 w-full h-full opacity-10 dark:opacity-[0.03]" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <defs>
             <pattern id="cta-grid" width="32" height="32" patternUnits="userSpaceOnUse">
-              <path d="M 32 0 L 0 0 0 32" fill="none" stroke="currentColor" className="text-white dark:text-[#f2ca50]" strokeWidth="1" />
+              <path d="M 32 0 L 0 0 0 32" fill="none" stroke="currentColor" className="text-secondary-300 dark:text-[#f2ca50]" strokeWidth="1" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#cta-grid)" />
@@ -127,19 +127,19 @@ export function CTASection() {
       <div className="container-app relative text-center z-10">
         <div className="max-w-3xl mx-auto">
           <div className="inline-flex mb-8">
-             <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-white/10 dark:bg-[#f2ca50]/10 border border-white/20 dark:border-[#f2ca50]/20 text-white dark:text-[#f2ca50] text-xs tracking-widest uppercase font-semibold">
+             <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary-50 dark:bg-[#f2ca50]/10 border border-primary-200 dark:border-[#f2ca50]/20 text-primary-700 dark:text-[#f2ca50] text-xs tracking-widest uppercase font-semibold">
                 🚀 Get started for free
              </span>
           </div>
 
           <h2
             id="cta-heading"
-            className="text-display-md text-white dark:text-[#eae1d4] text-balance font-display font-bold tracking-tight"
+            className="text-display-md text-secondary-900 dark:text-[#eae1d4] text-balance font-display font-bold tracking-tight"
           >
             Stop wasting time looking for parking
           </h2>
 
-          <p className="mt-6 text-lg text-primary-100 dark:text-[#d0c5af] max-w-xl mx-auto leading-relaxed">
+          <p className="mt-6 text-lg text-secondary-600 dark:text-[#d0c5af] max-w-xl mx-auto leading-relaxed">
             Join 50,000+ drivers who book parking effortlessly every day.
             No subscription needed — pay only when you park.
           </p>
@@ -159,8 +159,8 @@ export function CTASection() {
               to="/register"
               className={cn(
                 'w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-xl',
-                'font-bold text-base text-white dark:text-[#f2ca50]',
-                'border border-white/30 dark:border-[#f2ca50]/30 hover:bg-white/10 dark:hover:bg-[#f2ca50]/10 hover:border-white/60 dark:hover:border-[#f2ca50]/60',
+                'font-bold text-base text-secondary-900 dark:text-[#f2ca50]',
+                'border border-secondary-300 dark:border-[#f2ca50]/30 hover:bg-secondary-50 dark:hover:bg-[#f2ca50]/10 hover:border-secondary-400 dark:hover:border-[#f2ca50]/60',
                 'transition-all duration-300 no-underline',
               )}
             >
@@ -169,7 +169,7 @@ export function CTASection() {
           </div>
 
           {/* Micro Social Proof */}
-          <p className="mt-10 text-xs font-medium tracking-wide text-primary-100 dark:text-[#d0c5af]/60">
+          <p className="mt-10 text-xs font-medium tracking-wide text-secondary-500 dark:text-[#d0c5af]/60">
             Free to sign up · No credit card required · Cancel anytime
           </p>
         </div>

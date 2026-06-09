@@ -98,9 +98,41 @@
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
+  /* ── Custom Scrollbar ── */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-secondary-300 rounded-full border-2 border-transparent bg-clip-content;
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    @apply bg-secondary-700;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-secondary-400;
+  }
+  .dark ::-webkit-scrollbar-thumb:hover {
+    @apply bg-secondary-600;
+  }
+
+  /* Firefox specific scrollbar */
+  @supports (-moz-appearance: none) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #CBD5E1 transparent;
+    }
+    .dark * {
+      scrollbar-color: #334155 transparent;
+    }
+  }
+
   body {
     font-family: var(--font-sans);
-    @apply bg-white text-secondary-900;
+    @apply bg-white text-secondary-900 dark:bg-[#110e07] dark:text-[#eae1d4] transition-colors duration-300;
     font-size: 1rem;
     line-height: 1.6;
     min-height: 100vh;
@@ -147,24 +179,6 @@
     @apply outline-none ring-2 ring-primary-500 ring-offset-2;
   }
 
-  /* ── Custom Scrollbar ── */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    @apply bg-secondary-100;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    @apply bg-secondary-300 rounded-full;
-    transition: background-color var(--transition-base);
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-secondary-400;
-  }
 
   /* ── Selection ── */
   ::selection {
@@ -307,7 +321,7 @@
 
   /* ── Premium Auth Theme Utilities ── */
   .auth-theme {
-      overflow-x: hidden;
+      overflow-x: clip;
   }
 
   .dark .auth-theme {
@@ -315,13 +329,17 @@
       color: #eae1d4;
   }
 
+  .auth-theme.luminous-stack,
   .auth-theme .luminous-stack {
       position: relative;
   }
   
+  .dark body,
+  .dark .auth-theme.luminous-stack,
   .dark .auth-theme .luminous-stack {
-      background: radial-gradient(circle at 0% 0%, rgba(212, 175, 55, 0.15) 0%, transparent 50%),
-                  radial-gradient(circle at 100% 100%, rgba(212, 175, 55, 0.1) 0%, transparent 50%);
+      background-image: radial-gradient(circle at 0% 0%, rgba(242, 202, 80, 0.18) 0%, transparent 55%),
+                        radial-gradient(circle at 100% 100%, rgba(242, 202, 80, 0.12) 0%, transparent 50%);
+      background-attachment: fixed;
   }
 
   .surface-glass {

@@ -13,7 +13,7 @@ const stats = [
 
 export function StatsSection() {
   return (
-    <section className="border-y border-secondary-200 dark:border-[#4d4635]/30 bg-white dark:bg-[#110e07] relative z-10 transition-colors duration-300" aria-label="Platform statistics">
+    <section className="relative z-10 transition-colors duration-300" aria-label="Platform statistics">
       <div className="container-app py-12 md:py-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
           {stats.map((stat) => (
@@ -75,7 +75,7 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="section-pad bg-secondary-50 dark:bg-[#0a0a0b] relative overflow-hidden transition-colors duration-300" aria-labelledby="features-heading">
+    <section id="features" className="section-pad relative z-10 transition-colors duration-300" aria-labelledby="features-heading">
       {/* Subtle Background Elements */}
       <div className="absolute top-[20%] left-[-5%] w-[30%] h-[30%] bg-primary-400 dark:bg-[#d4af37] opacity-[0.05] dark:opacity-[0.03] blur-[100px] rounded-full pointer-events-none"></div>
       <div className="absolute bottom-[20%] right-[-5%] w-[30%] h-[30%] bg-primary-300 dark:bg-[#fceb96] opacity-[0.05] dark:opacity-[0.03] blur-[100px] rounded-full pointer-events-none"></div>

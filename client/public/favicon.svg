@@ -1,21 +1,12 @@
-<svg viewBox="0 0 36 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Location Pin -->
-  <path d="M18 0C8.059 0 0 8.059 0 18C0 27.5 18 39 18 39C18 39 36 27.5 36 18C36 8.059 27.941 0 18 0Z" fill="#2563EB"/>
-  <!-- P stem -->
-  <rect x="11.5" y="6.5" width="3.5" height="20" rx="0.8" fill="white"/>
-  <!-- P bowl outer -->
-  <path d="M15 6.5H19.5C26 6.5 26 17.5 19.5 17.5H15V6.5Z" fill="white"/>
-  <!-- P bowl counter -->
-  <path d="M15.5 9.5H19.5C22.5 9.5 22.5 14.5 19.5 14.5H15.5V9.5Z" fill="#2563EB"/>
-  <!-- Left L-bracket vertical -->
-  <rect x="2"  y="39" width="3"  height="10" rx="0.5" fill="#2563EB"/>
-  <!-- Left L-bracket horizontal -->
-  <rect x="2"  y="46" width="10" height="3"  rx="0.5" fill="#2563EB"/>
-  <!-- Right L-bracket vertical -->
-  <rect x="31" y="39" width="3"  height="10" rx="0.5" fill="#2563EB"/>
-  <!-- Right L-bracket horizontal -->
-  <rect x="24" y="46" width="10" height="3"  rx="0.5" fill="#2563EB"/>
-  <!-- Green dashes -->
-  <rect x="13.5" y="46" width="4" height="3" rx="0.5" fill="#10B981"/>
-  <rect x="19.5" y="46" width="4" height="3" rx="0.5" fill="#10B981"/>
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fceb96"/>
+      <stop offset="100%" stop-color="#d4af37"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" rx="20" fill="#110e07"/>
+  <rect x="30" y="25" width="10" height="50" rx="2" fill="url(#goldGradient)"/>
+  <path d="M40 25h20c15 0 15 28 0 28H40V25z" fill="url(#goldGradient)"/>
+  <path d="M40 35h15c6 0 6 10 0 10H40V35z" fill="#110e07"/>
 </svg>

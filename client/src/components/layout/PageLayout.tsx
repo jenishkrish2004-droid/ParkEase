@@ -69,7 +69,7 @@ export function DashboardLayout({
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className={cn('flex min-h-screen bg-secondary-50', className)}>
+    <div className={cn('flex min-h-screen bg-secondary-50 dark:bg-transparent text-secondary-900 dark:text-[#eae1d4] transition-colors duration-300', className)}>
       {/* Sidebar */}
       <Sidebar
         sections={sidebarSections}
@@ -82,7 +82,7 @@ export function DashboardLayout({
       {/* Main Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Dashboard Header Bar */}
-        <div className="sticky top-0 z-50 bg-white border-b border-secondary-200">
+        <div className="sticky top-0 z-50 bg-white dark:bg-transparent backdrop-blur-md border-b border-secondary-200 dark:border-[#4d4635] transition-colors duration-300">
           <div className="px-6 h-16 flex items-center gap-4">
             {/* Collapse Toggle */}
             <button

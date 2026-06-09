@@ -336,10 +336,10 @@ export function VerificationPage() {
       <div className="max-w-4xl mx-auto space-y-6 py-8 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold font-display text-secondary-900">
+            <h1 className="text-2xl font-bold font-display text-secondary-900 dark:text-[#eae1d4]">
               {mode === 'owner' ? 'Owner Verification' : 'Verification'}
             </h1>
-            <p className="text-secondary-500 mt-1">
+            <p className="text-secondary-500 dark:text-[#d0c5af] mt-1">
               {mode === 'owner' 
                 ? 'Complete your profile verification to unlock all features.' 
                 : 'Verify your email or phone number to start booking.'}
@@ -348,9 +348,9 @@ export function VerificationPage() {
         </div>
 
         {/* Overview Card */}
-        <div className="bg-white p-6 rounded-2xl border border-secondary-200 shadow-sm">
+        <div className="bg-white dark:bg-[#1a1712] p-6 rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-sm">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-secondary-900">Verification Progress</h2>
+            <h2 className="text-lg font-bold text-secondary-900 dark:text-[#eae1d4]">Verification Progress</h2>
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-secondary-500">Status:</span>
               <span className={cn(
@@ -416,15 +416,15 @@ export function VerificationPage() {
           {/* 1. Contact Verification */}
           <div>
             <div className="mb-4">
-              <h2 className="text-xl font-bold text-secondary-900">1. Contact Verification</h2>
-              <p className="text-sm text-secondary-500 mt-1">Verify your contact details to secure your account.</p>
+              <h2 className="text-xl font-bold text-secondary-900 dark:text-[#eae1d4]">1. Contact Verification</h2>
+              <p className="text-sm text-secondary-500 dark:text-[#d0c5af] mt-1">Verify your contact details to secure your account.</p>
             </div>
             
             <div className="grid md:grid-cols-2 gap-6">
               {/* Email Card */}
-              <div className="bg-white p-6 rounded-2xl border border-secondary-200 shadow-sm relative overflow-hidden flex flex-col h-full">
-                <h3 className="text-lg font-bold text-secondary-900 mb-2">Email Address</h3>
-            <p className="text-sm text-secondary-500 mb-6">Verify your email address for account security and important updates.</p>
+              <div className="bg-white dark:bg-[#1a1712] p-6 rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-sm relative overflow-hidden flex flex-col h-full">
+                <h3 className="text-lg font-bold text-secondary-900 dark:text-[#eae1d4] mb-2">Email Address</h3>
+            <p className="text-sm text-secondary-500 dark:text-[#d0c5af] mb-6">Verify your email address for account security and important updates.</p>
             
             <div className="flex-1">
               {status.isEmailVerified && !isEditingEmail ? (
@@ -536,9 +536,9 @@ export function VerificationPage() {
           </div>
 
           {/* Phone Card */}
-          <div className="bg-white p-6 rounded-2xl border border-secondary-200 shadow-sm relative overflow-hidden flex flex-col h-full">
-            <h3 className="text-lg font-bold text-secondary-900 mb-2">2. Phone Number</h3>
-            <p className="text-sm text-secondary-500 mb-6">Verify your phone number to enable SMS notifications and seamless bookings.</p>
+          <div className="bg-white dark:bg-[#1a1712] p-6 rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-sm relative overflow-hidden flex flex-col h-full">
+            <h3 className="text-lg font-bold text-secondary-900 dark:text-[#eae1d4] mb-2">2. Phone Number</h3>
+            <p className="text-sm text-secondary-500 dark:text-[#d0c5af] mb-6">Verify your phone number to enable SMS notifications and seamless bookings.</p>
             
             <div className="flex-1">
               {status.isPhoneVerified && !isEditingPhone ? (
@@ -653,11 +653,11 @@ export function VerificationPage() {
         
         {/* 2. Identity Verification */}
         {mode === 'owner' && (
-          <div className="bg-white rounded-2xl border border-secondary-200 shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-secondary-200 bg-secondary-50 flex items-start justify-between">
+          <div className="bg-white dark:bg-[#1a1712] rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-secondary-200 dark:border-[#4d4635] bg-secondary-50 dark:bg-[#1a1712]/50 flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-bold text-secondary-900">2. Identity Verification</h3>
-                <p className="text-sm text-secondary-500 mt-1">Verify your identity to unlock booking and listing features.</p>
+                <h3 className="text-lg font-bold text-secondary-900 dark:text-[#eae1d4]">2. Identity Verification</h3>
+                <p className="text-sm text-secondary-500 dark:text-[#d0c5af] mt-1">Verify your identity to unlock booking and listing features.</p>
               </div>
               <div className="flex flex-col items-end gap-2">
                 {kycProfile?.status && kycProfile.status !== 'NOT_STARTED' && (
@@ -786,7 +786,7 @@ export function VerificationPage() {
                             setKycForm(kycProfile || {});
                           }}
                           disabled={kycProcessing}
-                          className="flex-1 bg-white hover:bg-secondary-50 text-secondary-700 border border-secondary-300 font-medium py-2 rounded-lg transition-colors disabled:opacity-50"
+                          className="flex-1 bg-white dark:bg-[#110e07] hover:bg-secondary-50 dark:hover:bg-secondary-800 text-secondary-700 dark:text-[#eae1d4] border border-secondary-300 dark:border-[#4d4635] font-medium py-2 rounded-lg transition-colors disabled:opacity-50"
                         >
                           Cancel
                         </button>
@@ -794,7 +794,7 @@ export function VerificationPage() {
                         <button 
                           onClick={handleSaveDraft}
                           disabled={kycProcessing}
-                          className="flex-1 bg-white hover:bg-secondary-50 text-secondary-700 border border-secondary-300 font-medium py-2 rounded-lg transition-colors disabled:opacity-50"
+                          className="flex-1 bg-white dark:bg-[#110e07] hover:bg-secondary-50 dark:hover:bg-secondary-800 text-secondary-700 dark:text-[#eae1d4] border border-secondary-300 dark:border-[#4d4635] font-medium py-2 rounded-lg transition-colors disabled:opacity-50"
                         >
                           Save Draft
                         </button>
@@ -816,11 +816,11 @@ export function VerificationPage() {
         
         {/* 3. Live Selfie Verification */}
         {mode === 'owner' && (
-          <div className="bg-white rounded-2xl border border-secondary-200 shadow-sm overflow-hidden mt-6">
+          <div className="bg-white dark:bg-[#1a1712] rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-sm overflow-hidden mt-6">
             <div className="p-6 border-b border-secondary-200 bg-secondary-50 flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-bold text-secondary-900">3. Live Selfie Verification</h3>
-                <p className="text-sm text-secondary-500 mt-1">Upload a real-time selfie to verify your identity.</p>
+                <h3 className="text-lg font-bold text-secondary-900 dark:text-[#eae1d4]">3. Live Selfie Verification</h3>
+                <p className="text-sm text-secondary-500 dark:text-[#d0c5af] mt-1">Upload a real-time selfie to verify your identity.</p>
               </div>
               <div className="flex flex-col items-end gap-2">
                 <span className={cn(
@@ -875,11 +875,11 @@ export function VerificationPage() {
                       </div>
                     ) : (
                       <div className="flex flex-col items-center">
-                        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
+                        <div className="w-16 h-16 bg-white dark:bg-[#110e07] rounded-full flex items-center justify-center mb-4 shadow-sm">
                           <span className="text-2xl">📸</span>
                         </div>
-                        <p className="text-secondary-600 mb-2 font-medium">Take a live selfie</p>
-                        <p className="text-secondary-400 text-sm mb-6">Ensure your face is well-lit and clearly visible.</p>
+                        <p className="text-secondary-600 dark:text-[#eae1d4] mb-2 font-medium">Take a live selfie</p>
+                        <p className="text-secondary-400 dark:text-[#d0c5af] text-sm mb-6">Ensure your face is well-lit and clearly visible.</p>
                         
                         <div className="flex flex-col sm:flex-row gap-3">
                           <button 
@@ -893,7 +893,7 @@ export function VerificationPage() {
                             Open Camera
                           </button>
                           
-                          <label className="bg-white border border-secondary-300 text-secondary-700 font-medium py-2.5 px-6 rounded-lg cursor-pointer hover:bg-secondary-50 transition-colors shadow-sm flex items-center justify-center gap-2">
+                          <label className="bg-white dark:bg-[#1a1712] border border-secondary-300 dark:border-[#4d4635] text-secondary-700 dark:text-[#eae1d4] font-medium py-2.5 px-6 rounded-lg cursor-pointer hover:bg-secondary-50 dark:hover:bg-[#110e07] transition-colors shadow-sm flex items-center justify-center gap-2">
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                             </svg>
@@ -934,11 +934,11 @@ export function VerificationPage() {
 
         {/* 4. Payout Setup */}
         {mode === 'owner' && (
-          <div className="bg-white rounded-2xl border border-secondary-200 shadow-sm overflow-hidden mt-6">
+          <div className="bg-white dark:bg-[#1a1712] rounded-2xl border border-secondary-200 dark:border-[#4d4635] shadow-sm overflow-hidden mt-6">
             <div className="p-6 border-b border-secondary-200 bg-secondary-50 flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-bold text-secondary-900">4. Payout Setup</h3>
-                <p className="text-sm text-secondary-500 mt-1">Configure your bank account or UPI details to receive payouts.</p>
+                <h3 className="text-lg font-bold text-secondary-900 dark:text-[#eae1d4]">4. Payout Setup</h3>
+                <p className="text-sm text-secondary-500 dark:text-[#d0c5af] mt-1">Configure your bank account or UPI details to receive payouts.</p>
               </div>
               <div className="flex flex-col items-end gap-2">
                 <span className={cn(
@@ -965,7 +965,7 @@ export function VerificationPage() {
                       onChange={() => setPayoutForm({ ...payoutForm, payoutMethod: 'BANK' })}
                       className="text-primary-600 focus:ring-primary-500"
                     />
-                    <span className="text-sm font-medium text-secondary-900">Bank Account</span>
+                    <span className="text-sm font-medium text-secondary-900 dark:text-[#eae1d4]">Bank Account</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input 
@@ -976,7 +976,7 @@ export function VerificationPage() {
                       onChange={() => setPayoutForm({ ...payoutForm, payoutMethod: 'UPI' })}
                       className="text-primary-600 focus:ring-primary-500"
                     />
-                    <span className="text-sm font-medium text-secondary-900">UPI ID</span>
+                    <span className="text-sm font-medium text-secondary-900 dark:text-[#eae1d4]">UPI ID</span>
                   </label>
                 </div>
 

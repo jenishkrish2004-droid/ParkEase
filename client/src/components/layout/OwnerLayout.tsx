@@ -3,7 +3,7 @@ import { Header } from './Header';
 
 export function OwnerLayout() {
   return (
-    <div className="min-h-screen bg-secondary-50 flex flex-col">
+    <div className="min-h-screen bg-secondary-50 dark:bg-transparent text-secondary-900 dark:text-[#eae1d4] flex flex-col transition-colors duration-300">
       <Header />
       <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
         <Outlet />

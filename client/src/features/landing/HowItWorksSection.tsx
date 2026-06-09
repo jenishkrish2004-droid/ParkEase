@@ -28,7 +28,7 @@ export function HowItWorksSection() {
   return (
     <section
       id="how-it-works"
-      className="section-pad bg-white dark:bg-[#110e07] relative overflow-hidden transition-colors duration-300"
+      className="section-pad relative z-10 transition-colors duration-300"
       aria-labelledby="how-heading"
     >
       <div className="container-app relative z-10">

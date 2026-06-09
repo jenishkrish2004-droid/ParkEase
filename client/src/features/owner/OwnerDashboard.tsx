@@ -12,8 +12,8 @@ export default function OwnerDashboard() {
     <div className="max-w-7xl mx-auto space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-secondary-900">Owner Dashboard</h1>
-          <p className="text-secondary-500 mt-1">Manage your parking spots and track your earnings.</p>
+          <h1 className="text-2xl font-bold text-secondary-900 dark:text-[#eae1d4]">Owner Dashboard</h1>
+          <p className="text-secondary-500 dark:text-[#d0c5af] mt-1">Manage your parking spots and track your earnings.</p>
         </div>
         <div className="flex gap-3">
           <Button variant="outline" onClick={() => navigate('/verification')}>Complete Verification</Button>
@@ -23,10 +23,10 @@ export default function OwnerDashboard() {
 
       {/* Verification Warning */}
       {user?.verificationStatus !== 'APPROVED' && (
-        <Card className="p-4 border-warning-200 bg-warning-50 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <Card className="p-4 border-warning-200 dark:border-warning-900/50 bg-warning-50 dark:bg-warning-900/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <VerificationBadge status={user?.verificationStatus || 'PENDING'} />
-            <p className="text-sm font-medium text-warning-800">
+            <p className="text-sm font-medium text-warning-800 dark:text-warning-500">
               Complete your identity verification (Email & Phone) to unlock owner features.
             </p>
           </div>
@@ -39,35 +39,35 @@ export default function OwnerDashboard() {
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="p-6">
-          <p className="text-sm font-medium text-secondary-500">Active Listings</p>
-          <p className="text-3xl font-bold text-secondary-900 mt-2">0</p>
+          <p className="text-sm font-medium text-secondary-500 dark:text-[#d0c5af]">Active Listings</p>
+          <p className="text-3xl font-bold text-secondary-900 dark:text-[#eae1d4] mt-2">0</p>
         </Card>
         <Card className="p-6">
-          <p className="text-sm font-medium text-secondary-500">Total Bookings</p>
-          <p className="text-3xl font-bold text-secondary-900 mt-2">0</p>
+          <p className="text-sm font-medium text-secondary-500 dark:text-[#d0c5af]">Total Bookings</p>
+          <p className="text-3xl font-bold text-secondary-900 dark:text-[#eae1d4] mt-2">0</p>
         </Card>
         <Card className="p-6">
-          <p className="text-sm font-medium text-secondary-500">Monthly Earnings</p>
-          <p className="text-3xl font-bold text-secondary-900 mt-2">₹0</p>
+          <p className="text-sm font-medium text-secondary-500 dark:text-[#d0c5af]">Monthly Earnings</p>
+          <p className="text-3xl font-bold text-secondary-900 dark:text-[#eae1d4] mt-2">₹0</p>
         </Card>
         <Card className="p-6">
-          <p className="text-sm font-medium text-secondary-500">Average Rating</p>
-          <p className="text-3xl font-bold text-secondary-900 mt-2">0.0 ★</p>
+          <p className="text-sm font-medium text-secondary-500 dark:text-[#d0c5af]">Average Rating</p>
+          <p className="text-3xl font-bold text-secondary-900 dark:text-[#eae1d4] mt-2">0.0 ★</p>
         </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Bookings Placeholder */}
         <Card className="p-6">
-          <h2 className="text-lg font-bold text-secondary-900 mb-4">Recent Bookings</h2>
-          <div className="py-8 text-center border border-dashed border-secondary-200 rounded-xl">
-            <p className="text-secondary-500">No recent bookings found.</p>
+          <h2 className="text-lg font-bold text-secondary-900 dark:text-[#eae1d4] mb-4">Recent Bookings</h2>
+          <div className="py-8 text-center border border-dashed border-secondary-200 dark:border-[#4d4635] rounded-xl">
+            <p className="text-secondary-500 dark:text-[#d0c5af]">No recent bookings found.</p>
           </div>
         </Card>
 
         {/* Quick Actions Placeholder */}
         <Card className="p-6">
-          <h2 className="text-lg font-bold text-secondary-900 mb-4">Quick Actions</h2>
+          <h2 className="text-lg font-bold text-secondary-900 dark:text-[#eae1d4] mb-4">Quick Actions</h2>
           <div className="space-y-3">
             <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/owner/listings')}>📝 Manage Listings</Button>
             <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/owner/bookings')}>📅 View Booking Calendar</Button>

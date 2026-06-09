@@ -92,7 +92,7 @@ export default function ProfilePage() {
   return (
     <PageLayout showFooter={false}>
       <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <h1 className="text-2xl font-bold text-secondary-900 mb-6">Account Settings</h1>
+        <h1 className="text-2xl font-bold text-secondary-900 dark:text-[#eae1d4] mb-6">Account Settings</h1>
 
         <div className="space-y-6">
           {/* Profile Overview Card */}
@@ -100,10 +100,10 @@ export default function ProfilePage() {
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
               <Avatar firstName={user.firstName} lastName={user.lastName} src={user.avatar ?? undefined} size="lg" />
               <div className="flex-1 text-center sm:text-left">
-                <h2 className="text-xl font-bold text-secondary-900">{user.firstName} {user.lastName}</h2>
-                <p className="text-secondary-500 mt-1">{user.email}</p>
+                <h2 className="text-xl font-bold text-secondary-900 dark:text-[#eae1d4]">{user.firstName} {user.lastName}</h2>
+                <p className="text-secondary-500 dark:text-[#d0c5af] mt-1">{user.email}</p>
                 <div className="mt-3 flex items-center justify-center sm:justify-start gap-2">
-                  <span className="text-sm text-secondary-600 font-medium">Status:</span>
+                  <span className="text-sm text-secondary-600 dark:text-[#d0c5af]/80 font-medium">Status:</span>
                   <VerificationBadge status={user.verificationStatus} />
                 </div>
               </div>
@@ -112,7 +112,7 @@ export default function ProfilePage() {
 
           {/* Edit Profile Form */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold text-secondary-900 mb-4">Personal Information</h3>
+            <h3 className="text-lg font-semibold text-secondary-900 dark:text-[#eae1d4] mb-4">Personal Information</h3>
             <form onSubmit={handleProfileSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
@@ -130,14 +130,14 @@ export default function ProfilePage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 <div>
-                  <label className="block text-sm font-medium text-secondary-700 mb-1.5">Email Address</label>
-                  <div className="px-4 py-2.5 bg-secondary-50 border border-secondary-200 rounded-xl text-secondary-500 sm:text-sm">
+                  <label className="block text-sm font-medium text-secondary-700 dark:text-[#d0c5af] mb-1.5">Email Address</label>
+                  <div className="px-4 py-2.5 bg-secondary-50 dark:bg-[#1a1712]/50 border border-secondary-200 dark:border-[#4d4635] rounded-xl text-secondary-500 dark:text-[#d0c5af] sm:text-sm">
                     {user.email || 'Not provided'}
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-secondary-700 mb-1.5">Phone Number</label>
-                  <div className="px-4 py-2.5 bg-secondary-50 border border-secondary-200 rounded-xl text-secondary-500 sm:text-sm flex justify-between items-center">
+                  <label className="block text-sm font-medium text-secondary-700 dark:text-[#d0c5af] mb-1.5">Phone Number</label>
+                  <div className="px-4 py-2.5 bg-secondary-50 dark:bg-[#1a1712]/50 border border-secondary-200 dark:border-[#4d4635] rounded-xl text-secondary-500 dark:text-[#d0c5af] sm:text-sm flex justify-between items-center">
                     <span>{user.phone || 'Not provided'}</span>
                     {!user.phone && (
                       <a href="/verification" className="text-primary-600 hover:text-primary-700 font-medium text-xs no-underline">
@@ -157,7 +157,7 @@ export default function ProfilePage() {
 
           {/* Change Password Form */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold text-secondary-900 mb-4">Security</h3>
+            <h3 className="text-lg font-semibold text-secondary-900 dark:text-[#eae1d4] mb-4">Security</h3>
             <form onSubmit={handlePasswordSubmit} className="space-y-4">
               <Input
                 label="Current Password"

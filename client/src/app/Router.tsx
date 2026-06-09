@@ -6,7 +6,7 @@
 // ============================================================
 
 import { lazy, Suspense } from 'react';
-import { createBrowserRouter, RouterProvider, Outlet, Link } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Outlet, Link, useRouteError } from 'react-router-dom';
 import { FullPageSpinner } from '@/components/ui/Spinner';
 import { ProtectedRoute, PublicOnlyRoute } from '@/components/layout/ProtectedRoute';
 import { PageLayout } from '@/components/layout/PageLayout';
@@ -17,6 +17,8 @@ const LoginPage          = lazy(() => import('@/features/auth/LoginPage'));
 const RegisterPage       = lazy(() => import('@/features/auth/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('@/features/auth/ForgotPasswordPage'));
 const DashboardPage      = lazy(() => import('@/features/dashboard/DashboardPage'));
+const SearchPage         = lazy(() => import('@/features/search/SearchPage'));
+const EVRoutePage        = lazy(() => import('@/features/search/EVRoutePage'));
 
 // Phase 4 Lazy Imports
 const ProfilePage        = lazy(() => import('@/features/user/ProfilePage'));
@@ -88,6 +90,34 @@ function UnauthorizedPage() {
   );
 }
 
+// ── Global Error Boundary ────────────────────────────────────
+function GlobalErrorBoundary() {
+  const error = useRouteError() as any;
+  console.error('Router Error Boundary caught:', error);
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-[#110e07] px-4 text-center">
+      <div className="w-20 h-20 bg-danger-50 dark:bg-danger-900/20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-danger-100 dark:border-danger-500/20">
+        <span className="material-symbols-outlined text-[40px] text-danger-500">error</span>
+      </div>
+      <h1 className="text-3xl font-display font-bold text-secondary-900 dark:text-[#eae1d4]">
+        Oops! Something went wrong.
+      </h1>
+      <p className="mt-4 text-secondary-600 dark:text-[#d0c5af] max-w-md">
+        {error?.statusText || error?.message || "An unexpected application error occurred."}
+      </p>
+      <div className="mt-8 flex gap-4 justify-center">
+        <Link to="/" className="px-6 py-3 rounded-xl text-sm font-semibold bg-primary-600 text-white hover:bg-primary-700 dark:bg-[#f2ca50] dark:text-[#3c2f00] dark:hover:bg-[#fceb96] transition-colors no-underline shadow-md">
+          Return Home
+        </Link>
+        <button onClick={() => window.location.reload()} className="px-6 py-3 rounded-xl text-sm font-semibold border border-secondary-300 text-secondary-700 dark:border-[#4d4635] dark:text-[#eae1d4] hover:bg-secondary-50 dark:hover:bg-white/5 transition-colors shadow-sm">
+          Try Again
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── Layout Wrapper ────────────────────────────────────────────
 function RootLayout() {
   return (
@@ -102,11 +132,20 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout />,
+    errorElement: <GlobalErrorBoundary />,
     children: [
       // ── Public Routes ──────────────────────────────────────
       {
         index: true,
         element: <LandingPage />,
+      },
+      {
+        path: 'search',
+        element: <SearchPage />,
+      },
+      {
+        path: 'ev-route',
+        element: <EVRoutePage />,
       },
 
       // ── Public-Only Routes (redirect if logged in) ─────────
@@ -234,7 +273,6 @@ const router = createBrowserRouter([
 
       // ── Under Development Routes ──
       ...[
-        'search',
         'about',
         'blog',
         'careers',

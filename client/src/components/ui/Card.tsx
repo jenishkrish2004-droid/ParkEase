@@ -13,10 +13,10 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const variantStyles = {
-  default:  'bg-white border border-secondary-200 shadow-card',
-  elevated: 'bg-white border border-secondary-100 shadow-elevated',
-  flat:     'bg-secondary-50 border border-transparent',
-  bordered: 'bg-white border-2 border-secondary-200',
+  default:  'bg-white dark:bg-[#1a1712] border border-secondary-200 dark:border-[#4d4635] shadow-card dark:shadow-[0_0_15px_rgba(0,0,0,0.5)]',
+  elevated: 'bg-white dark:bg-[#1a1712] border border-secondary-100 dark:border-[#4d4635] shadow-elevated dark:shadow-[0_0_20px_rgba(0,0,0,0.6)]',
+  flat:     'bg-secondary-50 dark:bg-[#1a1712]/50 border border-transparent',
+  bordered: 'bg-white dark:bg-[#1a1712] border-2 border-secondary-200 dark:border-[#4d4635]',
 };
 
 const paddingStyles = {
@@ -79,10 +79,10 @@ export function CardHeader({ title, description, action, className, children, ..
     <div className={cn('flex items-start justify-between gap-4 mb-4', className)} {...props}>
       <div className="min-w-0 flex-1">
         {title && (
-          <h3 className="font-semibold text-secondary-900 text-heading-sm">{title}</h3>
+          <h3 className="font-semibold text-secondary-900 dark:text-[#eae1d4] text-heading-sm">{title}</h3>
         )}
         {description && (
-          <p className="mt-0.5 text-sm text-secondary-500">{description}</p>
+          <p className="mt-0.5 text-sm text-secondary-500 dark:text-[#d0c5af]">{description}</p>
         )}
         {children}
       </div>
@@ -110,7 +110,7 @@ export function CardFooter({ separator = true, className, children, ...props }: 
     <div
       className={cn(
         'mt-4 flex items-center gap-3',
-        separator && 'pt-4 border-t border-secondary-100',
+        separator && 'pt-4 border-t border-secondary-100 dark:border-[#4d4635]',
         className,
       )}
       {...props}

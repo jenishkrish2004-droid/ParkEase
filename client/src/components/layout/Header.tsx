@@ -26,6 +26,7 @@ export function Header({ transparent = false, className }: HeaderProps) {
   const [scrolled,  setScrolled]  = useState(false);
   const [menuOpen,  setMenuOpen]  = useState(false);
   const location  = useLocation();
+  const navigate  = useNavigate();
   const { user, isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
@@ -56,16 +57,33 @@ export function Header({ transparent = false, className }: HeaderProps) {
       <div className="container-app">
         <div className="flex items-center justify-between h-16">
 
-          {/* ── Logo ── */}
-          <Link
-            to="/"
-            className="flex items-center gap-2.5 shrink-0 group no-underline"
-            aria-label="ParkEase — Go to homepage"
-          >
-            <span className="font-display font-bold text-2xl tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-700 dark:from-[#fceb96] dark:to-[#d4af37]">
-              ParkEase
-            </span>
-          </Link>
+          {/* ── Logo & Back ── */}
+          <div className="flex items-center gap-2 md:gap-4 shrink-0">
+            {!isHome && (
+              <button
+                onClick={() => navigate(-1)}
+                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-secondary-100 dark:hover:bg-white/10 text-secondary-600 dark:text-[#d0c5af] transition-colors -ml-2"
+                aria-label="Go back"
+                title="Go back"
+              >
+                <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+              </button>
+            )}
+            <Link
+              to="/"
+              className="flex items-center gap-2.5 group no-underline"
+              aria-label="Parkora EV — Go to homepage"
+            >
+              <div className="font-display font-bold text-2xl tracking-tight flex items-center gap-1.5">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-700 dark:from-[#fceb96] dark:to-[#d4af37]">
+                  Parkora
+                </span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-600 dark:from-emerald-300 dark:to-emerald-500">
+                  EV
+                </span>
+              </div>
+            </Link>
+          </div>
 
           {/* ── Center: Mode Switcher (Auth) or Nav (Unauth) ── */}
           <div className="hidden md:flex flex-1 items-center justify-center">
