@@ -2,10 +2,17 @@ import { Button } from '@/components/ui/Button';
 import { VerificationBadge } from '@/features/user/VerificationBadge';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { getOwnerMetrics } from './owner.service';
 
 export default function OwnerDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [metrics, setMetrics] = useState<any>(null);
+
+  useEffect(() => {
+    getOwnerMetrics().then(setMetrics).catch(console.error);
+  }, []);
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 relative z-10">
@@ -39,42 +46,42 @@ export default function OwnerDashboard() {
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 rounded-2xl backdrop-blur-2xl">
+        <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 rounded-2xl backdrop-blur-2xl hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(242,202,80,0.15)] transition-all duration-300">
           <p className="text-sm font-medium text-secondary-500 dark:text-[#d0c5af]">Active Listings</p>
-          <p className="text-3xl font-bold text-secondary-900 dark:text-white mt-2">0</p>
+          <p className="text-3xl font-bold text-secondary-900 dark:text-white mt-2">{metrics?.activeListings || 0}</p>
         </div>
-        <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 rounded-2xl backdrop-blur-2xl">
+        <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 rounded-2xl backdrop-blur-2xl hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(242,202,80,0.15)] transition-all duration-300">
           <p className="text-sm font-medium text-secondary-500 dark:text-[#d0c5af]">Total Bookings</p>
-          <p className="text-3xl font-bold text-secondary-900 dark:text-white mt-2">0</p>
+          <p className="text-3xl font-bold text-secondary-900 dark:text-white mt-2">{metrics?.totalBookings || 0}</p>
         </div>
-        <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 rounded-2xl backdrop-blur-2xl">
+        <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 rounded-2xl backdrop-blur-2xl hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(242,202,80,0.15)] transition-all duration-300">
           <p className="text-sm font-medium text-secondary-500 dark:text-[#d0c5af]">Monthly Earnings</p>
-          <p className="text-3xl font-bold text-secondary-900 dark:text-white mt-2">₹0</p>
+          <p className="text-3xl font-bold text-secondary-900 dark:text-white mt-2">₹{metrics?.monthlyEarnings || 0}</p>
         </div>
-        <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 rounded-2xl backdrop-blur-2xl">
+        <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 rounded-2xl backdrop-blur-2xl hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(242,202,80,0.15)] transition-all duration-300">
           <p className="text-sm font-medium text-secondary-500 dark:text-[#d0c5af]">Average Rating</p>
-          <p className="text-3xl font-bold text-secondary-900 dark:text-white mt-2">0.0 ★</p>
+          <p className="text-3xl font-bold text-secondary-900 dark:text-white mt-2">{metrics?.averageRating || '0.0'} ★</p>
         </div>
       </div>
 
       {/* Earnings Breakdown */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-primary-50/80 dark:bg-[#f2ca50]/10 surface-glass border border-primary-200 dark:border-[#f2ca50]/20 shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl">
+        <div className="bg-primary-50/80 dark:bg-[#f2ca50]/10 surface-glass border border-primary-200 dark:border-[#f2ca50]/20 shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl hover:scale-[1.01] hover:shadow-[0_8px_30px_rgba(242,202,80,0.15)] transition-all duration-300">
           <p className="text-sm font-medium text-primary-700 dark:text-[#f2ca50]">Available for Payout</p>
-          <p className="text-3xl font-display font-bold text-primary-900 dark:text-[#fceb96] mt-2">₹0.00</p>
+          <p className="text-3xl font-display font-bold text-primary-900 dark:text-[#fceb96] mt-2">₹{metrics?.earningsBreakdown?.availableForPayout || '0.00'}</p>
           <button disabled className="mt-4 w-full px-6 py-2.5 rounded-xl text-white bg-primary-600/50 dark:bg-[#f2ca50]/20 dark:text-[#f2ca50]/50 font-semibold text-sm cursor-not-allowed transition-all">
             Withdraw Funds
           </button>
         </div>
-        <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl flex flex-col justify-center">
+        <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl flex flex-col justify-center hover:scale-[1.01] hover:shadow-[0_8px_30px_rgba(242,202,80,0.15)] transition-all duration-300">
           <p className="text-sm font-medium text-secondary-500 dark:text-[#d0c5af]">Upcoming Payouts</p>
-          <p className="text-3xl font-display font-bold text-secondary-900 dark:text-white mt-2">₹0.00</p>
+          <p className="text-3xl font-display font-bold text-secondary-900 dark:text-white mt-2">₹{metrics?.earningsBreakdown?.upcomingPayouts || '0.00'}</p>
           <p className="text-xs text-secondary-400 dark:text-[#d0c5af]/70 mt-1">Clearing soon</p>
         </div>
       </div>
 
       {/* Bookings Section */}
-      <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-2xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl">
+      <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-2xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl hover:shadow-[0_8px_30px_rgba(242,202,80,0.1)] transition-all duration-300">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-display font-semibold text-secondary-900 dark:text-[#eae1d4]">Bookings Management</h2>
           <Button variant="outline" className="text-sm py-1.5 px-4 h-auto" onClick={() => navigate('/owner/listings')}>Manage Listings</Button>

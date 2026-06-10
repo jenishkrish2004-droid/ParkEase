@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticate } from '../../middleware/auth';
 import { validate } from '../../middleware/validate';
-import { localUpload } from '../../middleware/upload';
+import { upload } from '../../middleware/upload';
 import { saveDraftSchema, submitKycSchema } from './kyc.schema';
 import {
   getStatusHandler,
@@ -21,6 +21,6 @@ router.post('/draft', validate(saveDraftSchema), saveDraftHandler);
 
 router.post('/submit', validate(submitKycSchema), submitKycHandler);
 
-router.post('/upload', localUpload.single('file'), uploadDocumentHandler);
+router.post('/upload', upload.single('file'), uploadDocumentHandler);
 
 export default router;

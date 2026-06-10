@@ -24,17 +24,17 @@ export default function OwnerOnboarding() {
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 text-left">
-          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl transition-transform hover:-translate-y-1 hover:shadow-2xl">
+          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(242,202,80,0.15)]">
             <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center mb-4 text-xl border border-transparent dark:border-blue-500/20">💸</div>
             <h3 className="font-display font-bold text-secondary-900 dark:text-[#eae1d4] mb-2 text-lg">Steady Earnings</h3>
             <p className="text-secondary-500 dark:text-[#d0c5af] text-sm">Set your own price per hour, day, or month. Get paid securely through our platform.</p>
           </div>
-          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl transition-transform hover:-translate-y-1 hover:shadow-2xl">
+          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(242,202,80,0.15)]">
             <div className="w-12 h-12 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-xl flex items-center justify-center mb-4 text-xl border border-transparent dark:border-green-500/20">🛡️</div>
             <h3 className="font-display font-bold text-secondary-900 dark:text-[#eae1d4] mb-2 text-lg">Verified Guests</h3>
             <p className="text-secondary-500 dark:text-[#d0c5af] text-sm">Every user is verified. We provide 24/7 support and host protection guarantees.</p>
           </div>
-          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl transition-transform hover:-translate-y-1 hover:shadow-2xl">
+          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(242,202,80,0.15)]">
             <div className="w-12 h-12 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-xl flex items-center justify-center mb-4 text-xl border border-transparent dark:border-purple-500/20">🕒</div>
             <h3 className="font-display font-bold text-secondary-900 dark:text-[#eae1d4] mb-2 text-lg">Total Control</h3>
             <p className="text-secondary-500 dark:text-[#d0c5af] text-sm">Set your own availability schedule. Block out times when you need the spot for yourself.</p>
@@ -65,21 +65,21 @@ export default function OwnerOnboarding() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 text-left">
-            <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl transition-transform hover:-translate-y-1 hover:shadow-2xl">
+            <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(34,197,94,0.15)]">
               <div className="w-12 h-12 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-xl flex items-center justify-center mb-4 text-xl border border-transparent dark:border-green-500/20">
                 <span className="material-symbols-outlined text-green-600 dark:text-green-400 text-2xl">handshake</span>
               </div>
               <h3 className="font-display font-bold text-secondary-900 dark:text-[#eae1d4] mb-2 text-lg">Partner With Us</h3>
               <p className="text-secondary-500 dark:text-[#d0c5af] text-sm">Own a charging station? Partner with Parkora EV and join our fast-growing network of operators.</p>
             </div>
-            <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl transition-transform hover:-translate-y-1 hover:shadow-2xl">
+            <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(34,197,94,0.15)]">
               <div className="w-12 h-12 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-xl flex items-center justify-center mb-4 text-xl border border-transparent dark:border-green-500/20">
                 <span className="material-symbols-outlined text-green-600 dark:text-green-400 text-2xl">explore</span>
               </div>
               <h3 className="font-display font-bold text-secondary-900 dark:text-[#eae1d4] mb-2 text-lg">Get Discovered</h3>
               <p className="text-secondary-500 dark:text-[#d0c5af] text-sm">Get discovered by EV travelers across India searching for their next reliable charge on our platform.</p>
             </div>
-            <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl transition-transform hover:-translate-y-1 hover:shadow-2xl">
+            <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(34,197,94,0.15)]">
               <div className="w-12 h-12 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-xl flex items-center justify-center mb-4 text-xl border border-transparent dark:border-green-500/20">
                 <span className="material-symbols-outlined text-green-600 dark:text-green-400 text-2xl">trending_up</span>
               </div>

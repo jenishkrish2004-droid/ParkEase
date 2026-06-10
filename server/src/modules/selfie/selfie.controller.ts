@@ -26,10 +26,10 @@ export const uploadSelfieHandler = async (req: Request, res: Response, next: Nex
       throw new AppError('No image file provided', 400);
     }
 
-    // In a real app, you would upload to S3. Here we use local upload path
-    const imageUrl = `/uploads/${req.file.filename}`;
+    const { uploadToCloudinary } = await import('../upload/upload.service');
+    const result = await uploadToCloudinary(req.file.buffer, 'parkora/selfies');
     
-    const selfie = await selfieService.upsertSelfie(userId, imageUrl);
+    const selfie = await selfieService.upsertSelfie(userId, result.url);
     
     res.status(200).json({
       success: true,

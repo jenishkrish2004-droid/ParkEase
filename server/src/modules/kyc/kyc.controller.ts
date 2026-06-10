@@ -58,10 +58,10 @@ export async function uploadDocumentHandler(
       return;
     }
     
-    // Construct local URL accessible via the static route
-    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/kyc/${req.file.filename}`;
+    const { uploadToCloudinary } = await import('../upload/upload.service');
+    const result = await uploadToCloudinary(req.file.buffer, 'parkora/kyc');
     
-    sendSuccess(res, { url: fileUrl, message: 'File uploaded successfully' });
+    sendSuccess(res, { url: result.url, message: 'File uploaded successfully' });
   } catch (error) {
     next(error);
   }

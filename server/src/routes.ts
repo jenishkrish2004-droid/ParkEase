@@ -47,21 +47,29 @@ router.use('/verification', verificationRoutes);
 router.use('/kyc', kycRoutes);
 router.use('/owner/selfie', selfieRoutes);
 
+import ownerRoutes from './modules/owner/owner.routes';
+
 // Phase 7: Owner routes
-// router.use('/owner', ownerRoutes);
+router.use('/owner', ownerRoutes);
 router.use('/owner/payout', payoutRoutes);
 
 import partnershipRoutes from './routes/partnership.routes';
 router.use('/partnerships', partnershipRoutes);
 
+import parkingSpotRoutes from './modules/parking/parking.routes';
+
 // Phase 9: Parking spot routes
-// router.use('/parking-spots', parkingSpotRoutes);
+router.use('/parking-spots', parkingSpotRoutes);
+
+import bookingRoutes from './modules/booking/booking.routes';
 
 // Phase 13: Booking routes
-// router.use('/bookings', bookingRoutes);
+router.use('/bookings', bookingRoutes);
+
+import paymentRoutes from './modules/payment/payment.routes';
 
 // Phase 15: Payment routes
-// router.use('/payments', paymentRoutes);
+router.use('/payments', paymentRoutes);
 
 // Phase 16: Review routes
 // router.use('/parking-spots', reviewRoutes);

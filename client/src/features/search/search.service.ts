@@ -1,3 +1,5 @@
+import { apiClient } from '@/lib/api-client';
+
 export interface ParkingSpotData {
   id: string;
   name: string;
@@ -30,82 +32,56 @@ export interface SearchResults {
 }
 
 export async function fetchSearchResults(query: string): Promise<SearchResults> {
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 800));
-
   const normalizedQuery = query.trim().toLowerCase();
 
   if (normalizedQuery === 'nowhere' || normalizedQuery === 'empty') {
     return { parkingSpots: [], evStations: [] };
   }
 
-  // Dummy coordinates around New Delhi / Connaught Place: 28.6304, 77.2177
-  return {
-    parkingSpots: [
-      {
-        id: 'p1',
-        name: 'Express Parking',
-        pricePerHour: 50,
-        distanceKm: 0.5,
-        availableSpots: 20,
-        amenities: ['Covered Parking', 'CCTV', '24/7 Access'],
-        supportedVehicles: ['Car', 'Bike'],
-        rating: 4.8,
-        reviews: 124,
-        images: ['https://images.unsplash.com/photo-1590674899484-d5640e854abe?q=80&w=600&auto=format&fit=crop'],
-        lat: 28.6310,
-        lng: 77.2180,
-      },
-      {
-        id: 'p2',
-        name: 'Central Plaza Garage',
-        pricePerHour: 80,
-        distanceKm: 1.2,
-        availableSpots: 5,
-        amenities: ['Covered Parking', 'Security Guard', 'Valet Parking', 'Wheelchair Accessible'],
-        supportedVehicles: ['Car'],
-        rating: 4.9,
-        reviews: 312,
-        images: ['https://images.unsplash.com/photo-1604061986761-d9d0cc41b0d1?q=80&w=600&auto=format&fit=crop'],
-        lat: 28.6250,
-        lng: 77.2100,
-      },
-      {
-        id: 'p3',
-        name: 'Metro Station Valet',
-        pricePerHour: 40,
-        distanceKm: 2.1,
-        availableSpots: 42,
-        amenities: ['CCTV', '24/7 Access', 'Multi-Level Parking', 'EV Charging Available'],
-        supportedVehicles: ['Car', 'Bike', 'Commercial'],
-        rating: 4.2,
-        reviews: 89,
-        images: ['https://images.unsplash.com/photo-1573348722427-f1d6819fdf98?q=80&w=600&auto=format&fit=crop'],
-        lat: 28.6350,
-        lng: 77.2250,
-      },
-    ],
-    evStations: [
-      {
-        id: 'ev1',
-        name: 'ChargePoint Chennai',
-        distanceKm: 1.2,
-        connectors: ['CCS2', 'Type 2'],
-        chargingSpeed: 'Fast Charging',
-        payOnSpot: true,
-        operatingHours: '24/7',
-        stationOwner: 'ChargePoint',
-      },
-      {
-        id: 'ev2',
-        name: 'Tata Power EZ Charge',
-        distanceKm: 2.8,
-        connectors: ['CCS2'],
-        chargingSpeed: 'Ultra Fast',
-        payOnSpot: true,
-        operatingHours: '6:00 AM - 11:00 PM',
-        stationOwner: 'Tata Power',
-      },
-    ],
-  };
+  try {
+    const response = await apiClient.get('/parking-spots/search', {
+      params: { q: query },
+    });
+    
+    const dbSpots = response.data.data.spots || [];
+    
+    // Map DB spots to the frontend structure
+    const mappedSpots: ParkingSpotData[] = dbSpots.map((spot: any) => ({
+      id: spot.id,
+      name: spot.title,
+      pricePerHour: spot.pricePerHour || 50,
+      distanceKm: 2.5, // Dummy distance until we add actual geolocation sorting
+      availableSpots: spot.availableSlots,
+      amenities: spot.amenities?.map((a: any) => a.amenity) || [],
+      supportedVehicles: spot.vehicleTypes?.map((v: any) => 
+        v.vehicleType === 'CAR' ? 'Car' : 
+        v.vehicleType === 'BIKE' ? 'Bike' : 
+        v.vehicleType
+      ) || ['Car'],
+      rating: spot.averageRating || 4.5,
+      reviews: spot.totalReviews || 0,
+      images: spot.images?.map((img: any) => img.url) || ['https://images.unsplash.com/photo-1590674899484-d5640e854abe?q=80&w=600&auto=format&fit=crop'],
+      lat: spot.latitude,
+      lng: spot.longitude,
+    }));
+
+    return {
+      parkingSpots: mappedSpots,
+      evStations: [
+        {
+          id: 'ev1',
+          name: 'ChargePoint Chennai',
+          distanceKm: 1.2,
+          connectors: ['CCS2', 'Type 2'],
+          chargingSpeed: 'Fast Charging',
+          payOnSpot: true,
+          operatingHours: '24/7',
+          stationOwner: 'ChargePoint',
+        },
+      ],
+    };
+  } catch (error) {
+    console.error('Search error:', error);
+    return { parkingSpots: [], evStations: [] };
+  }
 }

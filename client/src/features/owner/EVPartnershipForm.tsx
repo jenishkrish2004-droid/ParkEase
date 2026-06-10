@@ -67,7 +67,7 @@ export default function EVPartnershipForm() {
     return (
       <>
         <div className="max-w-3xl mx-auto py-12 px-4 sm:px-6">
-          <div className="bg-white dark:bg-[#110e07] border border-secondary-200 dark:border-[#4d4635] shadow-xl rounded-2xl p-8 sm:p-12 text-center relative overflow-hidden">
+          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-2xl rounded-2xl p-8 sm:p-12 text-center relative overflow-hidden backdrop-blur-2xl">
             <div className="w-20 h-20 mx-auto bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mb-6">
               <span className="material-symbols-outlined text-4xl">check_circle</span>
             </div>
@@ -138,7 +138,7 @@ export default function EVPartnershipForm() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           {/* Business Information */}
-          <div className="bg-white dark:bg-[#110e07] border border-secondary-200 dark:border-[#4d4635] shadow-sm rounded-2xl p-6 sm:p-8">
+          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl rounded-2xl p-6 sm:p-8 backdrop-blur-2xl transition-all duration-300 hover:shadow-[0_8px_30px_rgba(34,197,94,0.1)]">
             <h2 className="text-xl font-bold text-secondary-900 dark:text-[#eae1d4] mb-6 border-b border-secondary-100 dark:border-[#2a2418] pb-4">Business Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input
@@ -170,7 +170,7 @@ export default function EVPartnershipForm() {
           </div>
 
           {/* Station Information */}
-          <div className="bg-white dark:bg-[#110e07] border border-secondary-200 dark:border-[#4d4635] shadow-sm rounded-2xl p-6 sm:p-8">
+          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl rounded-2xl p-6 sm:p-8 backdrop-blur-2xl transition-all duration-300 hover:shadow-[0_8px_30px_rgba(34,197,94,0.1)]">
             <h2 className="text-xl font-bold text-secondary-900 dark:text-[#eae1d4] mb-6 border-b border-secondary-100 dark:border-[#2a2418] pb-4">Station Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <Input
@@ -251,7 +251,7 @@ export default function EVPartnershipForm() {
           </div>
 
           {/* Additional Information */}
-          <div className="bg-white dark:bg-[#110e07] border border-secondary-200 dark:border-[#4d4635] shadow-sm rounded-2xl p-6 sm:p-8">
+          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl rounded-2xl p-6 sm:p-8 backdrop-blur-2xl transition-all duration-300 hover:shadow-[0_8px_30px_rgba(34,197,94,0.1)]">
             <h2 className="text-xl font-bold text-secondary-900 dark:text-[#eae1d4] mb-6 border-b border-secondary-100 dark:border-[#2a2418] pb-4">Additional Information</h2>
             
             <div className="mb-8">

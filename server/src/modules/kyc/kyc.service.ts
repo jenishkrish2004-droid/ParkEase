@@ -54,10 +54,17 @@ export async function submitKyc(userId: string, input: SubmitKycInput) {
     },
   });
 
-  // Update User verificationStatus if needed, or wait for admin approval
+  // Also ensure OwnerProfile exists
+  await prisma.ownerProfile.upsert({
+    where: { userId },
+    update: { status: 'UNDER_REVIEW' },
+    create: { userId, status: 'UNDER_REVIEW' },
+  });
+
+  // Update User to reflect owner intent
   await prisma.user.update({
     where: { id: userId },
-    data: { verificationStatus: 'UNDER_REVIEW' }
+    data: { isOwner: true }
   });
 
   return profile;

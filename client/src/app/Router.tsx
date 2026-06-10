@@ -31,6 +31,7 @@ const VerificationPage   = lazy(() => import('@/features/verification/Verificati
 const OwnerOnboarding    = lazy(() => import('@/features/owner/OwnerOnboarding'));
 const OwnerDashboard     = lazy(() => import('@/features/owner/OwnerDashboard'));
 const OwnerListings      = lazy(() => import('@/features/owner/OwnerListings'));
+const CreateListingForm  = lazy(() => import('@/features/owner/CreateListingForm'));
 const EVPartnershipForm  = lazy(() => import('@/features/owner/EVPartnershipForm'));
 import { OwnerLayout }     from '@/components/layout/OwnerLayout';
 
@@ -271,7 +272,7 @@ const router = createBrowserRouter([
           { path: 'dashboard', element: <OwnerDashboard /> },
           { path: 'ev-partnership', element: <EVPartnershipForm /> },
           { path: 'listings', element: <OwnerListings /> },
-          { path: 'listings/new', element: <UnderDevelopmentPage /> },
+          { path: 'listings/new', element: <CreateListingForm /> },
           { path: 'reports', element: <UnderDevelopmentPage /> },
         ],
       },

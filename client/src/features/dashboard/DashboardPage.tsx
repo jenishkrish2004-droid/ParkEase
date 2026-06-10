@@ -5,17 +5,21 @@
 // screens as requested by the user.
 // ============================================================
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { cn } from '@/lib/utils';
 import { VerificationBadge } from '@/features/user/VerificationBadge';
 import { Link, useNavigate } from 'react-router-dom';
+import { getUserDashboardMetrics } from './dashboard.service';
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [metrics, setMetrics] = useState<any>(null);
 
   useEffect(() => {
+    getUserDashboardMetrics().then(setMetrics).catch(console.error);
+
     const handleMouseMove = (e: MouseEvent) => {
       const glows = document.querySelectorAll('.floating-glow') as NodeListOf<HTMLElement>;
       const x = (e.clientX / window.innerWidth - 0.5) * 40;
@@ -77,25 +81,25 @@ export default function DashboardPage() {
           <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-2xl p-6 rounded-2xl backdrop-blur-2xl md:col-span-3">
             <h2 className="font-display text-xl font-semibold text-secondary-900 dark:text-[#eae1d4] mb-6">Dashboard Analytics</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-secondary-50 dark:bg-[#1a160d]/50 border border-secondary-100 dark:border-[#4d4635]/50 rounded-xl p-5">
+              <div className="bg-secondary-50 dark:bg-[#1a160d]/50 border border-secondary-100 dark:border-[#4d4635]/50 rounded-xl p-5 hover:scale-[1.02] hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-[#f2ca50]/10 flex items-center justify-center text-primary-600 dark:text-[#f2ca50]">
                     <span className="material-symbols-outlined">directions_car</span>
                   </div>
                   <span className="font-sans text-sm font-medium text-secondary-600 dark:text-[#d0c5af]">Total Bookings</span>
                 </div>
-                <p className="font-display text-3xl font-bold text-secondary-900 dark:text-white">0</p>
+                <p className="font-display text-3xl font-bold text-secondary-900 dark:text-white">{metrics?.totalBookings || 0}</p>
               </div>
-              <div className="bg-secondary-50 dark:bg-[#1a160d]/50 border border-secondary-100 dark:border-[#4d4635]/50 rounded-xl p-5">
+              <div className="bg-secondary-50 dark:bg-[#1a160d]/50 border border-secondary-100 dark:border-[#4d4635]/50 rounded-xl p-5 hover:scale-[1.02] hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-[#f2ca50]/10 flex items-center justify-center text-primary-600 dark:text-[#f2ca50]">
                     <span className="material-symbols-outlined">account_balance_wallet</span>
                   </div>
                   <span className="font-sans text-sm font-medium text-secondary-600 dark:text-[#d0c5af]">Total Spent</span>
                 </div>
-                <p className="font-display text-3xl font-bold text-secondary-900 dark:text-white">₹0.00</p>
+                <p className="font-display text-3xl font-bold text-secondary-900 dark:text-white">₹{metrics?.totalSpent || 0}</p>
               </div>
-              <div className="bg-secondary-50 dark:bg-[#1a160d]/50 border border-secondary-100 dark:border-[#4d4635]/50 rounded-xl p-5">
+              <div className="bg-secondary-50 dark:bg-[#1a160d]/50 border border-secondary-100 dark:border-[#4d4635]/50 rounded-xl p-5 hover:scale-[1.02] hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-[#f2ca50]/10 flex items-center justify-center text-primary-600 dark:text-[#f2ca50]">
                     <span className="material-symbols-outlined">credit_card</span>
@@ -104,7 +108,7 @@ export default function DashboardPage() {
                 </div>
                 <p className="font-display text-3xl font-bold text-secondary-900 dark:text-white">0</p>
               </div>
-              <div className="bg-secondary-50 dark:bg-[#1a160d]/50 border border-secondary-100 dark:border-[#4d4635]/50 rounded-xl p-5">
+              <div className="bg-secondary-50 dark:bg-[#1a160d]/50 border border-secondary-100 dark:border-[#4d4635]/50 rounded-xl p-5 hover:scale-[1.02] hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-[#f2ca50]/10 flex items-center justify-center text-primary-600 dark:text-[#f2ca50]">
                     <span className="material-symbols-outlined">currency_exchange</span>
@@ -147,7 +151,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Feature Teaser */}
-        <div className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-[#2d240d] dark:to-[#1a160d] border border-primary-200 dark:border-[#4d4635] rounded-2xl p-8 relative overflow-hidden">
+        <div className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-[#2d240d] dark:to-[#1a160d] border border-primary-200 dark:border-[#4d4635] rounded-2xl p-8 relative overflow-hidden group hover:shadow-[0_8px_30px_rgba(242,202,80,0.15)] hover:-translate-y-1 transition-all duration-300 cursor-pointer" onClick={() => navigate('/owner')}>
           <div className="absolute right-[-5%] top-[-20%] w-64 h-64 bg-primary-200 dark:bg-[#d4af37] opacity-20 dark:opacity-10 blur-[80px] rounded-full pointer-events-none"></div>
           
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">

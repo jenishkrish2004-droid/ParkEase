@@ -1,5 +1,5 @@
 // ============================================================
-// EV Routing Mock Service
+// EV Routing Dynamic Service
 // ============================================================
 
 export interface EVChargingStop {
@@ -22,56 +22,98 @@ export interface EVRouteResponse {
   stops: EVChargingStop[];
   startCoords: [number, number]; // [lat, lng]
   endCoords: [number, number]; // [lat, lng]
+  routeGeometry: [number, number][]; // [lat, lng] array for Polyline
 }
 
-// Mock stations along the popular Nagercoil -> Chennai route
-const mockStations: EVChargingStop[] = [
-  {
-    id: 'st-1',
-    name: 'Madurai Highway EV Hub',
-    distanceFromRoute: 1.2,
-    chargingSpeed: '60kW DC Fast',
-    connectorTypes: ['CCS2'],
-    operatingHours: '24/7',
-    payOnSpotAvailable: true,
-    latitude: 9.8654,
-    longitude: 78.0163,
-  },
-  {
-    id: 'st-2',
-    name: 'Trichy Zeon Charging Station',
-    distanceFromRoute: 0.5,
-    chargingSpeed: '50kW DC Fast',
-    connectorTypes: ['CCS2', 'Type 2 AC'],
-    operatingHours: '6:00 AM - 11:00 PM',
-    payOnSpotAvailable: true,
-    latitude: 10.7675,
-    longitude: 78.6558,
-  },
-  {
-    id: 'st-3',
-    name: 'Chengalpattu Highway Hub',
-    distanceFromRoute: 0.5,
-    chargingSpeed: '60kW DC Fast',
-    connectorTypes: ['CCS2'],
-    operatingHours: '24/7',
-    payOnSpotAvailable: true,
-    latitude: 12.6819,
-    longitude: 79.9754,
-  },
-];
+// Helper to format OSRM duration (seconds) to human-readable string
+function formatDuration(seconds: number): string {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h > 0) return `${h} hrs ${m} mins`;
+  return `${m} mins`;
+}
+
+// Generate dynamic EV stations along the route geometry
+function generateDynamicStations(
+  coordinates: [number, number][], // [lon, lat] from OSRM
+  totalDistanceKm: number
+): EVChargingStop[] {
+  // If the route is too short, generate fewer stations.
+  const numberOfStations = Math.max(1, Math.min(5, Math.floor(totalDistanceKm / 50)));
+  const stations: EVChargingStop[] = [];
+
+  const step = Math.floor(coordinates.length / (numberOfStations + 1));
+  if (step < 1) return stations;
+
+  for (let i = 1; i <= numberOfStations; i++) {
+    const idx = i * step;
+    const coord = coordinates[idx];
+    if (!coord) continue;
+
+    // Slightly randomize distance from route (0.1 to 2.5 km)
+    const distanceFromRoute = Number((Math.random() * 2.4 + 0.1).toFixed(1));
+    
+    stations.push({
+      id: `dyn-st-${i}`,
+      name: `Highway EV Hub ${i}`,
+      distanceFromRoute,
+      chargingSpeed: i % 2 === 0 ? '60kW DC Fast' : '50kW DC Fast',
+      connectorTypes: i % 3 === 0 ? ['CCS2', 'Type 2 AC'] : ['CCS2'],
+      operatingHours: i % 2 === 0 ? '24/7' : '6:00 AM - 11:00 PM',
+      payOnSpotAvailable: Math.random() > 0.3, // 70% chance true
+      latitude: coord[1], // OSRM gives [lon, lat]
+      longitude: coord[0],
+    });
+  }
+
+  return stations;
+}
 
 export async function fetchEvRoute(from: string, to: string): Promise<EVRouteResponse> {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 800));
+  // 1. Geocode "From"
+  const fromRes = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(from)}&format=json&limit=1`);
+  const fromData = await fromRes.json();
+  if (!fromData || fromData.length === 0) throw new Error(`Could not locate: ${from}`);
+  const startLat = parseFloat(fromData[0].lat);
+  const startLng = parseFloat(fromData[0].lon);
+
+  // 2. Geocode "To"
+  const toRes = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(to)}&format=json&limit=1`);
+  const toData = await toRes.json();
+  if (!toData || toData.length === 0) throw new Error(`Could not locate: ${to}`);
+  const endLat = parseFloat(toData[0].lat);
+  const endLng = parseFloat(toData[0].lon);
+
+  // 3. Get Route via OSRM
+  // We use default routing directly. The free OSRM demo server has bugs snapping to 
+  // intermediate waypoints in South India, often misrouting destinations to Puducherry.
+  // We accept the route OSRM considers "fastest" by default.
+  const routeUrl = `https://router.project-osrm.org/route/v1/driving/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`;
+
+  const routeRes = await fetch(routeUrl);
+  const routeData = await routeRes.json();
+
+  if (!routeData.routes || routeData.routes.length === 0) {
+    throw new Error('No route found between these locations.');
+  }
+
+  const route = routeData.routes[0];
+  const distanceKm = Math.round(route.distance / 1000);
+  const durationSec = route.duration;
+  const geometryCoordinates = route.geometry.coordinates as [number, number][]; // [lon, lat] array
+
+  // 4. Generate Stations along the route
+  const stations = generateDynamicStations(geometryCoordinates, distanceKm);
+  const leafletGeometry: [number, number][] = geometryCoordinates.map(c => [c[1], c[0]]);
 
   return {
-    source: from,
-    destination: to,
-    totalDistance: 705, // approx Nagercoil to Chennai
-    estimatedTime: '11 hrs 45 mins',
-    stops: mockStations,
-    startCoords: [8.1744, 77.4323], // Nagercoil NH
-    endCoords: [12.8798, 80.0888],  // Chennai GST Road
+    source: fromData[0].display_name.split(',')[0], // Clean up long names
+    destination: toData[0].display_name.split(',')[0],
+    totalDistance: distanceKm,
+    estimatedTime: formatDuration(durationSec),
+    stops: stations,
+    startCoords: [startLat, startLng],
+    endCoords: [endLat, endLng],
+    routeGeometry: leafletGeometry,
   };
 }

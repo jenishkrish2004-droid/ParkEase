@@ -102,7 +102,7 @@ export default function ProfilePage() {
 
         <div className="space-y-6">
           {/* Profile Overview Card */}
-          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl">
+          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl hover:shadow-[0_8px_30px_rgba(242,202,80,0.1)] transition-all duration-300">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
               <Avatar firstName={user.firstName} lastName={user.lastName} src={user.avatar ?? undefined} size="lg" />
               <div className="flex-1 text-center sm:text-left">
@@ -117,7 +117,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Edit Profile Form */}
-          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl">
+          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl hover:shadow-[0_8px_30px_rgba(242,202,80,0.1)] transition-all duration-300">
             <h3 className="text-xl font-display font-semibold text-secondary-900 dark:text-[#eae1d4] mb-6">Personal Information</h3>
             <form onSubmit={handleProfileSubmit} className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -162,7 +162,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Change Password Form */}
-          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl">
+          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl hover:shadow-[0_8px_30px_rgba(242,202,80,0.1)] transition-all duration-300">
             <h3 className="text-xl font-display font-semibold text-secondary-900 dark:text-[#eae1d4] mb-6">Security</h3>
             <form onSubmit={handlePasswordSubmit} className="space-y-5">
               <Input
@@ -197,7 +197,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Danger Zone */}
-          <div className="bg-danger-50/80 dark:bg-danger-950/20 surface-glass border border-danger-200 dark:border-danger-900/50 shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl">
+          <div className="bg-danger-50/80 dark:bg-danger-950/20 surface-glass border border-danger-200 dark:border-danger-900/50 shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl hover:shadow-[0_8px_30px_rgba(239,68,68,0.15)] transition-all duration-300">
             <h3 className="text-xl font-display font-semibold text-danger-900 dark:text-danger-400 mb-2">Danger Zone</h3>
             <p className="text-sm text-danger-700 dark:text-danger-400/80 mb-6">
               Once you delete your account, there is no going back. Please be certain.
