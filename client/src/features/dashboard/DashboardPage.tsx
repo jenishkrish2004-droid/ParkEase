@@ -141,7 +141,7 @@ export default function DashboardPage() {
             </div>
             
             <Link 
-              to="/owner/onboarding"
+              to="/owner"
               className="px-6 py-3 rounded-xl bg-white dark:bg-[#110e07] border border-primary-200 dark:border-[#4d4635] text-primary-600 dark:text-[#f2ca50] font-semibold text-sm hover:border-primary-400 dark:hover:border-[#d4af37] transition-colors shadow-sm whitespace-nowrap"
             >
               List Your Space

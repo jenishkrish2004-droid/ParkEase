@@ -41,37 +41,60 @@ export default function OwnerOnboarding() {
           </div>
         </div>
 
-        <div className="p-8 sm:p-10 bg-white/80 dark:bg-[#110e07]/80 surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-2xl rounded-2xl backdrop-blur-xl text-left relative overflow-hidden">
-          <div className="absolute right-[-10%] bottom-[-20%] w-64 h-64 bg-primary-500 dark:bg-[#d4af37] opacity-10 blur-[80px] rounded-full pointer-events-none"></div>
-          
-          <h2 className="text-2xl font-display font-bold mb-4 text-secondary-900 dark:text-[#eae1d4] relative z-10">Verification Requirements</h2>
-          <p className="text-secondary-500 dark:text-[#d0c5af] mb-6 relative z-10">To maintain a safe community, we require the following before you can publish a listing:</p>
-          <ul className="space-y-4 mb-8 relative z-10">
-            <li className="flex items-center gap-4">
-              <span className="w-8 h-8 rounded-full bg-primary-50 dark:bg-[#1a1712] border border-primary-200 dark:border-[#4d4635] flex items-center justify-center text-sm font-bold text-primary-600 dark:text-[#f2ca50]">1</span>
-              <span className="font-medium text-secondary-900 dark:text-[#eae1d4]">Contact Details (Email & Phone)</span>
-            </li>
-            <li className="flex items-center gap-4">
-              <span className="w-8 h-8 rounded-full bg-primary-50 dark:bg-[#1a1712] border border-primary-200 dark:border-[#4d4635] flex items-center justify-center text-sm font-bold text-primary-600 dark:text-[#f2ca50]">2</span>
-              <span className="font-medium text-secondary-900 dark:text-[#eae1d4]">Identity Verification (Government ID)</span>
-            </li>
-            <li className="flex items-center gap-4">
-              <span className="w-8 h-8 rounded-full bg-primary-50 dark:bg-[#1a1712] border border-primary-200 dark:border-[#4d4635] flex items-center justify-center text-sm font-bold text-primary-600 dark:text-[#f2ca50]">3</span>
-              <span className="font-medium text-secondary-900 dark:text-[#eae1d4]">Selfie Verification (Liveness check)</span>
-            </li>
-            <li className="flex items-center gap-4">
-              <span className="w-8 h-8 rounded-full bg-primary-50 dark:bg-[#1a1712] border border-primary-200 dark:border-[#4d4635] flex items-center justify-center text-sm font-bold text-primary-600 dark:text-[#f2ca50]">4</span>
-              <span className="font-medium text-secondary-900 dark:text-[#eae1d4]">Bank Account Details for Payouts</span>
-            </li>
-          </ul>
-          
-          <div className="flex flex-col sm:flex-row gap-4 relative z-10">
-            <button className="gold-glow-button px-8 py-3.5 rounded-xl text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-400 dark:text-[#3c2f00] font-semibold text-base transition-all shadow-md" onClick={() => navigate('/owner/dashboard')}>
-              Go to Owner Dashboard
+        <div className="flex justify-center mt-12 mb-12 relative z-10">
+          <button 
+            className="gold-glow-button px-10 py-4 rounded-2xl text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-400 dark:text-[#3c2f00] font-bold text-lg transition-all shadow-xl shadow-primary-500/20 hover:scale-105" 
+            onClick={() => navigate('/verification')}
+          >
+            Register Now
+          </button>
+        </div>
+
+        {/* EV Section Title */}
+        <div className="mt-24 text-center relative z-10">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
+            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(74,222,128,0.2)] border border-green-200 dark:border-green-800/30">
+              <span className="material-symbols-outlined text-3xl">electric_bolt</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-green-700 dark:from-green-300 dark:to-green-500 tracking-tight">
+              Power the EV Revolution
+            </h2>
+          </div>
+          <p className="text-lg text-secondary-500 dark:text-[#d0c5af] max-w-2xl mx-auto mb-12">
+            Connect your charging stations with thousands of electric vehicle drivers searching for their next charge on Parkora EV.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 text-left">
+            <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl transition-transform hover:-translate-y-1 hover:shadow-2xl">
+              <div className="w-12 h-12 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-xl flex items-center justify-center mb-4 text-xl border border-transparent dark:border-green-500/20">
+                <span className="material-symbols-outlined text-green-600 dark:text-green-400 text-2xl">handshake</span>
+              </div>
+              <h3 className="font-display font-bold text-secondary-900 dark:text-[#eae1d4] mb-2 text-lg">Partner With Us</h3>
+              <p className="text-secondary-500 dark:text-[#d0c5af] text-sm">Own a charging station? Partner with Parkora EV and join our fast-growing network of operators.</p>
+            </div>
+            <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl transition-transform hover:-translate-y-1 hover:shadow-2xl">
+              <div className="w-12 h-12 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-xl flex items-center justify-center mb-4 text-xl border border-transparent dark:border-green-500/20">
+                <span className="material-symbols-outlined text-green-600 dark:text-green-400 text-2xl">explore</span>
+              </div>
+              <h3 className="font-display font-bold text-secondary-900 dark:text-[#eae1d4] mb-2 text-lg">Get Discovered</h3>
+              <p className="text-secondary-500 dark:text-[#d0c5af] text-sm">Get discovered by EV travelers across India searching for their next reliable charge on our platform.</p>
+            </div>
+            <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl transition-transform hover:-translate-y-1 hover:shadow-2xl">
+              <div className="w-12 h-12 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-xl flex items-center justify-center mb-4 text-xl border border-transparent dark:border-green-500/20">
+                <span className="material-symbols-outlined text-green-600 dark:text-green-400 text-2xl">trending_up</span>
+              </div>
+              <h3 className="font-display font-bold text-secondary-900 dark:text-[#eae1d4] mb-2 text-lg">Maximize Utilization</h3>
+              <p className="text-secondary-500 dark:text-[#d0c5af] text-sm">Our network helps EV operators maximize station utilization, attract more drivers, and boost earnings.</p>
+            </div>
+          </div>
+
+          <div className="flex justify-center relative z-10 w-full mb-8">
+            <button 
+              className="px-10 py-4 rounded-2xl text-white bg-green-600 hover:bg-green-500 dark:bg-green-500 dark:hover:bg-green-400 dark:text-[#0b1711] font-bold text-lg transition-all shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)] hover:scale-105" 
+              onClick={() => navigate('/owner/ev-partnership')}
+            >
+              Apply Now
             </button>
-            <Button variant="outline" size="lg" className="border-secondary-200 text-secondary-700 hover:bg-secondary-50 dark:border-[#4d4635] dark:text-[#d0c5af] dark:hover:bg-white/5 dark:hover:text-[#eae1d4]">
-              Learn More
-            </Button>
           </div>
         </div>
       </div>

@@ -37,6 +37,12 @@ enum VerificationStatus {
   APPROVED
   REJECTED
 }
+enum PartnershipStatus {
+  PARTNERSHIP_PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
 
 enum KycStatus {
   NOT_STARTED
@@ -157,6 +163,7 @@ model User {
   notifications  Notification[]
   refreshTokens  RefreshToken[]
   otps           VerificationOtp[]
+  evApplications EVPartnershipApplication[]
 
   @@map("users")
 }
@@ -529,4 +536,39 @@ model Notification {
 
   @@index([userId, isRead])
   @@map("notifications")
+}
+
+model EVPartnershipApplication {
+  id                 String   @id @default(cuid())
+  userId             String
+  businessName       String
+  contactPerson      String
+  phoneNumber        String
+  emailAddress       String
+  
+  stationName        String
+  fullAddress        String
+  googleMapsLocation String
+  numberOfPoints     Int
+  connectorTypes     String[]
+  chargingSpeedKw    Float
+  operatingHours     String
+  
+  parkingAvailable   Boolean @default(false)
+  amenities          String[]
+  additionalNotes    String?
+  
+  status             PartnershipStatus @default(PARTNERSHIP_PENDING)
+  
+  reviewedAt         DateTime?
+  reviewNotes        String?
+  reviewedBy         String?
+  
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  
+  // Relations
+  user               User     @relation(fields: [userId], references: [id])
+  
+  @@map("ev_partnership_applications")
 }

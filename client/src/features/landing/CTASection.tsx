@@ -156,7 +156,7 @@ export function CTASection() {
               Find Parking Now
             </Link>
             <Link
-              to="/register"
+              to="/owner"
               className={cn(
                 'w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-xl',
                 'font-bold text-base text-secondary-900 dark:text-[#f2ca50]',

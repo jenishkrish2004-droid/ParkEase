@@ -34,10 +34,22 @@ const OwnerDashboard     = lazy(() => import('@/features/owner/OwnerDashboard'))
 const OwnerListings      = lazy(() => import('@/features/owner/OwnerListings'));
 const OwnerBookings      = lazy(() => import('@/features/owner/OwnerBookings'));
 const OwnerEarnings      = lazy(() => import('@/features/owner/OwnerEarnings'));
+const EVPartnershipForm  = lazy(() => import('@/features/owner/EVPartnershipForm'));
 import { OwnerLayout }     from '@/components/layout/OwnerLayout';
 
 // Phase 4: Under Development Page
 const UnderDevelopmentPage = lazy(() => import('@/features/misc/UnderDevelopmentPage'));
+
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/app/providers/AuthProvider';
+
+function OwnerIndexRedirect() {
+  const { user } = useAuth();
+  if (!user?.isOwner || !user?.ownerVerified) {
+    return <Navigate to="/owner/onboarding" replace />;
+  }
+  return <Navigate to="/owner/dashboard" replace />;
+}
 
 // ── Fallback Spinner ─────────────────────────────────────────
 function PageLoader() {
@@ -266,8 +278,9 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
         children: [
-          { index: true, element: <OwnerDashboard /> },
+          { index: true, element: <OwnerIndexRedirect /> },
           { path: 'dashboard', element: <OwnerDashboard /> },
+          { path: 'ev-partnership', element: <EVPartnershipForm /> },
           { path: 'listings', element: <OwnerListings /> },
           { path: 'bookings', element: <OwnerBookings /> },
           { path: 'earnings', element: <OwnerEarnings /> },

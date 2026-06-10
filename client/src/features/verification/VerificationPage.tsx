@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { getVerificationStatus, sendOtp, verifyOtp, type VerificationStatusResponse } from './verification.service';
 import { getKycStatus, saveKycDraft, submitKyc, uploadKycDocument, type KycProfile } from './kyc.service';
@@ -35,6 +36,7 @@ function formatTime(seconds: number) {
 }
 
 export function VerificationPage() {
+  const navigate = useNavigate();
   const { user, refreshUser } = useAuth();
   const [mode] = useParkEaseMode();
   const [status, setStatus] = useState<VerificationStatusResponse | null>(null);
@@ -427,6 +429,17 @@ export function VerificationPage() {
             </div>
           </div>
         </div>
+
+        {mode === 'owner' && progress === 100 && (
+          <div className="flex justify-center my-6">
+            <button 
+              onClick={() => navigate('/owner/dashboard')}
+              className="gold-glow-button px-10 py-4 rounded-xl text-white bg-primary-600 hover:bg-primary-700 font-bold text-lg transition-all shadow-xl shadow-primary-500/20 hover:scale-105"
+            >
+              Go to Owner Dashboard
+            </button>
+          </div>
+        )}
 
         {/* Verification Steps */}
         <div className="space-y-8">

@@ -51,6 +51,9 @@ router.use('/owner/selfie', selfieRoutes);
 // router.use('/owner', ownerRoutes);
 router.use('/owner/payout', payoutRoutes);
 
+import partnershipRoutes from './routes/partnership.routes';
+router.use('/partnerships', partnershipRoutes);
+
 // Phase 9: Parking spot routes
 // router.use('/parking-spots', parkingSpotRoutes);
 

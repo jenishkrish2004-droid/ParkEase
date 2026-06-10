@@ -210,7 +210,6 @@ function AuthenticatedNav({ user }: { user: { firstName: string; lastName: strin
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const logoutMutation = useLogout();
-  const navigate = useNavigate();
 
   // Close on outside click
   useEffect(() => {
@@ -387,7 +386,7 @@ function ModeSwitcher({ user }: { user: { isOwner: boolean; ownerVerified: boole
     });
 
     if (next === 'owner') {
-      navigate('/owner/dashboard');
+      navigate('/owner');
     } else {
       // Booking mode: go to the landing page (search bar is in the hero section)
       navigate('/');
@@ -521,32 +520,7 @@ function MobileHeaderLinks() {
   );
 }
 
-// ── ParkEase Logo Mark (location pin with P) ─────────────────
-function ParkEaseLogo({ size = 30 }: { size?: number }) {
-  const w = Math.round(size * 0.8);
-  return (
-    <svg
-      width={w}
-      height={size}
-      viewBox="0 0 24 30"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      {/* Pin body */}
-      <path
-        d="M12 0C5.925 0 1 4.925 1 11C1 18.5 12 30 12 30C12 30 23 18.5 23 11C23 4.925 18.075 0 12 0Z"
-        fill="#f2ca50"
-      />
-      {/* P — vertical stem */}
-      <rect x="7" y="5.5" width="2.5" height="13" rx="0.5" fill="white" />
-      {/* P — outer bowl */}
-      <path d="M9.5 5.5H13C16.5 5.5 16.5 12.5 13 12.5H9.5V5.5Z" fill="white" />
-      {/* P — inner counter (blue cutout to make the loop visible) */}
-      <path d="M10 7H13C14.5 7 14.5 11 13 11H10V7Z" fill="#f2ca50" />
-    </svg>
-  );
-}
+
 
 // ── Theme Toggle Component ─────────────────────────────────────
 export function ThemeToggle({ className }: { className?: string }) {

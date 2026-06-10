@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as selfieService from './selfie.service';
-import { AppError } from '../../middleware/errorHandler';
+import { AppError } from '../../shared/errors/AppError';
 
 export const getSelfieHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
