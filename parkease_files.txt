@@ -4,7 +4,7 @@
 ./client/src/app/providers/AuthProvider.tsx
 ./client/src/app/providers/index.ts
 ./client/src/app/providers/ThemeProvider.tsx
-./client/src/app/providers/useParkEaseMode.ts
+./client/src/app/providers/useParkoraMode.ts
 ./client/src/components/layout/Footer.tsx
 ./client/src/components/layout/Header.tsx
 ./client/src/components/layout/index.ts

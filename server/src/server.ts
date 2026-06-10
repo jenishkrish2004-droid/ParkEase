@@ -19,7 +19,7 @@ async function bootstrap() {
       console.log(`
 ╔════════════════════════════════════════════════════╗
 ║                                                    ║
-║   🅿️  ParkEase API Server                          ║
+║   🅿️  Parkora API Server                          ║
 ║                                                    ║
 ║   Environment:  ${env.NODE_ENV.padEnd(33)}║
 ║   Port:         ${String(PORT).padEnd(33)}║

@@ -13,7 +13,7 @@ import { env } from '../../config/env';
 import { AppError, UnauthorizedError } from '../../shared/errors';
 import type { RegisterInput, LoginInput } from './auth.schema';
 import type { JwtAccessPayload, JwtRefreshPayload, TokenPair } from './auth.types';
-import { UserRole } from '@parkease/shared';
+import { UserRole } from '@parkora/shared';
 
 // ── Constants ────────────────────────────────────────────────
 const BCRYPT_ROUNDS = 12;
@@ -50,8 +50,8 @@ function signAccessToken(userId: string, email: string, role: UserRole, isOwner:
   const payload: JwtAccessPayload = { sub: userId, email, role, isOwner, ownerVerified };
   return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
     expiresIn: env.JWT_ACCESS_EXPIRY,
-    issuer: 'parkease',
-    audience: 'parkease-client',
+    issuer: 'parkora',
+    audience: 'parkora-client',
   } as jwt.SignOptions);
 }
 
@@ -413,8 +413,8 @@ export async function getMe(userId: string) {
 export function verifyAccessToken(token: string): JwtAccessPayload {
   try {
     const payload = jwt.verify(token, env.JWT_ACCESS_SECRET, {
-      issuer: 'parkease',
-      audience: 'parkease-client',
+      issuer: 'parkora',
+      audience: 'parkora-client',
     }) as JwtAccessPayload;
 
     return payload;

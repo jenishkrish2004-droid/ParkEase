@@ -20,4 +20,4 @@ export type {
   IPaginationMeta,
   IPaginationQuery,
   ISearchQuery,
-} from '@parkease/shared';
+} from '@parkora/shared';

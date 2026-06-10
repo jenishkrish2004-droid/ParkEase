@@ -16,8 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@parkease/shared": ["../shared/src"],
-      "@parkease/shared/*": ["../shared/src/*"]
+      "@parkora/shared": ["../shared/src"],
+      "@parkora/shared/*": ["../shared/src/*"]
     },
     "typeRoots": ["./node_modules/@types", "./src/shared/types"]
   },

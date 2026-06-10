@@ -219,9 +219,6 @@ export default function RegisterPage() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-700 dark:from-[#fceb96] dark:to-[#d4af37]">
                 Parkora
               </span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-600 dark:from-emerald-300 dark:to-emerald-500">
-                EV
-              </span>
             </div>
           </div>
 

@@ -12,7 +12,7 @@ import {
   useCallback,
   type ReactNode,
 } from 'react';
-import type { IUser } from '@parkease/shared';
+import type { IUser } from '@parkora/shared';
 import * as authService from '@/features/auth/auth.service';
 import { getRefreshToken, hasSession, clearTokens } from '@/lib/token';
 import type { AuthContextValue, LoginPayload, RegisterPayload, VerifyRegistrationPayload } from '@/features/auth/auth.types';

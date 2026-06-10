@@ -7,7 +7,7 @@
 import apiClient from '@/lib/api-client';
 import { setTokens, clearTokens } from '@/lib/token';
 import type { AuthResponse, LoginPayload, RegisterPayload, RegisterResponse, VerifyRegistrationPayload } from './auth.types';
-import type { IUser } from '@parkease/shared';
+import type { IUser } from '@parkora/shared';
 
 type ApiResult<T> = { success: true; data: T };
 

@@ -1,5 +1,5 @@
 import { useAuth } from '@/app/providers/AuthProvider';
-import { useEvBusinessMode } from '@/app/providers/useParkEaseMode';
+import { useEvBusinessMode } from '@/app/providers/useParkoraMode';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { useNavigate } from 'react-router-dom';

@@ -42,7 +42,7 @@ export function useRegister() {
     mutationFn: (payload: RegisterPayload) => register(payload),
     onSuccess: () => {
       queryClient.clear();
-      showToast.success('Account created successfully! Welcome to ParkEase.');
+      showToast.success('Account created successfully! Welcome to Parkora.');
       navigate('/dashboard', { replace: true });
     },
     onError: (error) => {

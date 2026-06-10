@@ -1,5 +1,5 @@
 // ============================================================
-// useParkEaseMode
+// useParkoraMode
 // ============================================================
 // Hook to manage Booking vs Owner mode, synced with localStorage.
 // Uses useSyncExternalStore for reactive updates across components.
@@ -12,26 +12,26 @@
 
 import { useSyncExternalStore, useCallback } from 'react';
 
-export type ParkEaseMode = 'booking' | 'owner';
+export type ParkoraMode = 'booking' | 'owner';
 
-export const PARKEASE_MODE_KEY   = 'parkease_mode';
-export const PARKEASE_MODE_EVENT = 'parkease_mode_changed';
+export const PARKORA_MODE_KEY   = 'parkora_mode';
+export const PARKORA_MODE_EVENT = 'parkora_mode_changed';
 
 function subscribe(callback: () => void) {
   window.addEventListener('storage', callback);
   // Custom event for same-window updates
-  window.addEventListener(PARKEASE_MODE_EVENT, callback);
+  window.addEventListener(PARKORA_MODE_EVENT, callback);
   return () => {
     window.removeEventListener('storage', callback);
-    window.removeEventListener(PARKEASE_MODE_EVENT, callback);
+    window.removeEventListener(PARKORA_MODE_EVENT, callback);
   };
 }
 
-function getSnapshot(): ParkEaseMode {
-  return (localStorage.getItem(PARKEASE_MODE_KEY) as ParkEaseMode) ?? 'booking';
+function getSnapshot(): ParkoraMode {
+  return (localStorage.getItem(PARKORA_MODE_KEY) as ParkoraMode) ?? 'booking';
 }
 
-function getServerSnapshot(): ParkEaseMode {
+function getServerSnapshot(): ParkoraMode {
   return 'booking';
 }
 
@@ -41,15 +41,15 @@ function getServerSnapshot(): ParkEaseMode {
  * subscribers see the updated mode on the first render of the
  * destination page.
  */
-export function commitModeSync(newMode: ParkEaseMode) {
-  localStorage.setItem(PARKEASE_MODE_KEY, newMode);
-  window.dispatchEvent(new Event(PARKEASE_MODE_EVENT));
+export function commitModeSync(newMode: ParkoraMode) {
+  localStorage.setItem(PARKORA_MODE_KEY, newMode);
+  window.dispatchEvent(new Event(PARKORA_MODE_EVENT));
 }
 
-export function useParkEaseMode() {
+export function useParkoraMode() {
   const mode = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  const setMode = useCallback((newMode: ParkEaseMode) => {
+  const setMode = useCallback((newMode: ParkoraMode) => {
     commitModeSync(newMode);
   }, []);
 

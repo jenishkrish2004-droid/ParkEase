@@ -20,7 +20,7 @@ export default function OwnerOnboarding() {
         </div>
         <h1 className="text-4xl md:text-5xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-700 dark:from-[#fceb96] dark:to-[#d4af37] tracking-tight mb-4">Turn your empty space into earnings</h1>
         <p className="text-xl text-secondary-500 dark:text-[#d0c5af] max-w-2xl mx-auto mb-10">
-          Join thousands of hosts earning money by listing their unused parking spots on ParkEase.
+          Join thousands of hosts earning money by listing their unused parking spots on Parkora.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 text-left">

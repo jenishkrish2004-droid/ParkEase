@@ -1,8 +1,8 @@
 {
-  "name": "parkease",
+  "name": "parkora",
   "version": "1.0.0",
   "private": true,
-  "description": "ParkEase — Smart Parking Spot Marketplace",
+  "description": "Parkora — Smart Parking Spot Marketplace",
   "workspaces": [
     "shared",
     "server",

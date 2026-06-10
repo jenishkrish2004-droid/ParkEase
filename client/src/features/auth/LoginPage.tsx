@@ -97,9 +97,6 @@ export default function LoginPage() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-700 dark:from-[#fceb96] dark:to-[#d4af37]">
                 Parkora
               </span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-600 dark:from-emerald-300 dark:to-emerald-500">
-                EV
-              </span>
             </div>
           </div>
 
@@ -149,7 +146,7 @@ export default function LoginPage() {
         {/* Login Card */}
         <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-2xl w-full max-w-md p-6 lg:p-8 rounded-2xl relative my-10 lg:my-0 backdrop-blur-2xl">
           <div className="mb-6">
-            <h2 className="font-display text-2xl font-semibold text-secondary-900 dark:text-[#eae1d4] mb-1 flex items-center gap-1.5">Login to Parkora <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-600 dark:from-emerald-300 dark:to-emerald-500">EV</span></h2>
+            <h2 className="font-display text-2xl font-semibold text-secondary-900 dark:text-[#eae1d4] mb-1 flex items-center gap-1.5">Login to <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-700 dark:from-[#fceb96] dark:to-[#d4af37]">Parkora</span></h2>
             <p className="font-sans text-secondary-600 dark:text-[#d0c5af] text-sm">Welcome back. Please enter your credentials.</p>
           </div>
 

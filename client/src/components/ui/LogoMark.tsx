@@ -1,5 +1,5 @@
 // ============================================================
-// LogoMark — Official ParkEase Brand Icon
+// LogoMark — Official Parkora Brand Icon
 // ============================================================
 // Three combined brand elements (per brand identity plan):
 //   1. Location Pin   — blue teardrop, "find & navigate"

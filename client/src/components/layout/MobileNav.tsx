@@ -63,8 +63,8 @@ export function MobileNav({ items, className }: MobileNavProps) {
   );
 }
 
-// ── Default ParkEase Mobile Nav ─────────────────────────────
-export function ParkEaseMobileNav() {
+// ── Default Parkora Mobile Nav ─────────────────────────────
+export function ParkoraMobileNav() {
   const items: MobileNavItem[] = [
     {
       label: 'Home',

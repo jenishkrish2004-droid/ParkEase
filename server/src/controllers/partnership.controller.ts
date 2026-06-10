@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../config/database';
-import { evPartnershipApplicationSchema } from '@parkease/shared';
+import { evPartnershipApplicationSchema } from '@parkora/shared';
 import { AppError } from '../shared/errors/AppError';
 
 export const createEVPartnershipApplication = async (req: Request, res: Response) => {

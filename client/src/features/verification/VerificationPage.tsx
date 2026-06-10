@@ -5,7 +5,7 @@ import { getVerificationStatus, sendOtp, verifyOtp, type VerificationStatusRespo
 import { getKycStatus, saveKycDraft, submitKyc, uploadKycDocument, type KycProfile } from './kyc.service';
 import { getPayoutAccount, savePayoutAccount, type OwnerPayoutAccount } from './payout.service';
 import { getSelfieStatus, uploadSelfie, type SelfieVerification } from './selfie.service';
-import { useParkEaseMode } from '@/app/providers/useParkEaseMode';
+import { useParkoraMode } from '@/app/providers/useParkoraMode';
 import { cn } from '@/lib/utils';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { showToast } from '@/components/ui/Toast';
@@ -38,7 +38,7 @@ function formatTime(seconds: number) {
 export function VerificationPage() {
   const navigate = useNavigate();
   const { user, refreshUser } = useAuth();
-  const [mode] = useParkEaseMode();
+  const [mode] = useParkoraMode();
   const [status, setStatus] = useState<VerificationStatusResponse | null>(null);
   const [kycProfile, setKycProfile] = useState<KycProfile | null>(null);
   const [payoutProfile, setPayoutProfile] = useState<OwnerPayoutAccount | null>(null);

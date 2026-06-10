@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { evPartnershipApplicationSchema, type EVPartnershipApplicationPayload } from '@parkease/shared';
+import { evPartnershipApplicationSchema, type EVPartnershipApplicationPayload } from '@parkora/shared';
 import apiClient, { getApiErrorMessage } from '@/lib/api-client';
 
 

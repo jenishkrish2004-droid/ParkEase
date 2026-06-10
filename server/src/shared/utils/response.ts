@@ -3,7 +3,7 @@
 // ============================================================
 
 import { Response } from 'express';
-import type { IPaginationMeta } from '@parkease/shared';
+import type { IPaginationMeta } from '@parkora/shared';
 
 /** Send a success response */
 export function sendSuccess<T>(

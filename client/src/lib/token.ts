@@ -5,9 +5,9 @@
 // access/refresh tokens from localStorage.
 // ============================================================
 
-const ACCESS_TOKEN_KEY  = 'parkease_access_token';
-const REFRESH_TOKEN_KEY = 'parkease_refresh_token';
-const TOKEN_EXPIRY_KEY  = 'parkease_token_expiry';
+const ACCESS_TOKEN_KEY  = 'parkora_access_token';
+const REFRESH_TOKEN_KEY = 'parkora_refresh_token';
+const TOKEN_EXPIRY_KEY  = 'parkora_token_expiry';
 
 // ── Accessors ────────────────────────────────────────────────
 

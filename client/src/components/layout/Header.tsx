@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { Avatar } from '@/components/ui/Avatar';
 import { useLogout } from '@/features/auth/hooks/useAuthMutations';
-import { useParkEaseMode, commitModeSync, type ParkEaseMode, useEvBusinessMode } from '@/app/providers/useParkEaseMode';
+import { useParkoraMode, commitModeSync, type ParkoraMode, useEvBusinessMode } from '@/app/providers/useParkoraMode';
 import { useTheme } from '@/app/providers/ThemeProvider';
 
 // ── Nav items (unauthenticated view only) ────────────────────
@@ -55,10 +55,20 @@ export function Header({ transparent = false, className }: HeaderProps) {
       )}
     >
       <div className="container-app">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16 relative">
 
           {/* ── Logo & Back ── */}
           <div className="flex items-center gap-2 md:gap-4 shrink-0">
+            {!(location.pathname === '/' || location.pathname === '/owner') && (
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
+                className="flex items-center justify-center w-8 h-8 rounded-full text-secondary-500 hover:text-secondary-900 hover:bg-secondary-100 dark:text-[#d0c5af] dark:hover:text-[#eae1d4] dark:hover:bg-[#4d4635]/50 transition-colors"
+                aria-label="Go back"
+              >
+                <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+              </button>
+            )}
 
             <Link
               to="/"
@@ -69,15 +79,12 @@ export function Header({ transparent = false, className }: HeaderProps) {
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-700 dark:from-[#fceb96] dark:to-[#d4af37]">
                   Parkora
                 </span>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-600 dark:from-emerald-300 dark:to-emerald-500">
-                  EV
-                </span>
               </div>
             </Link>
           </div>
 
           {/* ── Center: Mode Switcher (Auth) or Nav (Unauth) ── */}
-          <div className="hidden md:flex flex-1 items-center justify-center">
+          <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center">
             {isAuthenticated && user ? (
               <ModeSwitcher user={user} />
             ) : (
@@ -303,7 +310,7 @@ function AuthenticatedNav({ user }: { user: { firstName: string; lastName: strin
 
 // ── Mode-Specific Dropdown Links ─────────────────────────────
 function HeaderDropdownLinks({ setMenuOpen }: { setMenuOpen: (v: boolean) => void }) {
-  const [mode] = useParkEaseMode();
+  const [mode] = useParkoraMode();
   const navigate = useNavigate();
 
   const handleNav = (path: string) => {
@@ -368,10 +375,10 @@ function HeaderDropdownLinks({ setMenuOpen }: { setMenuOpen: (v: boolean) => voi
 
 function ModeSwitcher({ user }: { user: { isOwner: boolean; ownerVerified: boolean; isEvPartner: boolean } }) {
   const navigate = useNavigate();
-  const [mode] = useParkEaseMode();
+  const [mode] = useParkoraMode();
   const [evModeEnabled] = useEvBusinessMode();
 
-  function handleModeSwitch(next: ParkEaseMode) {
+  function handleModeSwitch(next: ParkoraMode) {
     if (next === mode) return; // already in this mode, nothing to do
 
     // Flush the mode commit synchronously BEFORE navigation so that
@@ -486,7 +493,7 @@ function MobileAuthSection() {
 }
 
 function MobileHeaderLinks() {
-  const [mode] = useParkEaseMode();
+  const [mode] = useParkoraMode();
   const linkClass = "block px-4 py-2.5 rounded-xl text-sm text-secondary-700 hover:bg-secondary-50 transition-colors no-underline";
 
   if (mode === 'owner') {

@@ -1,6 +1,6 @@
-# ParkEase
+# Parkora
 
-ParkEase is a production-grade parking marketplace platform that connects vehicle owners with verified parking space providers. The platform enables users to discover, compare, and book parking spaces while allowing property owners to manage parking inventory, track bookings, and monitor revenue.
+Parkora is a production-grade parking marketplace platform that connects vehicle owners with verified parking space providers. The platform enables users to discover, compare, and book parking spaces while allowing property owners to manage parking inventory, track bookings, and monitor revenue.
 
 The system is designed using modern software engineering principles with scalability, maintainability, and future mobile application support as core objectives.
 
@@ -10,7 +10,7 @@ The system is designed using modern software engineering principles with scalabi
 
 Urban parking remains a significant challenge in many cities due to limited availability, lack of transparency, and inefficient utilization of existing parking infrastructure.
 
-ParkEase addresses these challenges by providing a centralized platform where:
+Parkora addresses these challenges by providing a centralized platform where:
 
 * Users can search and book verified parking spaces.
 * Property owners can monetize available parking areas.
@@ -120,7 +120,7 @@ Multiple filters can be combined simultaneously to provide accurate search resul
 
 ## Maps and Location Services
 
-ParkEase integrates mapping and geolocation services to provide:
+Parkora integrates mapping and geolocation services to provide:
 
 * Parking Location Discovery
 * User Location Detection
@@ -217,7 +217,7 @@ Parking owners have access to operational and financial insights, including:
 The project follows a modular monorepo architecture designed for scalability and maintainability.
 
 ```text
-ParkEase/
+Parkora/
 ├── client/      # React Frontend
 ├── server/      # Express Backend
 ├── shared/      # Shared Types, Constants and Validators
@@ -231,7 +231,7 @@ ParkEase/
 
 The platform is being developed using an API-first architecture.
 
-After the web platform reaches production readiness, ParkEase will be expanded into:
+After the web platform reaches production readiness, Parkora will be expanded into:
 
 * Android Application
 * iOS Application

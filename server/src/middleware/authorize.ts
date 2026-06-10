@@ -6,7 +6,7 @@
 // ============================================================
 
 import { Request, Response, NextFunction } from 'express';
-import { UserRole } from '@parkease/shared';
+import { UserRole } from '@parkora/shared';
 import { ForbiddenError, UnauthorizedError } from '../shared/errors';
 
 /**

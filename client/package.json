@@ -1,5 +1,5 @@
 {
-  "name": "@parkease/client",
+  "name": "@parkora/client",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
-    "@parkease/shared": "*",
+    "@parkora/shared": "*",
     "@tanstack/react-query": "^5.64.2",
     "axios": "^1.7.9",
     "clsx": "^2.1.1",

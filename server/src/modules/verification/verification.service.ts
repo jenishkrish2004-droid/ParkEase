@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { VerificationStatus } from '@parkease/shared';
+import { VerificationStatus } from '@parkora/shared';
 import crypto from 'crypto';
 import { prisma } from '@/config/database';
 import { AppError } from '@/shared/errors/AppError';

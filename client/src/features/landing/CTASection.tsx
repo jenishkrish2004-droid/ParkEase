@@ -9,7 +9,7 @@ import { Avatar } from '@/components/ui/Avatar';
 const testimonials = [
   {
     quote:
-      'ParkEase saved me 20 minutes every day commuting to office. The booking process is incredibly smooth and I love the instant confirmation.',
+      'Parkora saved me 20 minutes every day commuting to office. The booking process is incredibly smooth and I love the instant confirmation.',
     name:      'Priya Sharma',
     role:      'Software Engineer, Bangalore',
     rating:    5,
@@ -18,7 +18,7 @@ const testimonials = [
   },
   {
     quote:
-      'As a parking lot owner, I was losing money on empty spots. With ParkEase I earn ₹15,000+ extra every month. Setup took under 10 minutes!',
+      'As a parking lot owner, I was losing money on empty spots. With Parkora I earn ₹15,000+ extra every month. Setup took under 10 minutes!',
     name:      'Rajesh Kumar',
     role:      'Parking Owner, Delhi',
     rating:    5,

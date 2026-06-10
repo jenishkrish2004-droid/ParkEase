@@ -6,7 +6,7 @@
 // ============================================================
 
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
-import type { IApiErrorResponse } from '@parkease/shared';
+import type { IApiErrorResponse } from '@parkora/shared';
 import {
   getAccessToken,
   getRefreshToken,

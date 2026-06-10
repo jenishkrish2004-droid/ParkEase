@@ -2,7 +2,7 @@
 // Auth Feature — Frontend Types
 // ============================================================
 
-import type { IUser } from '@parkease/shared';
+import type { IUser } from '@parkora/shared';
 
 export interface AuthTokens {
   accessToken:  string;

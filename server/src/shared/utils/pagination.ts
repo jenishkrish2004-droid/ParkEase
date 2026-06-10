@@ -2,7 +2,7 @@
 // Pagination Utilities
 // ============================================================
 
-import type { IPaginationMeta, IPaginationQuery } from '@parkease/shared';
+import type { IPaginationMeta, IPaginationQuery } from '@parkora/shared';
 
 export interface PaginationParams {
   skip: number;

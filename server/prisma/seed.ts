@@ -15,12 +15,12 @@ async function main() {
   // Create admin user
   const adminPasswordHash = await bcrypt.hash('Admin@123', 12);
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@parkease.com' },
+    where: { email: 'admin@parkora.com' },
     update: {},
     create: {
-      email: 'admin@parkease.com',
+      email: 'admin@parkora.com',
       passwordHash: adminPasswordHash,
-      firstName: 'ParkEase',
+      firstName: 'Parkora',
       lastName: 'Admin',
       role: UserRole.ADMIN,
       isEmailVerified: true,
@@ -32,10 +32,10 @@ async function main() {
   // Create test user
   const userPasswordHash = await bcrypt.hash('User@123', 12);
   const user = await prisma.user.upsert({
-    where: { email: 'user@parkease.com' },
+    where: { email: 'user@parkora.com' },
     update: {},
     create: {
-      email: 'user@parkease.com',
+      email: 'user@parkora.com',
       passwordHash: userPasswordHash,
       firstName: 'Test',
       lastName: 'User',
@@ -49,10 +49,10 @@ async function main() {
   // Create test owner
   const ownerPasswordHash = await bcrypt.hash('Owner@123', 12);
   const owner = await prisma.user.upsert({
-    where: { email: 'owner@parkease.com' },
+    where: { email: 'owner@parkora.com' },
     update: {},
     create: {
-      email: 'owner@parkease.com',
+      email: 'owner@parkora.com',
       passwordHash: ownerPasswordHash,
       firstName: 'Test',
       lastName: 'Owner',

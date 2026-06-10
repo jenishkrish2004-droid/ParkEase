@@ -76,7 +76,7 @@ export function Footer({ className }: FooterProps) {
             <Link
               to="/"
               className="flex items-center gap-2.5 no-underline group w-fit"
-              aria-label="ParkEase"
+              aria-label="Parkora"
             >
               <svg width="20" height="25" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M12 0C5.925 0 1 4.925 1 11C1 18.5 12 30 12 30C12 30 23 18.5 23 11C23 4.925 18.075 0 12 0Z" fill="#f2ca50" />
@@ -158,7 +158,7 @@ export function Footer({ className }: FooterProps) {
       <div className="border-t border-secondary-200 dark:border-secondary-800">
         <div className="container-app py-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-secondary-500 text-center md:text-left">
-            © {new Date().getFullYear()} ParkEase Technologies Pvt. Ltd. All rights reserved.
+            © {new Date().getFullYear()} Parkora Technologies Pvt. Ltd. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <Link to="/privacy" className="text-xs text-secondary-500 hover:text-secondary-700 dark:hover:text-secondary-300 no-underline transition-colors">

@@ -69,7 +69,7 @@ const features = [
     icon: 'monetization_on',
     title:  'Earn as an Owner',
     description:
-      'Have a parking space? List it on ParkEase and earn passive income. Setup takes under 10 minutes.',
+      'Have a parking space? List it on Parkora and earn passive income. Setup takes under 10 minutes.',
   },
 ];
 
@@ -84,7 +84,7 @@ export function FeaturesSection() {
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
           <p className="text-xs font-bold text-primary-600 dark:text-[#f2ca50] uppercase tracking-[0.2em] mb-4">
-            Why ParkEase?
+            Why Parkora?
           </p>
           <h2 id="features-heading" className="text-display-md font-display font-bold text-secondary-900 dark:text-[#eae1d4] text-balance tracking-tight">
             Everything you need for stress-free parking

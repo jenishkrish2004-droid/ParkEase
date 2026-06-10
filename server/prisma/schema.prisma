@@ -1,5 +1,5 @@
 // ============================================================
-// ParkEase — Prisma Schema
+// Parkora — Prisma Schema
 // ============================================================
 // This is the single source of truth for the database schema.
 // Run `npx prisma db push` to sync with the database.
