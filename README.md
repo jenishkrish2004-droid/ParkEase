@@ -1,7 +1,5 @@
 # **Parkora**
 
-![Parkora Banner](https://img.shields.io/badge/Parkora-Smart_Parking_%26_EV-d4af37?style=for-the-badge)
-
 **Parkora** is a production-grade, full-stack parking marketplace platform that bridges the gap between vehicle owners and verified parking space providers. The platform seamlessly enables users to discover, compare, and book parking and EV charging spaces, while empowering property owners to monetize their inventory, track active bookings, and monitor revenue in real time.
 
 Built with modern software engineering principles, **Parkora** prioritizes scalability, maintainability, and mobile-first responsiveness.
