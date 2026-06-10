@@ -57,23 +57,38 @@ export default function OwnerDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Bookings Placeholder */}
-        <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl">
-          <h2 className="text-xl font-display font-semibold text-secondary-900 dark:text-[#eae1d4] mb-6">Recent Bookings</h2>
-          <div className="py-8 text-center border border-dashed border-secondary-200 dark:border-[#4d4635] rounded-xl bg-secondary-50/50 dark:bg-[#1a1712]/30">
-            <p className="text-secondary-500 dark:text-[#d0c5af]">No recent bookings found.</p>
-          </div>
+      {/* Earnings Breakdown */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-primary-50/80 dark:bg-[#f2ca50]/10 surface-glass border border-primary-200 dark:border-[#f2ca50]/20 shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl">
+          <p className="text-sm font-medium text-primary-700 dark:text-[#f2ca50]">Available for Payout</p>
+          <p className="text-3xl font-display font-bold text-primary-900 dark:text-[#fceb96] mt-2">₹0.00</p>
+          <button disabled className="mt-4 w-full px-6 py-2.5 rounded-xl text-white bg-primary-600/50 dark:bg-[#f2ca50]/20 dark:text-[#f2ca50]/50 font-semibold text-sm cursor-not-allowed transition-all">
+            Withdraw Funds
+          </button>
+        </div>
+        <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl flex flex-col justify-center">
+          <p className="text-sm font-medium text-secondary-500 dark:text-[#d0c5af]">Upcoming Payouts</p>
+          <p className="text-3xl font-display font-bold text-secondary-900 dark:text-white mt-2">₹0.00</p>
+          <p className="text-xs text-secondary-400 dark:text-[#d0c5af]/70 mt-1">Clearing soon</p>
+        </div>
+      </div>
+
+      {/* Bookings Section */}
+      <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-2xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-display font-semibold text-secondary-900 dark:text-[#eae1d4]">Bookings Management</h2>
+          <Button variant="outline" className="text-sm py-1.5 px-4 h-auto" onClick={() => navigate('/owner/listings')}>Manage Listings</Button>
+        </div>
+        
+        <div className="flex space-x-2 border-b border-secondary-200 dark:border-[#4d4635] mb-8 overflow-x-auto pb-2">
+          <button className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-primary-50 text-primary-600 dark:bg-[#f2ca50]/10 dark:text-[#f2ca50] transition-colors">Upcoming</button>
+          <button className="px-5 py-2.5 rounded-xl text-sm font-medium text-secondary-500 dark:text-[#d0c5af] hover:text-secondary-900 dark:hover:text-[#eae1d4] hover:bg-secondary-50 dark:hover:bg-[#1a1712]/50 transition-colors">Active</button>
+          <button className="px-5 py-2.5 rounded-xl text-sm font-medium text-secondary-500 dark:text-[#d0c5af] hover:text-secondary-900 dark:hover:text-[#eae1d4] hover:bg-secondary-50 dark:hover:bg-[#1a1712]/50 transition-colors">Completed</button>
+          <button className="px-5 py-2.5 rounded-xl text-sm font-medium text-secondary-500 dark:text-[#d0c5af] hover:text-secondary-900 dark:hover:text-[#eae1d4] hover:bg-secondary-50 dark:hover:bg-[#1a1712]/50 transition-colors">Cancelled</button>
         </div>
 
-        {/* Quick Actions Placeholder */}
-        <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-xl p-6 sm:p-8 rounded-2xl backdrop-blur-2xl">
-          <h2 className="text-xl font-display font-semibold text-secondary-900 dark:text-[#eae1d4] mb-6">Quick Actions</h2>
-          <div className="space-y-3">
-            <button className="w-full text-left px-4 py-3 rounded-xl border border-secondary-200 dark:border-[#4d4635] hover:border-primary-400 dark:hover:border-[#f2ca50]/50 hover:bg-secondary-50 dark:hover:bg-[#f2ca50]/5 text-secondary-700 dark:text-[#eae1d4] transition-all" onClick={() => navigate('/owner/listings')}>📝 Manage Listings</button>
-            <button className="w-full text-left px-4 py-3 rounded-xl border border-secondary-200 dark:border-[#4d4635] hover:border-primary-400 dark:hover:border-[#f2ca50]/50 hover:bg-secondary-50 dark:hover:bg-[#f2ca50]/5 text-secondary-700 dark:text-[#eae1d4] transition-all" onClick={() => navigate('/owner/bookings')}>📅 View Booking Calendar</button>
-            <button className="w-full text-left px-4 py-3 rounded-xl border border-secondary-200 dark:border-[#4d4635] hover:border-primary-400 dark:hover:border-[#f2ca50]/50 hover:bg-secondary-50 dark:hover:bg-[#f2ca50]/5 text-secondary-700 dark:text-[#eae1d4] transition-all" onClick={() => navigate('/owner/earnings')}>💸 View Earnings Report</button>
-          </div>
+        <div className="py-8 text-center border border-dashed border-secondary-200 dark:border-[#4d4635] rounded-xl bg-secondary-50/50 dark:bg-[#1a1712]/30">
+          <p className="text-secondary-500 dark:text-[#d0c5af]">No bookings found.</p>
         </div>
       </div>
     </div>

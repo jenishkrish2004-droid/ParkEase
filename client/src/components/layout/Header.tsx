@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { Avatar } from '@/components/ui/Avatar';
 import { useLogout } from '@/features/auth/hooks/useAuthMutations';
-import { useParkEaseMode, commitModeSync, type ParkEaseMode } from '@/app/providers/useParkEaseMode';
+import { useParkEaseMode, commitModeSync, type ParkEaseMode, useEvBusinessMode } from '@/app/providers/useParkEaseMode';
 import { useTheme } from '@/app/providers/ThemeProvider';
 
 // ── Nav items (unauthenticated view only) ────────────────────
@@ -59,16 +59,7 @@ export function Header({ transparent = false, className }: HeaderProps) {
 
           {/* ── Logo & Back ── */}
           <div className="flex items-center gap-2 md:gap-4 shrink-0">
-            {!isHome && (
-              <button
-                onClick={() => navigate(-1)}
-                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-secondary-100 dark:hover:bg-white/10 text-secondary-600 dark:text-[#d0c5af] transition-colors -ml-2"
-                aria-label="Go back"
-                title="Go back"
-              >
-                <span className="material-symbols-outlined text-[20px]">arrow_back</span>
-              </button>
-            )}
+
             <Link
               to="/"
               className="flex items-center gap-2.5 group no-underline"
@@ -206,7 +197,7 @@ function UnauthenticatedNav() {
 }
 
 // ── Authenticated nav: mode switcher + user menu ─────────────
-function AuthenticatedNav({ user }: { user: { firstName: string; lastName: string; email: string; avatar: string | null; isOwner: boolean; ownerVerified: boolean; verificationStatus: string } }) {
+function AuthenticatedNav({ user }: { user: { firstName: string; lastName: string; email: string; avatar: string | null; isOwner: boolean; ownerVerified: boolean; verificationStatus: string; isEvPartner: boolean } }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const logoutMutation = useLogout();
@@ -265,15 +256,25 @@ function AuthenticatedNav({ user }: { user: { firstName: string; lastName: strin
             <div className="px-4 py-3 border-b border-secondary-100 dark:border-[#4d4635]/50">
               <p className="text-sm font-semibold text-secondary-900 dark:text-[#eae1d4]">{user.firstName} {user.lastName}</p>
               <p className="text-xs text-secondary-500 dark:text-[#d0c5af] truncate mt-0.5">{user.email}</p>
-              <div className="mt-2 flex items-center">
-                <span className={cn(
-                  "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider",
-                  user.verificationStatus === 'APPROVED' ? "bg-success-100 text-success-700 dark:bg-[#f2ca50]/20 dark:text-[#f2ca50]" :
-                  user.verificationStatus === 'PENDING' ? "bg-warning-100 text-warning-700" :
-                  "bg-secondary-100 text-secondary-700 dark:bg-white/10 dark:text-white/60"
-                )}>
-                  {user.verificationStatus === 'APPROVED' ? 'Verified' : 'Unverified'}
-                </span>
+              <div className="mt-2 flex flex-col gap-1.5">
+                <div className="flex items-center">
+                  <span className={cn(
+                    "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider",
+                    user.verificationStatus === 'APPROVED' ? "bg-success-100 text-success-700 dark:bg-[#f2ca50]/20 dark:text-[#f2ca50]" :
+                    user.verificationStatus === 'PENDING' ? "bg-warning-100 text-warning-700" :
+                    "bg-secondary-100 text-secondary-700 dark:bg-white/10 dark:text-white/60"
+                  )}>
+                    {user.verificationStatus === 'APPROVED' ? 'Verified' : 'Unverified'}
+                  </span>
+                </div>
+                {user.isEvPartner && (
+                  <div className="flex items-center">
+                    <span className="w-full text-center px-2 py-1.5 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold tracking-wide flex items-center justify-center gap-1">
+                      <span className="material-symbols-outlined text-[14px]">ev_station</span>
+                      Official EV Partner
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
             {/* Menu items */}
@@ -324,18 +325,15 @@ function HeaderDropdownLinks({ setMenuOpen }: { setMenuOpen: (v: boolean) => voi
         <button type="button" onClick={() => handleNav('/owner/listings')} className={navItemClass}>
           My Listings
         </button>
-        <button type="button" onClick={() => handleNav('/owner/bookings')} className={navItemClass}>
-          Owner Bookings
-        </button>
-        <button type="button" onClick={() => handleNav('/owner/earnings')} className={navItemClass}>
-          Earnings
+        <button type="button" onClick={() => handleNav('/verification')} className={navItemClass}>
+          Owner Verification
         </button>
         <div className="my-1 border-t border-secondary-100 dark:border-[#4d4635]/50" />
         <button type="button" onClick={() => handleNav('/profile')} className={navItemClass}>
           Profile
         </button>
-        <button type="button" onClick={() => handleNav('/verification')} className={navItemClass}>
-          Owner Verification
+        <button type="button" onClick={() => handleNav('/settings')} className={navItemClass}>
+          Settings
         </button>
       </>
     );
@@ -344,26 +342,23 @@ function HeaderDropdownLinks({ setMenuOpen }: { setMenuOpen: (v: boolean) => voi
   return (
     <>
       <button type="button" onClick={() => handleNav('/dashboard')} className={navItemClass}>
-        Dashboard
+        Parking Dashboard
       </button>
       <button type="button" onClick={() => handleNav('/bookings')} className={navItemClass}>
         My Bookings
       </button>
-      <button type="button" onClick={() => handleNav('/payments')} className={navItemClass}>
-        Payments
-      </button>
       <button type="button" onClick={() => handleNav('/vehicles')} className={navItemClass}>
         My Vehicles
       </button>
-      <button type="button" onClick={() => handleNav('/reviews')} className={navItemClass}>
-        My Reviews
+      <button type="button" onClick={() => handleNav('/verification')} className={navItemClass}>
+        Verification
       </button>
       <div className="my-1 border-t border-secondary-100 dark:border-[#4d4635]/50" />
       <button type="button" onClick={() => handleNav('/profile')} className={navItemClass}>
         Profile
       </button>
-      <button type="button" onClick={() => handleNav('/verification')} className={navItemClass}>
-        Verification
+      <button type="button" onClick={() => handleNav('/settings')} className={navItemClass}>
+        Settings
       </button>
     </>
   );
@@ -371,9 +366,10 @@ function HeaderDropdownLinks({ setMenuOpen }: { setMenuOpen: (v: boolean) => voi
 
 // ── Mode Switcher ────────────────────────────────────────────
 
-function ModeSwitcher({ user }: { user: { isOwner: boolean; ownerVerified: boolean } }) {
+function ModeSwitcher({ user }: { user: { isOwner: boolean; ownerVerified: boolean; isEvPartner: boolean } }) {
   const navigate = useNavigate();
   const [mode] = useParkEaseMode();
+  const [evModeEnabled] = useEvBusinessMode();
 
   function handleModeSwitch(next: ParkEaseMode) {
     if (next === mode) return; // already in this mode, nothing to do
@@ -433,7 +429,7 @@ function ModeSwitcher({ user }: { user: { isOwner: boolean; ownerVerified: boole
         <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
         </svg>
-        List your Space
+        {user.isEvPartner && evModeEnabled ? 'EV Business' : 'List your Space'}
       </button>
     </div>
   );
@@ -499,23 +495,21 @@ function MobileHeaderLinks() {
         <Link to="/owner/dashboard" className={linkClass}>Owner Dashboard</Link>
         <Link to="/owner/onboarding" className={linkClass}>Owner Onboarding</Link>
         <Link to="/owner/listings" className={linkClass}>My Listings</Link>
-        <Link to="/owner/bookings" className={linkClass}>Owner Bookings</Link>
-        <Link to="/owner/earnings" className={linkClass}>Earnings</Link>
-        <Link to="/profile" className={linkClass}>Profile</Link>
         <Link to="/verification" className={linkClass}>Owner Verification</Link>
+        <Link to="/profile" className={linkClass}>Profile</Link>
+        <Link to="/settings" className={linkClass}>Settings</Link>
       </>
     );
   }
 
   return (
     <>
-      <Link to="/dashboard" className={linkClass}>Dashboard</Link>
+      <Link to="/dashboard" className={linkClass}>Parking Dashboard</Link>
       <Link to="/bookings" className={linkClass}>My Bookings</Link>
-      <Link to="/payments" className={linkClass}>Payments</Link>
       <Link to="/vehicles" className={linkClass}>My Vehicles</Link>
-      <Link to="/reviews" className={linkClass}>My Reviews</Link>
-      <Link to="/profile" className={linkClass}>Profile</Link>
       <Link to="/verification" className={linkClass}>Verification</Link>
+      <Link to="/profile" className={linkClass}>Profile</Link>
+      <Link to="/settings" className={linkClass}>Settings</Link>
     </>
   );
 }

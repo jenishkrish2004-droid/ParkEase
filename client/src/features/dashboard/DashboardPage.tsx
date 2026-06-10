@@ -73,10 +73,10 @@ export default function DashboardPage() {
 
         {/* Dashboard Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {/* Quick Stats */}
-          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-2xl p-6 rounded-2xl backdrop-blur-2xl md:col-span-2">
-            <h2 className="font-display text-xl font-semibold text-secondary-900 dark:text-[#eae1d4] mb-6">Your Activity</h2>
-            <div className="grid grid-cols-2 gap-4">
+          {/* Dashboard Analytics */}
+          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-2xl p-6 rounded-2xl backdrop-blur-2xl md:col-span-3">
+            <h2 className="font-display text-xl font-semibold text-secondary-900 dark:text-[#eae1d4] mb-6">Dashboard Analytics</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-secondary-50 dark:bg-[#1a160d]/50 border border-secondary-100 dark:border-[#4d4635]/50 rounded-xl p-5">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-[#f2ca50]/10 flex items-center justify-center text-primary-600 dark:text-[#f2ca50]">
@@ -93,33 +93,55 @@ export default function DashboardPage() {
                   </div>
                   <span className="font-sans text-sm font-medium text-secondary-600 dark:text-[#d0c5af]">Total Spent</span>
                 </div>
-                <p className="font-display text-3xl font-bold text-secondary-900 dark:text-white">₹0</p>
+                <p className="font-display text-3xl font-bold text-secondary-900 dark:text-white">₹0.00</p>
+              </div>
+              <div className="bg-secondary-50 dark:bg-[#1a160d]/50 border border-secondary-100 dark:border-[#4d4635]/50 rounded-xl p-5">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-[#f2ca50]/10 flex items-center justify-center text-primary-600 dark:text-[#f2ca50]">
+                    <span className="material-symbols-outlined">credit_card</span>
+                  </div>
+                  <span className="font-sans text-sm font-medium text-secondary-600 dark:text-[#d0c5af]">Recent Payments</span>
+                </div>
+                <p className="font-display text-3xl font-bold text-secondary-900 dark:text-white">0</p>
+              </div>
+              <div className="bg-secondary-50 dark:bg-[#1a160d]/50 border border-secondary-100 dark:border-[#4d4635]/50 rounded-xl p-5">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-[#f2ca50]/10 flex items-center justify-center text-primary-600 dark:text-[#f2ca50]">
+                    <span className="material-symbols-outlined">currency_exchange</span>
+                  </div>
+                  <span className="font-sans text-sm font-medium text-secondary-600 dark:text-[#d0c5af]">Pending Refunds</span>
+                </div>
+                <p className="font-display text-3xl font-bold text-secondary-900 dark:text-white">₹0.00</p>
               </div>
             </div>
             
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 flex justify-end gap-6">
+               <Link to="/vehicles" className="text-sm font-semibold text-secondary-500 dark:text-[#b4a996] hover:text-secondary-700 dark:hover:text-[#eae1d4] transition-colors flex items-center gap-1">
+                 <span className="material-symbols-outlined text-[16px]">no_crash</span> Manage Vehicles
+               </Link>
                <Link to="/bookings" className="text-sm font-semibold text-primary-600 dark:text-[#f2ca50] hover:text-primary-700 dark:hover:text-[#d4af37] transition-colors flex items-center gap-1 group">
                  View all bookings <span className="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
                </Link>
             </div>
           </div>
-
-          {/* Quick Actions */}
-          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-2xl p-6 rounded-2xl backdrop-blur-2xl flex flex-col">
-            <h2 className="font-display text-xl font-semibold text-secondary-900 dark:text-[#eae1d4] mb-6">Quick Actions</h2>
-            <div className="space-y-3 flex-1 flex flex-col justify-center">
-              <Link to="/vehicles" className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary-50 dark:hover:bg-[#f2ca50]/5 border border-transparent hover:border-secondary-200 dark:hover:border-[#f2ca50]/20 transition-all group">
-                <span className="material-symbols-outlined text-secondary-400 dark:text-[#d0c5af] group-hover:text-primary-600 dark:group-hover:text-[#f2ca50] transition-colors">no_crash</span>
-                <span className="font-sans text-sm font-medium text-secondary-700 dark:text-[#eae1d4] group-hover:text-primary-600 dark:group-hover:text-[#f2ca50] transition-colors">Manage Vehicles</span>
-              </Link>
-              <Link to="/payments" className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary-50 dark:hover:bg-[#f2ca50]/5 border border-transparent hover:border-secondary-200 dark:hover:border-[#f2ca50]/20 transition-all group">
-                <span className="material-symbols-outlined text-secondary-400 dark:text-[#d0c5af] group-hover:text-primary-600 dark:group-hover:text-[#f2ca50] transition-colors">credit_card</span>
-                <span className="font-sans text-sm font-medium text-secondary-700 dark:text-[#eae1d4] group-hover:text-primary-600 dark:group-hover:text-[#f2ca50] transition-colors">Payment Methods</span>
-              </Link>
-              <Link to="/profile" className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary-50 dark:hover:bg-[#f2ca50]/5 border border-transparent hover:border-secondary-200 dark:hover:border-[#f2ca50]/20 transition-all group">
-                <span className="material-symbols-outlined text-secondary-400 dark:text-[#d0c5af] group-hover:text-primary-600 dark:group-hover:text-[#f2ca50] transition-colors">person</span>
-                <span className="font-sans text-sm font-medium text-secondary-700 dark:text-[#eae1d4] group-hover:text-primary-600 dark:group-hover:text-[#f2ca50] transition-colors">Profile Settings</span>
-              </Link>
+          {/* Payment & Review Analytics */}
+          <div className="bg-white/80 dark:bg-transparent surface-glass border border-secondary-200 dark:border-[#4d4635] shadow-2xl p-6 rounded-2xl backdrop-blur-2xl flex flex-col md:col-span-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h2 className="font-display text-xl font-semibold text-secondary-900 dark:text-[#eae1d4] mb-4">Payment History</h2>
+                <div className="bg-secondary-50 dark:bg-[#1a160d]/50 border border-secondary-100 dark:border-[#4d4635]/50 rounded-xl p-6 text-center text-secondary-500 dark:text-[#d0c5af]">
+                  <span className="material-symbols-outlined text-4xl mb-2 text-secondary-300 dark:text-[#4d4635]">receipt_long</span>
+                  <p className="text-sm">No recent payments. Your transaction history will appear here.</p>
+                </div>
+              </div>
+              
+              <div>
+                <h2 className="font-display text-xl font-semibold text-secondary-900 dark:text-[#eae1d4] mb-4">Recent Reviews</h2>
+                <div className="bg-secondary-50 dark:bg-[#1a160d]/50 border border-secondary-100 dark:border-[#4d4635]/50 rounded-xl p-6 text-center text-secondary-500 dark:text-[#d0c5af]">
+                  <span className="material-symbols-outlined text-4xl mb-2 text-secondary-300 dark:text-[#4d4635]">star_half</span>
+                  <p className="text-sm">No recent reviews. Complete a booking to leave a review.</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

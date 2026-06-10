@@ -20,6 +20,8 @@ export interface EVRouteResponse {
   totalDistance: number; // in km
   estimatedTime: string;
   stops: EVChargingStop[];
+  startCoords: [number, number]; // [lat, lng]
+  endCoords: [number, number]; // [lat, lng]
 }
 
 // Mock stations along the popular Nagercoil -> Chennai route
@@ -32,8 +34,8 @@ const mockStations: EVChargingStop[] = [
     connectorTypes: ['CCS2'],
     operatingHours: '24/7',
     payOnSpotAvailable: true,
-    latitude: 9.9252,
-    longitude: 78.1198,
+    latitude: 9.8654,
+    longitude: 78.0163,
   },
   {
     id: 'st-2',
@@ -43,19 +45,19 @@ const mockStations: EVChargingStop[] = [
     connectorTypes: ['CCS2', 'Type 2 AC'],
     operatingHours: '6:00 AM - 11:00 PM',
     payOnSpotAvailable: true,
-    latitude: 10.7905,
-    longitude: 78.7047,
+    latitude: 10.7675,
+    longitude: 78.6558,
   },
   {
     id: 'st-3',
-    name: 'Villupuram Express Chargers',
-    distanceFromRoute: 2.0,
-    chargingSpeed: '30kW DC Fast',
+    name: 'Chengalpattu Highway Hub',
+    distanceFromRoute: 0.5,
+    chargingSpeed: '60kW DC Fast',
     connectorTypes: ['CCS2'],
     operatingHours: '24/7',
-    payOnSpotAvailable: false,
-    latitude: 11.9401,
-    longitude: 79.4861,
+    payOnSpotAvailable: true,
+    latitude: 12.6819,
+    longitude: 79.9754,
   },
 ];
 
@@ -69,5 +71,7 @@ export async function fetchEvRoute(from: string, to: string): Promise<EVRouteRes
     totalDistance: 705, // approx Nagercoil to Chennai
     estimatedTime: '11 hrs 45 mins',
     stops: mockStations,
+    startCoords: [8.1744, 77.4323], // Nagercoil NH
+    endCoords: [12.8798, 80.0888],  // Chennai GST Road
   };
 }

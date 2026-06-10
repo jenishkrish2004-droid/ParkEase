@@ -143,6 +143,7 @@ model User {
   role            UserRole   @default(USER)
   isOwner         Boolean    @default(false)
   ownerVerified   Boolean    @default(false)
+  isEvPartner     Boolean    @default(false)
   status          UserStatus         @default(ACTIVE)
   verificationStatus VerificationStatus @default(PENDING)
   isEmailVerified Boolean            @default(false)

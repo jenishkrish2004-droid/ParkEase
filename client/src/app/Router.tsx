@@ -22,18 +22,15 @@ const ParkingDetailsPage = lazy(() => import('@/features/search/ParkingDetailsPa
 const EVRoutePage        = lazy(() => import('@/features/search/EVRoutePage'));
 
 // Phase 4 Lazy Imports
+const SettingsPage       = lazy(() => import('@/features/settings/SettingsPage'));
 const ProfilePage        = lazy(() => import('@/features/user/ProfilePage'));
 const MyBookingsPage     = lazy(() => import('@/features/booking/MyBookingsPage'));
-const PaymentsPage       = lazy(() => import('@/features/payment/PaymentsPage'));
 const MyVehiclesPage     = lazy(() => import('@/features/vehicle/MyVehiclesPage'));
-const MyReviewsPage      = lazy(() => import('@/features/review/MyReviewsPage'));
 const VerificationPage   = lazy(() => import('@/features/verification/VerificationPage').then(module => ({ default: module.VerificationPage })));
 
 const OwnerOnboarding    = lazy(() => import('@/features/owner/OwnerOnboarding'));
 const OwnerDashboard     = lazy(() => import('@/features/owner/OwnerDashboard'));
 const OwnerListings      = lazy(() => import('@/features/owner/OwnerListings'));
-const OwnerBookings      = lazy(() => import('@/features/owner/OwnerBookings'));
-const OwnerEarnings      = lazy(() => import('@/features/owner/OwnerEarnings'));
 const EVPartnershipForm  = lazy(() => import('@/features/owner/EVPartnershipForm'));
 import { OwnerLayout }     from '@/components/layout/OwnerLayout';
 
@@ -211,6 +208,14 @@ const router = createBrowserRouter([
 
       // Phase 4: Shared Routes
       {
+        path: 'settings',
+        element: (
+          <ProtectedRoute>
+            <SettingsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: 'profile',
         element: (
           <ProtectedRoute>
@@ -237,26 +242,10 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: 'payments',
-        element: (
-          <ProtectedRoute>
-            <PaymentsPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
         path: 'vehicles',
         element: (
           <ProtectedRoute>
             <MyVehiclesPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'reviews',
-        element: (
-          <ProtectedRoute>
-            <MyReviewsPage />
           </ProtectedRoute>
         ),
       },
@@ -282,8 +271,6 @@ const router = createBrowserRouter([
           { path: 'dashboard', element: <OwnerDashboard /> },
           { path: 'ev-partnership', element: <EVPartnershipForm /> },
           { path: 'listings', element: <OwnerListings /> },
-          { path: 'bookings', element: <OwnerBookings /> },
-          { path: 'earnings', element: <OwnerEarnings /> },
           { path: 'listings/new', element: <UnderDevelopmentPage /> },
           { path: 'reports', element: <UnderDevelopmentPage /> },
         ],

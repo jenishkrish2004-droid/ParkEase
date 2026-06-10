@@ -14,6 +14,7 @@ export interface IUser {
   role: UserRole;
   isOwner: boolean;
   ownerVerified: boolean;
+  isEvPartner: boolean;
   status: UserStatus;
   verificationStatus: VerificationStatus;
   isEmailVerified: boolean;

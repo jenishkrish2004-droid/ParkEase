@@ -55,3 +55,39 @@ export function useParkEaseMode() {
 
   return [mode, setMode] as const;
 }
+
+export const EV_BUSINESS_MODE_KEY = 'ev_business_mode_enabled';
+export const EV_BUSINESS_MODE_EVENT = 'ev_business_mode_changed';
+
+function subscribeEv(callback: () => void) {
+  window.addEventListener('storage', callback);
+  window.addEventListener(EV_BUSINESS_MODE_EVENT, callback);
+  return () => {
+    window.removeEventListener('storage', callback);
+    window.removeEventListener(EV_BUSINESS_MODE_EVENT, callback);
+  };
+}
+
+function getEvSnapshot(): boolean {
+  // Default to true for EV partners, meaning they see EV Business by default
+  return localStorage.getItem(EV_BUSINESS_MODE_KEY) !== 'false';
+}
+
+function getServerEvSnapshot(): boolean {
+  return true;
+}
+
+export function commitEvBusinessModeSync(enabled: boolean) {
+  localStorage.setItem(EV_BUSINESS_MODE_KEY, enabled ? 'true' : 'false');
+  window.dispatchEvent(new Event(EV_BUSINESS_MODE_EVENT));
+}
+
+export function useEvBusinessMode() {
+  const enabled = useSyncExternalStore(subscribeEv, getEvSnapshot, getServerEvSnapshot);
+
+  const setEnabled = useCallback((newEnabled: boolean) => {
+    commitEvBusinessModeSync(newEnabled);
+  }, []);
+
+  return [enabled, setEnabled] as const;
+}
