@@ -32,10 +32,10 @@ export async function createParkingSpot(ownerUserId: string, data: CreateParking
       status: data.status || 'ACTIVE',
       // Store amenities and vehicleTypes properly
       amenities: data.amenities?.length ? {
-        create: data.amenities.map(a => ({ type: a as any }))
+        create: data.amenities.map(a => ({ amenity: a as any }))
       } : undefined,
       vehicleTypes: data.vehicleTypes?.length ? {
-        create: data.vehicleTypes.map(v => ({ type: v as any }))
+        create: data.vehicleTypes.map(v => ({ vehicleType: v as any }))
       } : undefined,
       images: data.image ? {
         create: [{
