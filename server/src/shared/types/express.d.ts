@@ -4,7 +4,7 @@
 // Extends Express Request to include authenticated user data.
 // ============================================================
 
-import { UserRole } from '@parkora/shared';
+import type { UserRole } from '../../../../shared/src/constants/roles';
 
 declare global {
   namespace Express {

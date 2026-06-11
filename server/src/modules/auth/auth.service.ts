@@ -13,7 +13,7 @@ import { env } from '../../config/env';
 import { AppError, UnauthorizedError } from '../../shared/errors';
 import type { RegisterInput, LoginInput } from './auth.schema';
 import type { JwtAccessPayload, JwtRefreshPayload, TokenPair } from './auth.types';
-import { UserRole } from '@parkora/shared';
+import type { UserRole } from '../../../../shared/src/constants/roles';
 
 // ── Constants ────────────────────────────────────────────────
 const BCRYPT_ROUNDS = 12;

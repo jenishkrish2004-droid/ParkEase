@@ -6,7 +6,7 @@
 // ============================================================
 
 import { Request, Response, NextFunction } from 'express';
-import { UserRole } from '@parkora/shared';
+import type { UserRole } from '../../../shared/src/constants/roles';
 import { ForbiddenError, UnauthorizedError } from '../shared/errors';
 
 /**

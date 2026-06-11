@@ -2,7 +2,7 @@
 // Pagination Utilities
 // ============================================================
 
-import type { IPaginationMeta, IPaginationQuery } from '@parkora/shared';
+import type { IPaginationMeta, IPaginationQuery } from '../../../../shared/src/types/api';
 
 export interface PaginationParams {
   skip: number;

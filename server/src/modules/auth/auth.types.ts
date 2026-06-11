@@ -2,7 +2,7 @@
 // Auth Module — Types
 // ============================================================
 
-import { UserRole } from '@parkora/shared';
+import type { UserRole } from '../../../../shared/src/constants/roles';
 
 /** JWT Access Token payload */
 export interface JwtAccessPayload {

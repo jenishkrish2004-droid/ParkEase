@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import * as verificationService from './verification.service';
-import { sendSuccess } from '@/shared/utils/response';
+import { sendSuccess } from '../../shared/utils/response';
 
 // schemas
 const sendOtpSchema = z.object({

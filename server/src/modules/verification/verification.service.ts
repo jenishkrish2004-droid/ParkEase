@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
-import { VerificationStatus } from '@parkora/shared';
+import { VerificationStatus } from '../../../../shared/src/constants/roles';
 import crypto from 'crypto';
-import { prisma } from '@/config/database';
-import { AppError } from '@/shared/errors/AppError';
+import { prisma } from '../../config/database';
+import { AppError } from '../../shared/errors/AppError';
 
 // Helper to generate a 6 digit OTP
 const generateOtp = () => {
