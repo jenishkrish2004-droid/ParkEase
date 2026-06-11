@@ -40,6 +40,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
               id={checkboxId}
               disabled={disabled}
               aria-invalid={hasError}
+              {...props}
               className={cn(
                 'peer appearance-none border-2 transition-all duration-150 cursor-pointer',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2',

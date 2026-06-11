@@ -1,5 +1,4 @@
 import { PageLayout } from '@/components/layout/PageLayout';
-import { Button } from '@/components/ui/Button';
 import { useNavigate } from 'react-router-dom';
 
 export default function OwnerOnboarding() {

@@ -10,7 +10,6 @@ import { type ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { FullPageSpinner } from '@/components/ui/Spinner';
-import type { UserRole } from '@parkora/shared';
 
 interface ProtectedRouteProps {
   children: ReactNode;

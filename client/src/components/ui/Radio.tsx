@@ -37,6 +37,7 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(
             type="radio"
             id={radioId}
             disabled={disabled}
+            {...props}
             className={cn(
               'peer appearance-none rounded-full border-2 transition-all duration-150 cursor-pointer',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2',

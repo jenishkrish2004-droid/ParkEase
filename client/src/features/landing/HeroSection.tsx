@@ -2,7 +2,7 @@
 // Landing Page — Hero Section (Premium Theme Support)
 // ============================================================
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { DatePickerPopup } from '@/components/ui/DatePickerPopup';
 import { useAuth } from '@/app/providers/AuthProvider';

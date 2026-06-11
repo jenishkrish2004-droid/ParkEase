@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/api-client';
-import type { IParkingSpot, IParkingSpotDetail } from '@parkora/shared';
+import type { IParkingSpotDetail } from '@parkora/shared';
 
 export const createParkingSpot = async (data: any): Promise<IParkingSpotDetail> => {
   const response = await apiClient.post('/parking-spots', data);

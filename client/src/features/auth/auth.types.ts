@@ -40,8 +40,8 @@ export interface VerifyRegistrationPayload {
 }
 
 export interface LoginPayload {
-  email:    string;
-  password: string;
+  identifier: string;
+  password:   string;
 }
 
 export interface AuthContextValue {

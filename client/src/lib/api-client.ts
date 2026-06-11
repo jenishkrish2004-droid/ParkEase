@@ -11,7 +11,6 @@ import {
   getAccessToken,
   getRefreshToken,
   setTokens,
-  setAccessToken,
   clearTokens,
 } from './token';
 

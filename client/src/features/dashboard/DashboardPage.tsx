@@ -7,7 +7,6 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/app/providers/AuthProvider';
-import { cn } from '@/lib/utils';
 import { VerificationBadge } from '@/features/user/VerificationBadge';
 import { Link, useNavigate } from 'react-router-dom';
 import { getUserDashboardMetrics } from './dashboard.service';
@@ -178,4 +177,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-

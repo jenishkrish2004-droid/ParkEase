@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -64,8 +64,6 @@ function PasswordStrength({ password }: { password: string }) {
     good:   'bg-[#97b0ff]', // tertiary-container
     strong: 'bg-[#554300]', // on-primary-container
   };
-  const labels = { weak: 'Weak', fair: 'Fair', good: 'Good', strong: 'Strong' };
-
   if (!password) return null;
 
   return (
@@ -108,6 +106,7 @@ function PasswordStrength({ password }: { password: string }) {
 }
 
 export default function RegisterPage() {
+  const location = useLocation();
   const { register: registerUser, verifyRegistration } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);

@@ -1,11 +1,11 @@
 // ============================================================
 // Card Component
 // ============================================================
-import React, { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, type ElementType, type HTMLAttributes, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 // ── Card ────────────────────────────────────────────────────
-export interface CardProps extends HTMLAttributes<HTMLDivElement> {
+export interface CardProps extends HTMLAttributes<HTMLElement> {
   variant?: 'default' | 'elevated' | 'flat' | 'bordered';
   padding?: 'none' | 'sm' | 'md' | 'lg';
   interactive?: boolean;
@@ -26,7 +26,7 @@ const paddingStyles = {
   lg:   'p-6 md:p-8',
 };
 
-export const Card = forwardRef<HTMLDivElement, CardProps>(
+export const Card = forwardRef<HTMLElement, CardProps>(
   (
     {
       variant = 'default',
@@ -40,10 +40,12 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     },
     ref,
   ) => {
+    const Component = Tag as ElementType;
+
     return (
-      <Tag
+      <Component
         ref={ref as any}
-        onClick={onClick as any}
+        onClick={onClick}
         className={cn(
           'rounded-xl overflow-hidden',
           variantStyles[variant],
@@ -60,7 +62,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         {...props}
       >
         {children}
-      </Tag>
+      </Component>
     );
   },
 );

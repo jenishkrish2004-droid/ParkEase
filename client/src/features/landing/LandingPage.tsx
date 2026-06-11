@@ -1,7 +1,6 @@
 // ============================================================
 // Landing Page — Root Component
 // ============================================================
-import { useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { HeroSection } from './HeroSection';
 import { StatsSection, FeaturesSection } from './FeaturesSection';

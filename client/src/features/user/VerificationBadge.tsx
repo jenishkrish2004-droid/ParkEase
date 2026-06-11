@@ -13,7 +13,7 @@ export function VerificationBadge({ status }: { status?: VerificationStatus }) {
     return <Badge variant="success">Verified</Badge>;
   }
   if (status === 'REJECTED') {
-    return <Badge variant="error">Verification Rejected</Badge>;
+    return <Badge variant="danger">Verification Rejected</Badge>;
   }
   return null;
 }
